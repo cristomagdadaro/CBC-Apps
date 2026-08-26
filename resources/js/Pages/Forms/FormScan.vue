@@ -256,18 +256,18 @@ export default {
                         <div class="flex w-full flex-col gap-4 md:flex-row md:items-end">
                             <!-- Event ID Input -->
                             <div>
-                                <label class="mb-2 block text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Event ID</label>
+                                <label class="mb-2 block text-[0.65rem] font-bold uppercase text-slate-500 dark:text-slate-400">Event ID</label>
                                 <input
                                     v-model="eventId"
                                     type="number"
                                     maxlength="4"
-                                    class="ext-lg block rounded-xl border border-slate-300 bg-white py-1.5 font-black tracking-widest text-slate-900 shadow-sm transition-all focus:border-transparent focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
+                                    class="ext-lg block rounded-xl border border-slate-300 bg-white py-1.5 font-black text-slate-900 shadow-sm transition-all focus:border-transparent focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
                                     placeholder="0000" />
                             </div>
 
                             <!-- Scan Type Input -->
                             <div class="flex-1 md:max-w-xs">
-                                <label class="mb-2 block text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Scan Type</label>
+                                <label class="mb-2 block text-[0.65rem] font-bold uppercase text-slate-500 dark:text-slate-400">Scan Type</label>
                                 <custom-dropdown
                                     required
                                     :value="scanType"
@@ -331,7 +331,7 @@ export default {
                                     :is="statusIcon"
                                     class="mt-1 h-8 w-8 shrink-0 opacity-90" />
                                 <div>
-                                    <p class="mb-1 text-[0.65rem] font-bold uppercase tracking-widest opacity-70">Current Status</p>
+                                    <p class="mb-1 text-[0.65rem] font-bold uppercase opacity-70">Current Status</p>
                                     <p class="text-xl font-black leading-tight tracking-tight">
                                         {{ statusMessage }}
                                     </p>
@@ -346,7 +346,7 @@ export default {
 
                         <!-- Last Scan ID Card -->
                         <div class="flex-1 rounded-2xl border border-slate-200 bg-slate-50/80 p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800/40">
-                            <p class="mb-4 text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Last Scanned Profile</p>
+                            <p class="mb-4 text-[0.65rem] font-bold uppercase text-slate-500 dark:text-slate-400">Last Scanned Profile</p>
 
                             <div
                                 v-if="lastScan?.registration?.name"
@@ -367,7 +367,7 @@ export default {
                                         class="mt-2.5 inline-flex items-center gap-1.5 rounded-md border border-slate-200 bg-white px-2 py-1 shadow-sm dark:border-slate-700 dark:bg-slate-900"
                                         v-if="lastScan?.registration?.id">
                                         <LuHash class="h-3 w-3 text-slate-400" />
-                                        <span class="text-[0.65rem] font-bold uppercase tracking-widest text-slate-600 dark:text-slate-300">
+                                        <span class="text-[0.65rem] font-bold uppercase text-slate-600 dark:text-slate-300">
                                             {{ lastScan.registration.id }}
                                         </span>
                                     </div>
@@ -397,7 +397,7 @@ export default {
                         <p class="text-sm font-medium text-slate-500 dark:text-slate-400">Search participants and filter by scan type</p>
                     </div>
                     <div class="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-100 px-3 py-1.5 dark:border-slate-700 dark:bg-slate-800">
-                        <span class="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Showing</span>
+                        <span class="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">Showing</span>
                         <span class="text-sm font-black text-indigo-600 dark:text-indigo-400">
                             {{ filteredRecentScans.length }}
                             <span class="mx-0.5 font-medium text-slate-400">/</span>

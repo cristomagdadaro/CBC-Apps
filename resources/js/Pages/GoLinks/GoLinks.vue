@@ -55,7 +55,7 @@ export default {
                     </template>
                     <template #cell-status="{ value }">
                         <span
-                            class="inline-flex items-center rounded-md px-2 py-0.5 text-[0.6rem] font-bold uppercase tracking-widest shadow-sm"
+                            class="inline-flex items-center rounded-md px-2 py-0.5 text-[0.6rem] font-bold uppercase shadow-sm"
                             :class="value ? 'border border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-400' : 'border border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-400'">
                             {{ value ? "Active" : "Inactive" }}
                         </span>

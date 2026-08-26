@@ -50,7 +50,7 @@ export default {
             </ul>
             <!-- Core Modules -->
             <div class="space-y-3">
-                <h3 class="ml-1 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                <h3 class="ml-1 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">
                     <LuBlocks class="h-3.5 w-3.5" />
                     Core Modules & Features
                 </h3>
@@ -107,7 +107,7 @@ export default {
 
             <!-- How to Use -->
             <div class="space-y-3">
-                <h3 class="ml-1 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                <h3 class="ml-1 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">
                     <LuMousePointerClick class="h-3.5 w-3.5" />
                     Navigation & Usage
                 </h3>
@@ -140,7 +140,7 @@ export default {
             <!-- Footer Info -->
             <div class="flex flex-col justify-between gap-6 border-t border-slate-100 pt-5 md:flex-row dark:border-slate-800/60">
                 <div>
-                    <h3 class="mb-2.5 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                    <h3 class="mb-2.5 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">
                         <LuMap class="h-3.5 w-3.5" />
                         Quick Areas
                     </h3>
@@ -156,7 +156,7 @@ export default {
                 </div>
 
                 <div>
-                    <h3 class="mb-2.5 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                    <h3 class="mb-2.5 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">
                         <LuLayers class="h-3.5 w-3.5" />
                         Tech Stack
                     </h3>

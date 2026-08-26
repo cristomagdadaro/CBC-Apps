@@ -22,10 +22,10 @@ export default {
         icon="LuWrench">
         <!-- For Non-Programmers -->
         <div class="space-y-4">
-            <h3 class="ml-1 text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">For Non-Programmers (Requestors & Administrators)</h3>
+            <h3 class="ml-1 text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">For Non-Programmers (Requestors & Administrators)</h3>
 
             <div class="rounded-xl border border-sky-100 bg-sky-50/50 p-5 shadow-sm dark:border-sky-500/20 dark:bg-sky-500/5">
-                <h4 class="mb-4 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-sky-600 dark:text-sky-400">
+                <h4 class="mb-4 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-sky-600 dark:text-sky-400">
                     <LuListPlus class="h-3.5 w-3.5" />
                     How to Submit a Request
                 </h4>
@@ -68,7 +68,7 @@ export default {
             <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <!-- Request Status -->
                 <div class="rounded-xl border border-emerald-100 bg-emerald-50/50 p-5 shadow-sm dark:border-emerald-500/20 dark:bg-emerald-500/5">
-                    <h4 class="mb-3 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
+                    <h4 class="mb-3 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-emerald-600 dark:text-emerald-400">
                         <LuActivity class="h-3.5 w-3.5" />
                         Request Status & Tracking
                     </h4>
@@ -99,7 +99,7 @@ export default {
 
                 <!-- Admin Workflow -->
                 <div class="rounded-xl border border-amber-100 bg-amber-50/50 p-5 shadow-sm dark:border-amber-500/20 dark:bg-amber-500/5">
-                    <h4 class="mb-3 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-amber-600 dark:text-amber-400">
+                    <h4 class="mb-3 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-amber-600 dark:text-amber-400">
                         <LuShieldCheck class="h-3.5 w-3.5" />
                         Administrator Workflow
                     </h4>
@@ -124,12 +124,12 @@ export default {
             v-if="showDeveloperSections"
             class="space-y-6 border-t border-slate-100 pt-6 dark:border-slate-800/60">
             <div class="mb-4 ml-1">
-                <h3 class="mb-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">For Programmers (Customization)</h3>
+                <h3 class="mb-1.5 text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">For Programmers (Customization)</h3>
                 <p class="text-xs font-medium leading-relaxed text-slate-500 dark:text-slate-400">The FES Request Form is built on a flexible form system. Modifications require changes to both the request model/validation and the Vue component.</p>
             </div>
 
             <div class="rounded-xl border border-slate-200/60 bg-slate-50/50 p-5 shadow-sm dark:border-slate-700/60 dark:bg-slate-800/30">
-                <h4 class="mb-4 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-slate-600 dark:text-slate-300">
+                <h4 class="mb-4 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-slate-600 dark:text-slate-300">
                     <LuDatabase class="h-3.5 w-3.5" />
                     Form Structure Overview
                 </h4>
@@ -158,7 +158,7 @@ export default {
 
             <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div class="rounded-xl border border-purple-100 bg-purple-50/50 p-5 shadow-sm dark:border-purple-500/20 dark:bg-purple-500/5">
-                    <h4 class="mb-3 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-purple-600 dark:text-purple-400">
+                    <h4 class="mb-3 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-purple-600 dark:text-purple-400">
                         <LuPlusCircle class="h-3.5 w-3.5" />
                         Step 1: Add a New Field
                     </h4>
@@ -191,7 +191,7 @@ export default {
                 </div>
 
                 <div class="rounded-xl border border-pink-100 bg-pink-50/50 p-5 shadow-sm dark:border-pink-500/20 dark:bg-pink-500/5">
-                    <h4 class="mb-3 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-pink-600 dark:text-pink-400">
+                    <h4 class="mb-3 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-pink-600 dark:text-pink-400">
                         <LuSettings2 class="h-3.5 w-3.5" />
                         Step 2: Modify Types
                     </h4>
@@ -216,7 +216,7 @@ export default {
                 </div>
 
                 <div class="rounded-xl border border-orange-100 bg-orange-50/50 p-5 shadow-sm dark:border-orange-500/20 dark:bg-orange-500/5">
-                    <h4 class="mb-3 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-orange-600 dark:text-orange-400">
+                    <h4 class="mb-3 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-orange-600 dark:text-orange-400">
                         <LuGitMerge class="h-3.5 w-3.5" />
                         Step 3: Workflows
                     </h4>
@@ -249,7 +249,7 @@ export default {
                 </div>
 
                 <div class="rounded-xl border border-rose-100 bg-rose-50/50 p-5 shadow-sm dark:border-rose-500/20 dark:bg-rose-500/5">
-                    <h4 class="mb-3 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-rose-600 dark:text-rose-400">
+                    <h4 class="mb-3 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-rose-600 dark:text-rose-400">
                         <LuFileText class="h-3.5 w-3.5" />
                         Step 4: Modify Clauses
                     </h4>
@@ -277,13 +277,13 @@ export default {
             <!-- Key Files & Common Tasks -->
             <div class="grid grid-cols-1 gap-6 pt-4 lg:grid-cols-2">
                 <div class="rounded-xl border border-slate-200/60 bg-slate-50/50 p-5 shadow-sm dark:border-slate-700/60 dark:bg-slate-800/30">
-                    <h3 class="mb-4 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                    <h3 class="mb-4 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">
                         <LuFolderTree class="h-3.5 w-3.5" />
                         Quick Reference Files
                     </h3>
                     <div class="space-y-4">
                         <div>
-                            <p class="mb-2 text-[0.6rem] font-bold uppercase tracking-widest text-slate-400">Backend</p>
+                            <p class="mb-2 text-[0.6rem] font-bold uppercase text-slate-400">Backend</p>
                             <ul class="ml-1 space-y-2 text-xs font-medium text-slate-600 dark:text-slate-400">
                                 <li>
                                     <code class="mr-1.5 rounded border border-slate-200 bg-white px-1.5 py-0.5 font-mono text-[0.6rem] text-indigo-500 shadow-sm dark:border-slate-700 dark:bg-slate-800">RequestFormPivot.php</code>
@@ -300,7 +300,7 @@ export default {
                             </ul>
                         </div>
                         <div class="border-t border-slate-200/60 pt-2 dark:border-slate-700/60">
-                            <p class="mb-2 text-[0.6rem] font-bold uppercase tracking-widest text-slate-400">Frontend</p>
+                            <p class="mb-2 text-[0.6rem] font-bold uppercase text-slate-400">Frontend</p>
                             <ul class="ml-1 space-y-2 text-xs font-medium text-slate-600 dark:text-slate-400">
                                 <li>
                                     <code class="mr-1.5 break-all rounded border border-slate-200 bg-white px-1.5 py-0.5 font-mono text-[0.6rem] text-emerald-500 shadow-sm dark:border-slate-700 dark:bg-slate-800">UseRequestFormGuest.vue</code>
@@ -320,7 +320,7 @@ export default {
                 </div>
 
                 <div class="rounded-xl border border-indigo-100 bg-indigo-50/50 p-5 shadow-sm dark:border-indigo-500/20 dark:bg-indigo-500/5">
-                    <h3 class="mb-4 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-indigo-600 dark:text-indigo-400">
+                    <h3 class="mb-4 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-indigo-600 dark:text-indigo-400">
                         <LuCheckSquare class="h-3.5 w-3.5" />
                         Common Tasks
                     </h3>

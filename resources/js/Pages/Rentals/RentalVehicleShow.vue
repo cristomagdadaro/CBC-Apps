@@ -236,7 +236,7 @@ export default {
                                     <div class="mt-0.5 h-2 w-2 rounded-full bg-blue-600 dark:bg-blue-400"></div>
                                     <div>
                                         <p class="text-xs text-slate-500 dark:text-slate-400">Booking Reference</p>
-                                        <p class="font-mono text-sm font-bold tracking-widest text-blue-700 sm:text-base dark:text-blue-300">
+                                        <p class="font-mono text-sm font-bold text-blue-700 sm:text-base dark:text-blue-300">
                                             {{ rental.booking_id || "NULL" }}
                                         </p>
                                     </div>

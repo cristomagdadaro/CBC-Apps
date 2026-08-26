@@ -75,21 +75,21 @@ export default {
             <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <!-- Target Calendar -->
                 <div class="rounded-xl border border-sky-100 bg-sky-50/50 p-5 shadow-sm dark:border-sky-500/20 dark:bg-sky-500/5">
-                    <h3 class="mb-4 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-sky-600 dark:text-sky-400">
+                    <h3 class="mb-4 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-sky-600 dark:text-sky-400">
                         <LuTarget class="h-3.5 w-3.5" />
                         Target Google Calendar
                     </h3>
                     <ul class="space-y-3.5 text-xs font-medium text-slate-700 dark:text-slate-300">
                         <li>
-                            <span class="mb-1 block text-[0.6rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Google Account</span>
+                            <span class="mb-1 block text-[0.6rem] font-bold uppercase text-slate-500 dark:text-slate-400">Google Account</span>
                             <code class="rounded-md border border-slate-200 bg-white px-1.5 py-0.5 font-mono text-[0.65rem] font-semibold text-sky-600 shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-sky-400">pin.dacbc@gmail.com</code>
                         </li>
                         <li>
-                            <span class="mb-1 block text-[0.6rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Calendar Name</span>
+                            <span class="mb-1 block text-[0.6rem] font-bold uppercase text-slate-500 dark:text-slate-400">Calendar Name</span>
                             <code class="rounded-md border border-slate-200 bg-white px-1.5 py-0.5 font-mono text-[0.65rem] font-semibold text-sky-600 shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-sky-400">OneCBC Sync Calendar</code>
                         </li>
                         <li>
-                            <span class="mb-1 block text-[0.6rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Calendar ID</span>
+                            <span class="mb-1 block text-[0.6rem] font-bold uppercase text-slate-500 dark:text-slate-400">Calendar ID</span>
                             <code class="break-all rounded-md border border-slate-200 bg-white px-1.5 py-0.5 font-mono text-[0.65rem] font-semibold text-sky-600 shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-sky-400">c1de7bfb8167a0d020d2826b715617d06b7d12c561dd42b4bb359e57f206876f@group.calendar.google.com</code>
                         </li>
                     </ul>
@@ -98,7 +98,7 @@ export default {
                 <div class="space-y-6">
                     <!-- Integration Purpose -->
                     <div class="rounded-xl border border-emerald-100 bg-emerald-50/50 p-5 shadow-sm dark:border-emerald-500/20 dark:bg-emerald-500/5">
-                        <h3 class="mb-3.5 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
+                        <h3 class="mb-3.5 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-emerald-600 dark:text-emerald-400">
                             <LuListChecks class="h-3.5 w-3.5" />
                             What this integration does
                         </h3>
@@ -128,7 +128,7 @@ export default {
 
                     <!-- Access Model -->
                     <div class="rounded-xl border border-purple-100 bg-purple-50/50 p-5 shadow-sm dark:border-purple-500/20 dark:bg-purple-500/5">
-                        <h3 class="mb-3.5 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-purple-600 dark:text-purple-400">
+                        <h3 class="mb-3.5 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-purple-600 dark:text-purple-400">
                             <LuShieldCheck class="h-3.5 w-3.5" />
                             Current Access Model
                         </h3>
@@ -163,7 +163,7 @@ export default {
                 <!-- Step 1 & 4 (Process) -->
                 <div class="space-y-6">
                     <div class="rounded-xl border border-slate-200/60 bg-slate-50/50 p-5 shadow-sm dark:border-slate-700/60 dark:bg-slate-800/30">
-                        <h4 class="mb-3 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-slate-600 dark:text-slate-300">
+                        <h4 class="mb-3 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-slate-600 dark:text-slate-300">
                             <LuCalendarDays class="h-3.5 w-3.5" />
                             Step 1: Prepare Google Calendar
                         </h4>
@@ -188,7 +188,7 @@ export default {
                     </div>
 
                     <div class="rounded-xl border border-amber-100 bg-amber-50/50 p-5 shadow-sm dark:border-amber-500/20 dark:bg-amber-500/5">
-                        <h4 class="mb-3 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-amber-600 dark:text-amber-400">
+                        <h4 class="mb-3 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-amber-600 dark:text-amber-400">
                             <LuKey class="h-3.5 w-3.5" />
                             Step 4: Share the Calendar
                         </h4>
@@ -227,7 +227,7 @@ export default {
                 <!-- Step 2 & 3 (Code/Config) -->
                 <div class="space-y-6">
                     <div class="space-y-2">
-                        <h4 class="ml-1 text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Step 2: Configure Environment</h4>
+                        <h4 class="ml-1 text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">Step 2: Configure Environment</h4>
                         <div class="overflow-hidden rounded-xl border border-slate-200 bg-[#1e1e1e] shadow-inner dark:border-[#2d2d2d]">
                             <div class="flex items-center border-b border-[#1e1e1e] bg-[#2d2d2d] px-4 py-2.5">
                                 <div class="flex gap-1.5">
@@ -253,7 +253,7 @@ export default {
                     </div>
 
                     <div class="space-y-2">
-                        <h4 class="ml-1 text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Step 3: Configure Google OAuth Client</h4>
+                        <h4 class="ml-1 text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">Step 3: Configure Google OAuth Client</h4>
                         <ol class="mb-3 ml-1 list-inside list-decimal space-y-1.5 text-xs font-medium text-slate-600 dark:text-slate-300">
                             <li>Enable the Google Calendar API in Google Cloud.</li>
                             <li>
@@ -291,7 +291,7 @@ export default {
             class="space-y-6">
             <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <div class="rounded-xl border border-indigo-100 bg-indigo-50/50 p-5 shadow-sm dark:border-indigo-500/20 dark:bg-indigo-500/10">
-                    <h4 class="mb-3 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-indigo-600 dark:text-indigo-400">
+                    <h4 class="mb-3 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-indigo-600 dark:text-indigo-400">
                         <LuLinkIcon class="h-3.5 w-3.5" />
                         1. Connect Google Calendar
                     </h4>
@@ -313,7 +313,7 @@ export default {
                 </div>
 
                 <div class="rounded-xl border border-emerald-100 bg-emerald-50/50 p-5 shadow-sm dark:border-emerald-500/20 dark:bg-emerald-500/10">
-                    <h4 class="mb-3 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
+                    <h4 class="mb-3 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-emerald-600 dark:text-emerald-400">
                         <LuSettings2 class="h-3.5 w-3.5" />
                         2. Sync Actions
                     </h4>
@@ -350,7 +350,7 @@ export default {
                 </div>
 
                 <div class="rounded-xl border border-slate-200/60 bg-slate-50/50 p-5 shadow-sm md:col-span-2 dark:border-slate-700/60 dark:bg-slate-800/30">
-                    <h4 class="mb-3 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                    <h4 class="mb-3 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">
                         <LuCheckSquare class="h-3.5 w-3.5" />
                         Recommended Workflow
                     </h4>
@@ -386,7 +386,7 @@ export default {
             class="space-y-6">
             <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <div class="rounded-xl border border-slate-200/60 bg-slate-50/50 p-5 shadow-sm dark:border-slate-700/60 dark:bg-slate-800/30">
-                    <h4 class="mb-3.5 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                    <h4 class="mb-3.5 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">
                         <LuGlobe class="h-3.5 w-3.5" />
                         Allow Public Viewing
                     </h4>
@@ -411,7 +411,7 @@ export default {
                 </div>
 
                 <div class="rounded-xl border border-slate-200/60 bg-slate-50/50 p-5 shadow-sm dark:border-slate-700/60 dark:bg-slate-800/30">
-                    <h4 class="mb-3.5 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                    <h4 class="mb-3.5 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">
                         <LuCalendarDays class="h-3.5 w-3.5" />
                         How Users Subscribe
                     </h4>
@@ -454,7 +454,7 @@ export default {
             class="space-y-6">
             <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <div class="space-y-4">
-                    <h4 class="ml-1 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                    <h4 class="ml-1 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">
                         <LuServerCrash class="h-3.5 w-3.5" />
                         Common Issues
                     </h4>
@@ -480,7 +480,7 @@ export default {
                 </div>
 
                 <div class="h-fit rounded-xl border border-slate-200/60 bg-slate-50/50 p-5 shadow-sm dark:border-slate-700/60 dark:bg-slate-800/30">
-                    <h4 class="mb-4 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                    <h4 class="mb-4 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">
                         <LuCheckSquare class="h-3.5 w-3.5" />
                         Quick Checklist
                     </h4>

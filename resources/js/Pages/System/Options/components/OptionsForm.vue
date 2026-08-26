@@ -235,7 +235,7 @@ export default {
         <div class="rounded-xl border border-slate-200/60 bg-slate-50/50 p-5 shadow-sm dark:border-slate-700/60 dark:bg-slate-800/30">
             <label
                 for="value"
-                class="mb-3 block flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                class="mb-3 block flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">
                 <Settings2 class="h-3.5 w-3.5" />
                 Value
                 <span class="ml-0.5 text-rose-500">*</span>
@@ -266,7 +266,7 @@ export default {
             class="rounded-xl border border-indigo-100 bg-indigo-50/50 p-5 shadow-sm dark:border-indigo-500/20 dark:bg-indigo-500/5">
             <label
                 for="options-metadata"
-                class="mb-3 block flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-indigo-600 dark:text-indigo-400">
+                class="mb-3 block flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-indigo-600 dark:text-indigo-400">
                 <ListPlus class="h-3.5 w-3.5" />
                 Select Choices
             </label>

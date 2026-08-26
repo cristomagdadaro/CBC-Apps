@@ -208,7 +208,7 @@ export default {
             <!-- Right: Actions & Status -->
             <div class="mt-2 flex w-full shrink-0 flex-row items-center justify-between gap-2.5 sm:mt-0 sm:w-auto sm:flex-col sm:items-end sm:justify-start">
                 <span
-                    class="inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-bold uppercase tracking-widest shadow-sm"
+                    class="inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-bold uppercase shadow-sm"
                     :class="statusConfig.badge">
                     <component
                         :is="statusConfig.icon"
@@ -217,7 +217,7 @@ export default {
                 </span>
 
                 <div class="flex flex-col items-end gap-0.5 text-right">
-                    <span class="flex items-center gap-1 text-[0.65rem] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
+                    <span class="flex items-center gap-1 text-[0.65rem] font-bold uppercase text-slate-400 dark:text-slate-500">
                         {{ formatDate(formsData.updated_at) }}
                     </span>
                     <span
@@ -230,7 +230,7 @@ export default {
             </div>
 
             <!-- Hover Prompt (Desktop only) -->
-            <div class="absolute bottom-4 right-5 hidden translate-x-2 transform items-center text-[0.65rem] font-bold uppercase tracking-widest text-slate-400 opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100 sm:flex dark:text-slate-500">
+            <div class="absolute bottom-4 right-5 hidden translate-x-2 transform items-center text-[0.65rem] font-bold uppercase text-slate-400 opacity-0 transition-all duration-300 group-hover:translate-x-0 group-hover:opacity-100 sm:flex dark:text-slate-500">
                 Review
                 <ChevronRight class="ml-0.5 h-3.5 w-3.5" />
             </div>
@@ -252,7 +252,7 @@ export default {
                     </div>
                     <div>
                         <h3 class="text-xl font-black leading-none tracking-tight text-slate-900 dark:text-white">Request Details</h3>
-                        <p class="mt-1.5 text-xs font-bold uppercase tracking-widest text-slate-400">
+                        <p class="mt-1.5 text-xs font-bold uppercase text-slate-400">
                             {{ formsData.id }}
                         </p>
                     </div>
@@ -268,7 +268,7 @@ export default {
             <div class="custom-scrollbar max-h-[75vh] space-y-8 overflow-y-auto bg-slate-50/50 p-6 dark:bg-slate-900/50">
                 <!-- Status Timeline -->
                 <div class="space-y-4">
-                    <h4 class="flex items-center gap-2 text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                    <h4 class="flex items-center gap-2 text-[0.65rem] font-bold uppercase text-slate-500 dark:text-slate-400">
                         <Clock class="h-4 w-4 text-indigo-500 dark:text-indigo-400" />
                         Request Timeline
                     </h4>
@@ -380,7 +380,7 @@ export default {
                 <!-- Requester & Schedule Info -->
                 <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                     <div class="space-y-4">
-                        <h4 class="flex items-center gap-2 text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                        <h4 class="flex items-center gap-2 text-[0.65rem] font-bold uppercase text-slate-500 dark:text-slate-400">
                             <User class="h-4 w-4 text-indigo-500 dark:text-indigo-400" />
                             Requester
                         </h4>
@@ -407,13 +407,13 @@ export default {
                     </div>
 
                     <div class="space-y-4">
-                        <h4 class="flex items-center gap-2 text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                        <h4 class="flex items-center gap-2 text-[0.65rem] font-bold uppercase text-slate-500 dark:text-slate-400">
                             <Clock class="h-4 w-4 text-indigo-500 dark:text-indigo-400" />
                             Schedule
                         </h4>
                         <div class="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
                             <div>
-                                <p class="mb-1 text-[0.65rem] font-bold uppercase tracking-widest text-slate-400">From</p>
+                                <p class="mb-1 text-[0.65rem] font-bold uppercase text-slate-400">From</p>
                                 <p class="text-sm font-bold text-slate-800 dark:text-slate-200">
                                     {{ formatDate(formsData.requestForm?.date_of_use) }}
                                     <span class="mx-1 text-slate-400">·</span>
@@ -425,7 +425,7 @@ export default {
                             <div
                                 v-if="formsData.requestForm?.date_of_use_end"
                                 class="border-t border-slate-100 pt-4 dark:border-slate-700/50">
-                                <p class="mb-1 text-[0.65rem] font-bold uppercase tracking-widest text-slate-400">To</p>
+                                <p class="mb-1 text-[0.65rem] font-bold uppercase text-slate-400">To</p>
                                 <p class="text-sm font-bold text-slate-800 dark:text-slate-200">
                                     {{ formatDate(formsData.requestForm?.date_of_use_end) }}
                                     <span class="mx-1 text-slate-400">·</span>
@@ -440,25 +440,25 @@ export default {
 
                 <!-- Project Info -->
                 <div class="space-y-4">
-                    <h4 class="flex items-center gap-2 text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                    <h4 class="flex items-center gap-2 text-[0.65rem] font-bold uppercase text-slate-500 dark:text-slate-400">
                         <Info class="h-4 w-4 text-indigo-500 dark:text-indigo-400" />
                         Other Information
                     </h4>
                     <div class="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
                         <div v-if="formsData.requestForm?.project_title">
-                            <span class="mb-1 block text-[0.65rem] font-bold uppercase tracking-widest text-slate-400">Project Title</span>
+                            <span class="mb-1 block text-[0.65rem] font-bold uppercase text-slate-400">Project Title</span>
                             <p class="text-sm font-medium text-slate-800 dark:text-slate-200">
                                 {{ displayText(formsData.requestForm?.project_title) }}
                             </p>
                         </div>
                         <div v-if="formsData.requestForm?.request_purpose">
-                            <span class="mb-1 block text-[0.65rem] font-bold uppercase tracking-widest text-slate-400">Purpose</span>
+                            <span class="mb-1 block text-[0.65rem] font-bold uppercase text-slate-400">Purpose</span>
                             <p class="text-sm font-medium text-slate-800 dark:text-slate-200">
                                 {{ displayText(formsData.requestForm?.request_purpose) }}
                             </p>
                         </div>
                         <div v-if="formsData.requestForm?.request_details">
-                            <span class="mb-1 block text-[0.65rem] font-bold uppercase tracking-widest text-slate-400">Details</span>
+                            <span class="mb-1 block text-[0.65rem] font-bold uppercase text-slate-400">Details</span>
                             <p class="whitespace-pre-wrap text-sm font-medium text-slate-800 dark:text-slate-200">
                                 {{ displayText(formsData.requestForm.request_details) }}
                             </p>
@@ -470,7 +470,7 @@ export default {
                 <div
                     v-if="hasItems"
                     class="space-y-4">
-                    <h4 class="flex items-center gap-2 text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                    <h4 class="flex items-center gap-2 text-[0.65rem] font-bold uppercase text-slate-500 dark:text-slate-400">
                         <Package class="h-4 w-4 text-indigo-500 dark:text-indigo-400" />
                         Requested Items
                     </h4>
@@ -484,7 +484,7 @@ export default {
                                 <Microscope class="h-5 w-5 text-purple-600 dark:text-purple-400" />
                             </div>
                             <div class="min-w-0 flex-1">
-                                <span class="text-xs font-bold uppercase tracking-widest text-purple-800 dark:text-purple-300">Laboratories</span>
+                                <span class="text-xs font-bold uppercase text-purple-800 dark:text-purple-300">Laboratories</span>
                                 <p class="mt-1 text-sm font-medium leading-relaxed text-purple-900 dark:text-purple-100">
                                     {{ formatItems(formsData.requestForm.laboratories_labels, formsData.requestForm.labs_to_use) }}
                                 </p>
@@ -499,7 +499,7 @@ export default {
                                 <FlaskConical class="h-5 w-5 text-blue-600 dark:text-blue-400" />
                             </div>
                             <div class="min-w-0 flex-1">
-                                <span class="text-xs font-bold uppercase tracking-widest text-blue-800 dark:text-blue-300">Equipment</span>
+                                <span class="text-xs font-bold uppercase text-blue-800 dark:text-blue-300">Equipment</span>
                                 <p class="mt-1 text-sm font-medium leading-relaxed text-blue-900 dark:text-blue-100">
                                     {{ formatItems(formsData.requestForm.equipments_labels, formsData.requestForm.equipments_to_use) }}
                                 </p>
@@ -514,7 +514,7 @@ export default {
                                 <Package class="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                             </div>
                             <div class="min-w-0 flex-1">
-                                <span class="text-xs font-bold uppercase tracking-widest text-emerald-800 dark:text-emerald-300">Consumables</span>
+                                <span class="text-xs font-bold uppercase text-emerald-800 dark:text-emerald-300">Consumables</span>
                                 <p class="mt-1 text-sm font-medium leading-relaxed text-emerald-900 dark:text-emerald-100">
                                     {{ formatItems(formsData.requestForm.consumables_labels, formsData.requestForm.consumables_to_use) }}
                                 </p>

@@ -238,7 +238,7 @@ export default {
         <!-- Actions Footer -->
         <div class="flex flex-col items-center justify-between gap-4 border-t border-slate-200 pt-4 sm:flex-row dark:border-slate-700">
             <!-- Left Info -->
-            <div class="flex flex-col items-center text-[0.65rem] font-bold uppercase tracking-widest text-slate-400 sm:items-start dark:text-slate-500">
+            <div class="flex flex-col items-center text-[0.65rem] font-bold uppercase text-slate-400 sm:items-start dark:text-slate-500">
                 <span
                     v-if="statusActorLabel"
                     class="mb-0.5 text-slate-600 dark:text-slate-300">
@@ -341,7 +341,7 @@ export default {
 
                 <span
                     v-if="isClosedState"
-                    class="rounded-xl border border-slate-200 bg-slate-100 px-4 py-2.5 text-[0.65rem] font-bold uppercase tracking-widest text-slate-400 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-500">
+                    class="rounded-xl border border-slate-200 bg-slate-100 px-4 py-2.5 text-[0.65rem] font-bold uppercase text-slate-400 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-500">
                     Workflow Completed
                 </span>
             </div>
@@ -378,7 +378,7 @@ export default {
                                 class="h-full rounded-full bg-blue-600 transition-all duration-300 ease-out dark:bg-blue-500"
                                 :style="{ width: `${Math.min(printProgress, 100)}%` }"></div>
                         </div>
-                        <p class="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                        <p class="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">
                             {{ printProgress < 100 ? "Rendering PDF..." : "Starting download..." }}
                         </p>
                     </div>

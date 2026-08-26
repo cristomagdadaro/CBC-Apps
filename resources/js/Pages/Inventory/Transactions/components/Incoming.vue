@@ -126,7 +126,7 @@ export default {
                                     <div class="rounded-lg bg-indigo-50 p-1.5 dark:bg-indigo-500/10">
                                         <Plus class="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
                                     </div>
-                                    <h3 class="text-xs font-semibold uppercase tracking-widest text-slate-800 dark:text-slate-200">New Item Entry</h3>
+                                    <h3 class="text-xs font-semibold uppercase text-slate-800 dark:text-slate-200">New Item Entry</h3>
                                 </div>
                                 <button
                                     @click="showNewItemForm = false"
@@ -150,7 +150,7 @@ export default {
                         <div class="flex items-center justify-between border-b border-slate-100 bg-slate-50/80 px-5 py-4 dark:border-slate-800 dark:bg-slate-800/40">
                             <div class="flex items-center gap-2.5">
                                 <Warehouse class="h-4 w-4 text-indigo-500 dark:text-indigo-400" />
-                                <h3 class="text-xs font-semibold uppercase tracking-widest text-slate-700 dark:text-slate-300">Storage Locations</h3>
+                                <h3 class="text-xs font-semibold uppercase text-slate-700 dark:text-slate-300">Storage Locations</h3>
                             </div>
                             <button
                                 @click="toggleStorageReference"
@@ -164,8 +164,8 @@ export default {
                             <table class="w-full text-sm">
                                 <thead class="sticky top-0 border-b border-slate-200 bg-slate-50 backdrop-blur-md dark:border-slate-700 dark:bg-slate-800/80">
                                     <tr>
-                                        <th class="w-24 px-5 py-3 text-left text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Room Code</th>
-                                        <th class="px-5 py-3 text-left text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Storage Facility</th>
+                                        <th class="w-24 px-5 py-3 text-left text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">Room Code</th>
+                                        <th class="px-5 py-3 text-left text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">Storage Facility</th>
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-slate-100 bg-white dark:divide-slate-800/60 dark:bg-slate-900/50">
@@ -192,7 +192,7 @@ export default {
                         </div>
 
                         <!-- Footer -->
-                        <div class="border-t border-slate-100 bg-slate-50 px-5 py-3 text-center text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:border-slate-800 dark:bg-slate-800/30 dark:text-slate-400">{{ storage_locations.length }} Locations Registered</div>
+                        <div class="border-t border-slate-100 bg-slate-50 px-5 py-3 text-center text-[0.65rem] font-semibold uppercase text-slate-500 dark:border-slate-800 dark:bg-slate-800/30 dark:text-slate-400">{{ storage_locations.length }} Locations Registered</div>
                     </div>
                 </transition-container>
             </div>

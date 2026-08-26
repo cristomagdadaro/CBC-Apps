@@ -292,7 +292,7 @@ export default {
                     <Car class="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
                 </div>
                 <div>
-                    <p class="mb-0.5 text-[0.65rem] font-bold uppercase tracking-widest text-indigo-600 dark:text-indigo-400">Booking</p>
+                    <p class="mb-0.5 text-[0.65rem] font-bold uppercase text-indigo-600 dark:text-indigo-400">Booking</p>
                     <h2 class="text-lg font-bold tracking-tight text-slate-900 dark:text-white">Vehicle Request</h2>
                 </div>
             </div>
@@ -353,7 +353,7 @@ export default {
                     <div
                         v-if="selectedTripTypeMeta"
                         class="shadow-xs rounded-xl border border-slate-200/60 bg-slate-50/50 p-4 dark:border-slate-700/60 dark:bg-slate-800/30">
-                        <p class="text-[0.65rem] font-bold uppercase tracking-widest text-indigo-600 dark:text-indigo-400">Selected Workflow</p>
+                        <p class="text-[0.65rem] font-bold uppercase text-indigo-600 dark:text-indigo-400">Selected Workflow</p>
                         <p class="mt-1 text-sm font-bold text-slate-900 dark:text-white">
                             {{ selectedTripTypeMeta.label }}
                         </p>
@@ -414,7 +414,7 @@ export default {
 
                 <!-- Destination Location -->
                 <div>
-                    <label class="mb-2 block text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Destination Location</label>
+                    <label class="mb-2 block text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">Destination Location</label>
                     <div class="grid grid-cols-1 gap-4">
                         <SelectRegion
                             v-model="form.destination_region"
@@ -504,7 +504,7 @@ export default {
 
                 <div class="shadow-xs space-y-4 rounded-xl border border-slate-200/60 bg-slate-50/50 p-5 dark:border-slate-700/60 dark:bg-slate-800/30">
                     <div class="flex items-center justify-between">
-                        <label class="text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Members of the Party (MOP)</label>
+                        <label class="text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">Members of the Party (MOP)</label>
                         <button
                             type="button"
                             class="inline-flex items-center gap-1 rounded-lg border border-dashed border-indigo-300 px-3 py-1.5 text-[0.65rem] font-bold uppercase tracking-wider text-indigo-600 transition-colors hover:bg-indigo-50 dark:border-indigo-500/50 dark:text-indigo-400 dark:hover:bg-indigo-500/10"
@@ -603,7 +603,7 @@ export default {
 
             <div
                 v-if="calendarLoading"
-                class="flex items-center justify-center gap-2 py-16 text-[0.65rem] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
+                class="flex items-center justify-center gap-2 py-16 text-[0.65rem] font-bold uppercase text-slate-400 dark:text-slate-500">
                 <Loader2 class="h-5 w-5 animate-spin text-indigo-500" />
                 Loading booking calendars...
             </div>

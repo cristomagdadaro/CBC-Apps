@@ -188,7 +188,7 @@ export default {
                         <UserCog class="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
                     </div>
                     <div>
-                        <p class="mb-1 text-[0.65rem] font-bold uppercase tracking-widest text-indigo-600 dark:text-indigo-400">Access Control</p>
+                        <p class="mb-1 text-[0.65rem] font-bold uppercase text-indigo-600 dark:text-indigo-400">Access Control</p>
                         <h2 class="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
                             {{ formTitle }}
                         </h2>
@@ -202,7 +202,7 @@ export default {
                     <span
                         v-for="chip in statusChips"
                         :key="chip.label"
-                        class="inline-flex items-center rounded-md border px-2.5 py-1 text-[0.6rem] font-bold uppercase tracking-widest shadow-sm"
+                        class="inline-flex items-center rounded-md border px-2.5 py-1 text-[0.6rem] font-bold uppercase shadow-sm"
                         :class="chip.tone">
                         {{ chip.label }}
                     </span>
@@ -211,7 +211,7 @@ export default {
 
             <!-- Details Section -->
             <div class="space-y-4">
-                <h3 class="flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                <h3 class="flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">
                     <UserCircle class="h-3.5 w-3.5" />
                     Account Details
                 </h3>
@@ -284,7 +284,7 @@ export default {
             <div class="grid gap-6 xl:grid-cols-2">
                 <!-- Roles -->
                 <div class="space-y-4">
-                    <h3 class="flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
+                    <h3 class="flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-emerald-600 dark:text-emerald-400">
                         <ShieldCheck class="h-3.5 w-3.5" />
                         Role Assignments
                     </h3>
@@ -306,7 +306,7 @@ export default {
                                     <span class="block text-sm font-bold text-slate-900 dark:text-white">
                                         {{ role.label }}
                                     </span>
-                                    <span class="mt-0.5 block text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                                    <span class="mt-0.5 block text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">
                                         {{ role.value }}
                                     </span>
                                 </div>
@@ -317,7 +317,7 @@ export default {
 
                 <!-- Direct Permissions -->
                 <div class="space-y-4">
-                    <h3 class="flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-indigo-600 dark:text-indigo-400">
+                    <h3 class="flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-indigo-600 dark:text-indigo-400">
                         <Key class="h-3.5 w-3.5" />
                         Direct Permissions
                     </h3>
@@ -336,7 +336,7 @@ export default {
                                     <h4 class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white">
                                         {{ group.label }}
                                     </h4>
-                                    <span class="rounded-md bg-slate-100 px-2 py-0.5 text-[0.6rem] font-bold uppercase tracking-widest text-slate-400 dark:bg-slate-800 dark:text-slate-500">{{ group.permissions.length }} perm{{ group.permissions.length === 1 ? "" : "s" }}</span>
+                                    <span class="rounded-md bg-slate-100 px-2 py-0.5 text-[0.6rem] font-bold uppercase text-slate-400 dark:bg-slate-800 dark:text-slate-500">{{ group.permissions.length }} perm{{ group.permissions.length === 1 ? "" : "s" }}</span>
                                 </div>
 
                                 <div class="space-y-2.5">
@@ -353,7 +353,7 @@ export default {
                                             <span class="block text-[0.8rem] font-bold text-slate-800 dark:text-slate-200">
                                                 {{ permission.label }}
                                             </span>
-                                            <span class="mt-0.5 block text-[0.6rem] font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500">
+                                            <span class="mt-0.5 block text-[0.6rem] font-semibold uppercase text-slate-400 dark:text-slate-500">
                                                 {{ permission.value }}
                                             </span>
                                         </div>

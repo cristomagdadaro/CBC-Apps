@@ -291,7 +291,7 @@ export default {
                                 <!-- Title & ID -->
                                 <div class="flex flex-col gap-5 sm:flex-row">
                                     <div class="flex-1">
-                                        <label class="mb-2 block text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Form Title</label>
+                                        <label class="mb-2 block text-[0.65rem] font-bold uppercase text-slate-500 dark:text-slate-400">Form Title</label>
                                         <text-input
                                             placeholder="Enter form title"
                                             v-model="form.title"
@@ -299,8 +299,8 @@ export default {
                                             class="w-full text-base font-medium" />
                                     </div>
                                     <div class="w-full flex-shrink-0 sm:w-28">
-                                        <label class="mb-2 block text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Event ID</label>
-                                        <div class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-center font-black tracking-widest text-slate-700 shadow-inner dark:border-slate-700 dark:bg-slate-800/50 dark:text-slate-300">
+                                        <label class="mb-2 block text-[0.65rem] font-bold uppercase text-slate-500 dark:text-slate-400">Event ID</label>
+                                        <div class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-center font-black text-slate-700 shadow-inner dark:border-slate-700 dark:bg-slate-800/50 dark:text-slate-300">
                                             {{ form.event_id || "—" }}
                                         </div>
                                     </div>
@@ -308,7 +308,7 @@ export default {
 
                                 <!-- Description -->
                                 <div>
-                                    <label class="mb-2 block text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Description</label>
+                                    <label class="mb-2 block text-[0.65rem] font-bold uppercase text-slate-500 dark:text-slate-400">Description</label>
                                     <text-area
                                         placeholder="Describe your event or form purpose"
                                         v-model="form.description"
@@ -321,7 +321,7 @@ export default {
                                 <div class="grid grid-cols-1 gap-6 rounded-2xl border border-slate-100 bg-slate-50/50 p-5 sm:grid-cols-2 dark:border-slate-700/50 dark:bg-slate-800/30">
                                     <div class="space-y-4">
                                         <div>
-                                            <label class="mb-2 block flex items-center gap-1.5 text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                                            <label class="mb-2 block flex items-center gap-1.5 text-[0.65rem] font-bold uppercase text-slate-500 dark:text-slate-400">
                                                 <LuCalendar class="h-3.5 w-3.5" />
                                                 Start Date
                                             </label>
@@ -331,7 +331,7 @@ export default {
                                                 class="w-full" />
                                         </div>
                                         <div>
-                                            <label class="mb-2 block flex items-center gap-1.5 text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                                            <label class="mb-2 block flex items-center gap-1.5 text-[0.65rem] font-bold uppercase text-slate-500 dark:text-slate-400">
                                                 <LuClock class="h-3.5 w-3.5" />
                                                 Start Time
                                             </label>
@@ -343,7 +343,7 @@ export default {
                                     </div>
                                     <div class="space-y-4">
                                         <div>
-                                            <label class="mb-2 block flex items-center gap-1.5 text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                                            <label class="mb-2 block flex items-center gap-1.5 text-[0.65rem] font-bold uppercase text-slate-500 dark:text-slate-400">
                                                 <LuCalendar class="h-3.5 w-3.5" />
                                                 End Date
                                             </label>
@@ -353,7 +353,7 @@ export default {
                                                 class="w-full" />
                                         </div>
                                         <div>
-                                            <label class="mb-2 block flex items-center gap-1.5 text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                                            <label class="mb-2 block flex items-center gap-1.5 text-[0.65rem] font-bold uppercase text-slate-500 dark:text-slate-400">
                                                 <LuClock class="h-3.5 w-3.5" />
                                                 End Time
                                             </label>
@@ -367,7 +367,7 @@ export default {
 
                                 <!-- Venue -->
                                 <div>
-                                    <label class="mb-2 block flex items-center gap-1.5 text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                                    <label class="mb-2 block flex items-center gap-1.5 text-[0.65rem] font-bold uppercase text-slate-500 dark:text-slate-400">
                                         <LuMapPin class="h-3.5 w-3.5" />
                                         Venue
                                     </label>
@@ -380,7 +380,7 @@ export default {
 
                                 <!-- Details -->
                                 <div>
-                                    <label class="mb-2 block text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Additional Details</label>
+                                    <label class="mb-2 block text-[0.65rem] font-bold uppercase text-slate-500 dark:text-slate-400">Additional Details</label>
                                     <text-area
                                         placeholder="Any other important information for participants"
                                         v-model="form.details"
@@ -526,7 +526,7 @@ export default {
                             <div
                                 class="mb-3 h-1.5 w-12 cursor-pointer rounded-full bg-slate-300 dark:bg-slate-700"
                                 @click="showMobilePreview = false"></div>
-                            <h3 class="text-xs font-black uppercase tracking-widest text-slate-600 dark:text-slate-300">Live Form Preview</h3>
+                            <h3 class="text-xs font-black uppercase text-slate-600 dark:text-slate-300">Live Form Preview</h3>
                         </div>
 
                         <div class="p-4 pb-20 sm:p-6">

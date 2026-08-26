@@ -23,12 +23,12 @@ export default {
         <div class="space-y-8">
             <!-- For Non-Programmers -->
             <div class="space-y-4">
-                <h3 class="ml-1 text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">For Non-Programmers (Managers & Staff)</h3>
+                <h3 class="ml-1 text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">For Non-Programmers (Managers & Staff)</h3>
 
                 <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                     <!-- Main Components -->
                     <div class="rounded-xl border border-sky-100 bg-sky-50/50 p-5 shadow-sm dark:border-sky-500/20 dark:bg-sky-500/5">
-                        <h4 class="mb-4 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-sky-600 dark:text-sky-400">
+                        <h4 class="mb-4 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-sky-600 dark:text-sky-400">
                             <LuLayers class="h-3.5 w-3.5" />
                             Main Components
                         </h4>
@@ -73,7 +73,7 @@ export default {
 
                     <!-- Stock Level Indicators -->
                     <div class="rounded-xl border border-amber-100 bg-amber-50/50 p-5 shadow-sm dark:border-amber-500/20 dark:bg-amber-500/5">
-                        <h4 class="mb-4 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-amber-600 dark:text-amber-400">
+                        <h4 class="mb-4 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-amber-600 dark:text-amber-400">
                             <LuBarChart2 class="h-3.5 w-3.5" />
                             Stock Level Indicators
                         </h4>
@@ -112,7 +112,7 @@ export default {
 
                 <!-- Accessing the System -->
                 <div class="rounded-xl border border-emerald-100 bg-emerald-50/50 p-5 shadow-sm dark:border-emerald-500/20 dark:bg-emerald-500/5">
-                    <h4 class="mb-4 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
+                    <h4 class="mb-4 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-emerald-600 dark:text-emerald-400">
                         <LuMousePointerClick class="h-3.5 w-3.5" />
                         Accessing the Inventory System
                     </h4>
@@ -141,10 +141,10 @@ export default {
             <div
                 v-if="showDeveloperSections"
                 class="space-y-4 border-t border-slate-100 pt-6 dark:border-slate-800/60">
-                <h3 class="ml-1 text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">For Programmers (Architecture)</h3>
+                <h3 class="ml-1 text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">For Programmers (Architecture)</h3>
 
                 <div class="rounded-xl border border-sky-100 bg-sky-50/50 p-5 shadow-sm dark:border-sky-500/20 dark:bg-sky-500/5">
-                    <h4 class="mb-4 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-sky-600 dark:text-sky-400">
+                    <h4 class="mb-4 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-sky-600 dark:text-sky-400">
                         <LuLayers class="h-3.5 w-3.5" />
                         Main Components
                     </h4>
@@ -189,7 +189,7 @@ export default {
 
                 <!-- Stock Level Indicators -->
                 <div class="rounded-xl border border-amber-100 bg-amber-50/50 p-5 shadow-sm dark:border-amber-500/20 dark:bg-amber-500/5">
-                    <h4 class="mb-4 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-amber-600 dark:text-amber-400">
+                    <h4 class="mb-4 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-amber-600 dark:text-amber-400">
                         <LuBarChart2 class="h-3.5 w-3.5" />
                         Stock Level Indicators
                     </h4>
@@ -228,7 +228,7 @@ export default {
 
             <!-- Accessing the System -->
             <div class="rounded-xl border border-emerald-100 bg-emerald-50/50 p-5 shadow-sm dark:border-emerald-500/20 dark:bg-emerald-500/5">
-                <h4 class="mb-4 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
+                <h4 class="mb-4 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-emerald-600 dark:text-emerald-400">
                     <LuMousePointerClick class="h-3.5 w-3.5" />
                     Accessing the Inventory System
                 </h4>
@@ -257,12 +257,12 @@ export default {
         <div
             v-if="showDeveloperSections"
             class="space-y-4 border-t border-slate-100 pt-6 dark:border-slate-800/60">
-            <h3 class="ml-1 text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">For Programmers (Architecture)</h3>
+            <h3 class="ml-1 text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">For Programmers (Architecture)</h3>
 
             <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <!-- Models -->
                 <div class="rounded-xl border border-indigo-100 bg-indigo-50/50 p-5 shadow-sm dark:border-indigo-500/20 dark:bg-indigo-500/5">
-                    <h4 class="mb-4 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-indigo-600 dark:text-indigo-400">
+                    <h4 class="mb-4 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-indigo-600 dark:text-indigo-400">
                         <LuDatabase class="h-3.5 w-3.5" />
                         Key Models & Files
                     </h4>
@@ -292,7 +292,7 @@ export default {
 
                 <!-- Frontend -->
                 <div class="rounded-xl border border-purple-100 bg-purple-50/50 p-5 shadow-sm dark:border-purple-500/20 dark:bg-purple-500/5">
-                    <h4 class="mb-4 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-purple-600 dark:text-purple-400">
+                    <h4 class="mb-4 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-purple-600 dark:text-purple-400">
                         <LuMonitorSmartphone class="h-3.5 w-3.5" />
                         Key Frontend Components
                     </h4>

@@ -17,7 +17,7 @@ export default {
         <div class="space-y-8 p-6">
             <!-- Formatting Rules -->
             <div class="rounded-xl border border-sky-100 bg-sky-50/50 p-5 shadow-sm dark:border-sky-500/20 dark:bg-sky-500/10">
-                <h4 class="mb-3 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-sky-600 dark:text-sky-400">
+                <h4 class="mb-3 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-sky-600 dark:text-sky-400">
                     <LuSettings2 class="h-3.5 w-3.5" />
                     Template Formatting Rules
                 </h4>
@@ -62,7 +62,7 @@ export default {
 
             <!-- Steps to Generate -->
             <div class="rounded-xl border border-emerald-100 bg-emerald-50/50 p-5 shadow-sm dark:border-emerald-500/20 dark:bg-emerald-500/5">
-                <h4 class="mb-4 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
+                <h4 class="mb-4 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-emerald-600 dark:text-emerald-400">
                     <LuListChecks class="h-3.5 w-3.5" />
                     How to Use the Generator
                 </h4>
@@ -177,7 +177,7 @@ export default {
 
             <!-- Troubleshooting -->
             <div class="space-y-4 border-t border-slate-100 pt-4 dark:border-slate-800/60">
-                <h3 class="ml-1 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                <h3 class="ml-1 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">
                     <LuAlertTriangle class="h-3.5 w-3.5" />
                     Troubleshooting
                 </h3>

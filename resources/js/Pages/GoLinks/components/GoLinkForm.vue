@@ -150,7 +150,7 @@ export default {
                 <Link2 class="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
             </div>
             <div>
-                <p class="mb-1 text-[0.65rem] font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">Go Link Manager</p>
+                <p class="mb-1 text-[0.65rem] font-bold uppercase text-emerald-600 dark:text-emerald-400">Go Link Manager</p>
                 <h2 class="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
                     {{ formTitle }}
                 </h2>
@@ -173,7 +173,7 @@ export default {
 
                 <!-- Slug Field with Generator -->
                 <div class="space-y-2 rounded-xl border border-slate-200/60 bg-slate-50/50 p-4 shadow-sm dark:border-slate-700/60 dark:bg-slate-800/30">
-                    <label class="block text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Slug</label>
+                    <label class="block text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">Slug</label>
                     <div class="flex gap-2">
                         <input
                             v-model="form.slug"
@@ -182,7 +182,7 @@ export default {
                             placeholder="Leave empty to auto-generate" />
                         <button
                             type="button"
-                            class="inline-flex shrink-0 items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-bold uppercase tracking-widest text-slate-700 shadow-sm transition-all hover:bg-slate-50 active:scale-95 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+                            class="inline-flex shrink-0 items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-bold uppercase text-slate-700 shadow-sm transition-all hover:bg-slate-50 active:scale-95 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
                             @click="generateSlug">
                             <Sparkles class="h-3.5 w-3.5 text-emerald-500" />
                             Generate
@@ -259,7 +259,7 @@ export default {
             <div class="space-y-5">
                 <!-- Public Link Preview Card -->
                 <div class="space-y-2 rounded-xl border border-slate-200/60 bg-slate-50/50 p-5 shadow-sm dark:border-slate-700/60 dark:bg-slate-800/30">
-                    <p class="flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                    <p class="flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">
                         <ExternalLink class="h-3.5 w-3.5" />
                         Public Link Preview
                     </p>
@@ -282,7 +282,7 @@ export default {
                 <div class="rounded-xl border border-slate-200/60 bg-slate-50/50 p-5 shadow-sm dark:border-slate-700/60 dark:bg-slate-800/30">
                     <div class="mb-4 flex items-center justify-between gap-3">
                         <div>
-                            <p class="flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                            <p class="flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">
                                 <QrCode class="h-3.5 w-3.5" />
                                 QR Code Generator
                             </p>
@@ -291,7 +291,7 @@ export default {
                         <button
                             type="button"
                             :disabled="!publicUrlPreview"
-                            class="inline-flex shrink-0 items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold uppercase tracking-widest text-slate-700 shadow-sm transition-all hover:bg-slate-50 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+                            class="inline-flex shrink-0 items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold uppercase text-slate-700 shadow-sm transition-all hover:bg-slate-50 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
                             @click="downloadQrCode">
                             <Download class="h-3.5 w-3.5" />
                             Download QR

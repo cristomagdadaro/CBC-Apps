@@ -262,7 +262,7 @@ export default {
                                 <div class="flex items-center justify-between">
                                     <div>
                                         <p class="text-xs font-medium uppercase tracking-wider text-indigo-600 dark:text-indigo-400">Booking Reference</p>
-                                        <p class="mt-1 font-mono text-sm font-bold tracking-widest text-indigo-900 sm:text-base dark:text-indigo-200">
+                                        <p class="mt-1 font-mono text-sm font-bold text-indigo-900 sm:text-base dark:text-indigo-200">
                                             {{ rental.booking_id || "NULL" }}
                                         </p>
                                     </div>

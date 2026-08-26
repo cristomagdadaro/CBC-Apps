@@ -162,7 +162,7 @@ export default {
                             <div
                                 v-if="!isTextColorOrShadowField(field.key)"
                                 class="space-y-2.5">
-                                <label class="block text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Style Type</label>
+                                <label class="block text-[0.65rem] font-bold uppercase text-slate-500 dark:text-slate-400">Style Type</label>
                                 <div class="grid grid-cols-3 gap-3">
                                     <button
                                         type="button"
@@ -217,7 +217,7 @@ export default {
                             <div
                                 v-if="localTokens[field.key]?.mode === 'color' || isTextColorOrShadowField(field.key)"
                                 class="space-y-2.5">
-                                <label class="block text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                                <label class="block text-[0.65rem] font-bold uppercase text-slate-500 dark:text-slate-400">
                                     {{ isTextColorOrShadowField(field.key) ? "Color Value" : "Background Color" }}
                                 </label>
 
@@ -255,7 +255,7 @@ export default {
                             <div
                                 v-if="localTokens[field.key]?.mode === 'image'"
                                 class="space-y-2.5">
-                                <label class="block text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Image URL</label>
+                                <label class="block text-[0.65rem] font-bold uppercase text-slate-500 dark:text-slate-400">Image URL</label>
                                 <div class="relative">
                                     <LuLink class="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                                     <input
@@ -274,7 +274,7 @@ export default {
                             <div
                                 v-if="field.key === 'form-text-shadow'"
                                 class="space-y-2.5">
-                                <label class="block text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Shadow Value</label>
+                                <label class="block text-[0.65rem] font-bold uppercase text-slate-500 dark:text-slate-400">Shadow Value</label>
                                 <input
                                     v-model="localTokens[field.key].value"
                                     type="text"
@@ -286,7 +286,7 @@ export default {
                             <!-- Mini Preview & Reset -->
                             <div class="mt-2 flex items-center justify-between border-t border-slate-200/60 pt-5 dark:border-slate-700/60">
                                 <div class="flex items-center gap-3">
-                                    <span class="text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Preview</span>
+                                    <span class="text-[0.65rem] font-bold uppercase text-slate-500 dark:text-slate-400">Preview</span>
                                     <div
                                         class="relative flex h-10 w-20 items-center justify-center overflow-hidden rounded-lg border border-slate-200 text-sm font-black shadow-inner dark:border-slate-700"
                                         :style="{
@@ -324,7 +324,7 @@ export default {
 
         <!-- Global Actions Footer -->
         <div class="flex items-center justify-between border-t border-slate-200 pt-6 dark:border-slate-800">
-            <div class="text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+            <div class="text-[0.65rem] font-bold uppercase text-slate-500 dark:text-slate-400">
                 <span class="text-indigo-600 dark:text-indigo-400">
                     {{ fields.filter((f) => isActive(f.key)).length }}
                 </span>

@@ -632,7 +632,7 @@ export default {
                             <GitBranch class="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
                         </div>
                         <div class="min-w-0 flex-1 pt-0.5">
-                            <h3 class="mb-1.5 text-xs font-bold uppercase tracking-widest text-indigo-900 dark:text-indigo-300">Sub-Component Workflow</h3>
+                            <h3 class="mb-1.5 text-xs font-bold uppercase text-indigo-900 dark:text-indigo-300">Sub-Component Workflow</h3>
                             <p class="text-xs font-medium leading-relaxed text-indigo-700 dark:text-indigo-400/80">Save each equipment part as its own incoming transaction, then use the parent CBC or PRRI barcode above to link it back to the main equipment record.</p>
                         </div>
                     </div>
@@ -648,13 +648,13 @@ export default {
                                 <ArrowUpRight class="h-4 w-4 text-slate-600 dark:text-slate-400" />
                             </div>
                             <div>
-                                <h3 class="text-xs font-bold uppercase tracking-widest text-slate-800 dark:text-slate-200">Parent Transaction</h3>
+                                <h3 class="text-xs font-bold uppercase text-slate-800 dark:text-slate-200">Parent Transaction</h3>
                                 <p class="mt-0.5 text-xs font-medium text-slate-500 dark:text-slate-400">Linked as sub-component</p>
                             </div>
                         </div>
                         <Link
                             :href="route('transactions.show', parentTransaction.id)"
-                            class="group inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-[0.65rem] font-bold uppercase tracking-widest text-indigo-600 shadow-sm transition-all hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-indigo-400 dark:hover:bg-slate-800">
+                            class="group inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-[0.65rem] font-bold uppercase text-indigo-600 shadow-sm transition-all hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-indigo-400 dark:hover:bg-slate-800">
                             <span>View</span>
                             <ArrowUpRight class="h-3 w-3 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
                         </Link>
@@ -664,7 +664,7 @@ export default {
                         <div class="flex items-start gap-2.5">
                             <Package class="mt-0.5 h-4 w-4 shrink-0 text-slate-400" />
                             <div class="min-w-0">
-                                <span class="mb-0.5 block text-[0.65rem] font-bold uppercase tracking-widest text-slate-500">Item</span>
+                                <span class="mb-0.5 block text-[0.65rem] font-bold uppercase text-slate-500">Item</span>
                                 <span class="block truncate font-semibold text-slate-800 dark:text-slate-200">
                                     {{ parentTransaction?.item?.name ?? "—" }}
                                 </span>
@@ -674,7 +674,7 @@ export default {
                             <div class="flex items-start gap-2">
                                 <Hash class="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-400" />
                                 <div>
-                                    <span class="mb-0.5 block text-[0.65rem] font-bold uppercase tracking-widest text-slate-500">CBC Barcode</span>
+                                    <span class="mb-0.5 block text-[0.65rem] font-bold uppercase text-slate-500">CBC Barcode</span>
                                     <span class="font-mono text-xs font-bold text-slate-700 dark:text-slate-300">
                                         {{ parentTransaction?.barcode ?? "—" }}
                                     </span>
@@ -683,7 +683,7 @@ export default {
                             <div class="flex items-start gap-2">
                                 <Hash class="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-400" />
                                 <div>
-                                    <span class="mb-0.5 block text-[0.65rem] font-bold uppercase tracking-widest text-slate-500">PRRI Barcode</span>
+                                    <span class="mb-0.5 block text-[0.65rem] font-bold uppercase text-slate-500">PRRI Barcode</span>
                                     <span class="font-mono text-xs font-bold text-slate-700 dark:text-slate-300">
                                         {{ parentTransaction?.barcode_prri ?? "—" }}
                                     </span>

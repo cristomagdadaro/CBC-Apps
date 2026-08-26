@@ -674,7 +674,7 @@ export default {
                         class="space-y-4">
                         <div class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50 p-4 shadow-sm sm:p-5 md:grid-cols-3 dark:border-slate-700/60 dark:bg-slate-800/30">
                             <div class="space-y-2">
-                                <label class="block text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Name Column</label>
+                                <label class="block text-[0.65rem] font-bold uppercase text-slate-500 dark:text-slate-400">Name Column</label>
                                 <div class="relative">
                                     <select
                                         v-model="selectedNameColumn"
@@ -696,7 +696,7 @@ export default {
                             </div>
 
                             <div class="space-y-2">
-                                <label class="block text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Email Column</label>
+                                <label class="block text-[0.65rem] font-bold uppercase text-slate-500 dark:text-slate-400">Email Column</label>
                                 <div class="relative">
                                     <select
                                         v-model="selectedEmailColumn"
@@ -718,7 +718,7 @@ export default {
                             </div>
 
                             <div class="space-y-2">
-                                <label class="block text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Subform Filter</label>
+                                <label class="block text-[0.65rem] font-bold uppercase text-slate-500 dark:text-slate-400">Subform Filter</label>
                                 <div class="relative">
                                     <select
                                         v-model="selectedSubformType"
@@ -889,7 +889,7 @@ export default {
                 <!-- Section 3: Output Settings -->
                 <div class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50 p-5 shadow-sm md:grid-cols-2 dark:border-slate-700/60 dark:bg-slate-800/30">
                     <div class="space-y-2">
-                        <label class="block text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Output Format</label>
+                        <label class="block text-[0.65rem] font-bold uppercase text-slate-500 dark:text-slate-400">Output Format</label>
                         <div class="relative">
                             <select
                                 v-model="outputFormat"
@@ -904,7 +904,7 @@ export default {
                     </div>
 
                     <div class="space-y-2">
-                        <label class="block text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">File Naming Pattern</label>
+                        <label class="block text-[0.65rem] font-bold uppercase text-slate-500 dark:text-slate-400">File Naming Pattern</label>
                         <input
                             v-model="namingTemplate"
                             type="text"

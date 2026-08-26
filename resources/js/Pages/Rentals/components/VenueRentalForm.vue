@@ -287,7 +287,7 @@ export default {
                     <Building2 class="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
                 </div>
                 <div>
-                    <p class="mb-0.5 text-[0.65rem] font-bold uppercase tracking-widest text-indigo-600 dark:text-indigo-400">Booking</p>
+                    <p class="mb-0.5 text-[0.65rem] font-bold uppercase text-indigo-600 dark:text-indigo-400">Booking</p>
                     <h2 class="text-lg font-bold tracking-tight text-slate-900 dark:text-white">Venue Request</h2>
                 </div>
             </div>
@@ -489,7 +489,7 @@ export default {
 
             <div
                 v-if="calendarLoading"
-                class="flex items-center justify-center gap-2 py-16 text-[0.65rem] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
+                class="flex items-center justify-center gap-2 py-16 text-[0.65rem] font-bold uppercase text-slate-400 dark:text-slate-500">
                 <Loader2 class="h-5 w-5 animate-spin text-indigo-500" />
                 Loading booking calendars...
             </div>
@@ -523,7 +523,7 @@ export default {
                     </div>
                     <div>
                         <h2 class="text-base font-bold tracking-tight text-slate-900 dark:text-white">DA-CBC Venue Rental Rates</h2>
-                        <p class="text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Disclaimer: These rates aren't updated in real-time, kindly call 451 for confirmation. Thank you!</p>
+                        <p class="text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">Disclaimer: These rates aren't updated in real-time, kindly call 451 for confirmation. Thank you!</p>
                     </div>
                 </div>
                 <button
@@ -557,7 +557,7 @@ export default {
                                     </div>
                                 </td>
                                 <td class="px-5 py-5 text-center align-top">
-                                    <div class="inline-flex items-center justify-center rounded-lg bg-slate-100 px-2.5 py-1 font-mono text-xs font-bold text-slate-700 dark:bg-slate-700 dark:text-slate-300">
+                                    <div class="inline-flex items-center justify-center rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-700 dark:bg-slate-700 dark:text-slate-300">
                                         {{ rate.pax }}
                                     </div>
                                 </td>
@@ -567,7 +567,7 @@ export default {
                                     <div class="space-y-2.5">
                                         <div
                                             v-if="rate.outsider.status"
-                                            class="inline-flex rounded-md bg-indigo-50 px-2 py-1 text-[0.65rem] font-bold uppercase tracking-widest text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-400">
+                                            class="inline-flex rounded-md bg-indigo-50 px-2 py-1 text-[0.65rem] font-bold uppercase text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-400">
                                             {{ rate.outsider.status }}
                                         </div>
 
@@ -575,7 +575,7 @@ export default {
                                             v-if="rate.outsider.weekday"
                                             class="flex items-center justify-between text-xs">
                                             <span class="font-medium text-slate-500 dark:text-slate-400">Weekday</span>
-                                            <span class="font-mono font-bold text-slate-900 dark:text-slate-200">
+                                            <span class="font-bold text-slate-900 dark:text-slate-200">
                                                 {{ formatRate(rate.outsider.weekday) }}
                                             </span>
                                         </div>
@@ -584,7 +584,7 @@ export default {
                                             v-if="rate.outsider.weekend"
                                             class="flex items-center justify-between text-xs">
                                             <span class="font-medium text-slate-500 dark:text-slate-400">Weekend</span>
-                                            <span class="font-mono font-bold text-slate-900 dark:text-slate-200">
+                                            <span class="font-bold text-slate-900 dark:text-slate-200">
                                                 {{ formatRate(rate.outsider.weekend) }}
                                             </span>
                                         </div>
@@ -593,7 +593,7 @@ export default {
                                             v-if="rate.outsider.half_day"
                                             class="flex items-center justify-between text-xs">
                                             <span class="font-medium text-slate-500 dark:text-slate-400">Half Day</span>
-                                            <span class="font-mono font-bold text-slate-900 dark:text-slate-200">
+                                            <span class="font-bold text-slate-900 dark:text-slate-200">
                                                 {{ formatRate(rate.outsider.half_day) }}
                                             </span>
                                         </div>
@@ -602,7 +602,7 @@ export default {
                                             v-if="rate.outsider.per_day"
                                             class="flex items-center justify-between text-xs">
                                             <span class="font-medium text-slate-500 dark:text-slate-400">Day</span>
-                                            <span class="font-mono font-bold text-slate-900 dark:text-slate-200">
+                                            <span class="font-bold text-slate-900 dark:text-slate-200">
                                                 {{ formatRate(rate.outsider.per_day) }}
                                             </span>
                                         </div>
@@ -611,7 +611,7 @@ export default {
                                             v-if="rate.outsider.per_hour"
                                             class="flex items-center justify-between text-xs">
                                             <span class="font-medium text-slate-500 dark:text-slate-400">Hour</span>
-                                            <span class="font-mono font-bold text-slate-900 dark:text-slate-200">
+                                            <span class="font-bold text-slate-900 dark:text-slate-200">
                                                 {{ formatRate(rate.outsider.per_hour) }}
                                             </span>
                                         </div>
@@ -623,7 +623,7 @@ export default {
                                     <div class="space-y-2.5">
                                         <div
                                             v-if="rate.internal_core_20.status"
-                                            class="inline-flex rounded-md bg-indigo-50 px-2 py-1 text-[0.65rem] font-bold uppercase tracking-widest text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-400">
+                                            class="inline-flex rounded-md bg-indigo-50 px-2 py-1 text-[0.65rem] font-bold uppercase text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-400">
                                             {{ rate.internal_core_20.status }}
                                         </div>
 
@@ -631,7 +631,7 @@ export default {
                                             v-if="rate.internal_core_20.weekday"
                                             class="flex items-center justify-between text-xs">
                                             <span class="font-medium text-slate-500 dark:text-slate-400">Weekday</span>
-                                            <span class="font-mono font-bold text-slate-900 dark:text-slate-200">
+                                            <span class="font-bold text-slate-900 dark:text-slate-200">
                                                 {{ formatRate(rate.internal_core_20.weekday) }}
                                             </span>
                                         </div>
@@ -640,7 +640,7 @@ export default {
                                             v-if="rate.internal_core_20.weekend"
                                             class="flex items-center justify-between text-xs">
                                             <span class="font-medium text-slate-500 dark:text-slate-400">Weekend</span>
-                                            <span class="font-mono font-bold text-slate-900 dark:text-slate-200">
+                                            <span class="font-bold text-slate-900 dark:text-slate-200">
                                                 {{ formatRate(rate.internal_core_20.weekend) }}
                                             </span>
                                         </div>
@@ -649,7 +649,7 @@ export default {
                                             v-if="rate.internal_core_20.half_day"
                                             class="flex items-center justify-between text-xs">
                                             <span class="font-medium text-slate-500 dark:text-slate-400">Half Day</span>
-                                            <span class="font-mono font-bold text-slate-900 dark:text-slate-200">
+                                            <span class="font-bold text-slate-900 dark:text-slate-200">
                                                 {{ formatRate(rate.internal_core_20.half_day) }}
                                             </span>
                                         </div>
@@ -658,7 +658,7 @@ export default {
                                             v-if="rate.internal_core_20.per_day"
                                             class="flex items-center justify-between text-xs">
                                             <span class="font-medium text-slate-500 dark:text-slate-400">Day</span>
-                                            <span class="font-mono font-bold text-slate-900 dark:text-slate-200">
+                                            <span class="font-bold text-slate-900 dark:text-slate-200">
                                                 {{ formatRate(rate.internal_core_20.per_day) }}
                                             </span>
                                         </div>
@@ -667,7 +667,7 @@ export default {
                                             v-if="rate.internal_core_20.per_hour"
                                             class="flex items-center justify-between text-xs">
                                             <span class="font-medium text-slate-500 dark:text-slate-400">Hour</span>
-                                            <span class="font-mono font-bold text-slate-900 dark:text-slate-200">
+                                            <span class="font-bold text-slate-900 dark:text-slate-200">
                                                 {{ formatRate(rate.internal_core_20.per_hour) }}
                                             </span>
                                         </div>
@@ -679,7 +679,7 @@ export default {
                                     <div class="space-y-2.5">
                                         <div
                                             v-if="rate.internal_ext_50.status"
-                                            class="inline-flex rounded-md bg-indigo-50 px-2 py-1 text-[0.65rem] font-bold uppercase tracking-widest text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-400">
+                                            class="inline-flex rounded-md bg-indigo-50 px-2 py-1 text-[0.65rem] font-bold uppercase text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-400">
                                             {{ rate.internal_ext_50.status }}
                                         </div>
 
@@ -687,7 +687,7 @@ export default {
                                             v-if="rate.internal_ext_50.weekday"
                                             class="flex items-center justify-between text-xs">
                                             <span class="font-medium text-slate-500 dark:text-slate-400">Weekday</span>
-                                            <span class="font-mono font-bold text-slate-900 dark:text-slate-200">
+                                            <span class="font-bold text-slate-900 dark:text-slate-200">
                                                 {{ formatRate(rate.internal_ext_50.weekday) }}
                                             </span>
                                         </div>
@@ -696,7 +696,7 @@ export default {
                                             v-if="rate.internal_ext_50.weekend"
                                             class="flex items-center justify-between text-xs">
                                             <span class="font-medium text-slate-500 dark:text-slate-400">Weekend</span>
-                                            <span class="font-mono font-bold text-slate-900 dark:text-slate-200">
+                                            <span class="font-bold text-slate-900 dark:text-slate-200">
                                                 {{ formatRate(rate.internal_ext_50.weekend) }}
                                             </span>
                                         </div>
@@ -705,7 +705,7 @@ export default {
                                             v-if="rate.internal_ext_50.half_day"
                                             class="flex items-center justify-between text-xs">
                                             <span class="font-medium text-slate-500 dark:text-slate-400">Half Day</span>
-                                            <span class="font-mono font-bold text-slate-900 dark:text-slate-200">
+                                            <span class="font-bold text-slate-900 dark:text-slate-200">
                                                 {{ formatRate(rate.internal_ext_50.half_day) }}
                                             </span>
                                         </div>
@@ -714,7 +714,7 @@ export default {
                                             v-if="rate.internal_ext_50.per_day"
                                             class="flex items-center justify-between text-xs">
                                             <span class="font-medium text-slate-500 dark:text-slate-400">Day</span>
-                                            <span class="font-mono font-bold text-slate-900 dark:text-slate-200">
+                                            <span class="font-bold text-slate-900 dark:text-slate-200">
                                                 {{ formatRate(rate.internal_ext_50.per_day) }}
                                             </span>
                                         </div>
@@ -723,7 +723,7 @@ export default {
                                             v-if="rate.internal_ext_50.per_hour"
                                             class="flex items-center justify-between text-xs">
                                             <span class="font-medium text-slate-500 dark:text-slate-400">Hour</span>
-                                            <span class="font-mono font-bold text-slate-900 dark:text-slate-200">
+                                            <span class="font-bold text-slate-900 dark:text-slate-200">
                                                 {{ formatRate(rate.internal_ext_50.per_hour) }}
                                             </span>
                                         </div>

@@ -235,7 +235,7 @@ export default {
         <!-- Status Badge -->
         <div class="absolute right-4 top-4 z-20">
             <span
-                class="inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[0.65rem] font-bold uppercase tracking-widest backdrop-blur-md"
+                class="inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[0.65rem] font-bold uppercase backdrop-blur-md"
                 :class="statusBadge.class">
                 <component
                     :is="statusBadge.icon"
@@ -263,7 +263,7 @@ export default {
                     <label class="text-2xl font-black leading-none tracking-tighter drop-shadow-md">
                         {{ formsData.event_id }}
                     </label>
-                    <span class="mt-1.5 text-[0.6rem] font-bold uppercase tracking-widest opacity-80 drop-shadow-md">Event ID</span>
+                    <span class="mt-1.5 text-[0.6rem] font-bold uppercase opacity-80 drop-shadow-md">Event ID</span>
                 </div>
             </div>
         </div>
@@ -296,7 +296,7 @@ export default {
         <!-- Statistics Section -->
         <div class="flex-1 bg-slate-50/80 px-6 py-5 dark:bg-slate-800/40">
             <div class="mb-3.5 flex items-center justify-between">
-                <span class="text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Responses</span>
+                <span class="text-[0.65rem] font-bold uppercase text-slate-500 dark:text-slate-400">Responses</span>
                 <span
                     v-if="visibleResponseTypes.length"
                     class="text-xs font-semibold text-slate-400 dark:text-slate-500">

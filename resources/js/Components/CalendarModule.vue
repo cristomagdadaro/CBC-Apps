@@ -386,7 +386,7 @@ export default {
 <template>
     <div class="flex flex-col gap-4">
         <!-- Top Control Bar -->
-        <div class="flex flex-col gap-3 rounded-2xl border border-gray-100 bg-white/80 p-4 shadow-xl backdrop-blur-lg sm:p-5 dark:border-slate-800 dark:bg-slate-900/80">
+        <div class="flex flex-col gap-3 rounded-2xl border border-gray-100 bg-white/80 p-4 backdrop-blur-lg sm:p-5 dark:border-slate-800 dark:bg-slate-900/80">
             <!-- Header & Toggle -->
             <div class="flex flex-col items-stretch justify-between gap-4 sm:flex-row sm:items-center">
                 <div class="flex items-center gap-3">
@@ -490,7 +490,7 @@ export default {
         <main
             class="min-w-0 flex-1"
             data-guide="calendar-main-area">
-            <div class="rounded-2xl border border-gray-100 bg-white/80 shadow-xl backdrop-blur-lg dark:border-slate-800 dark:bg-slate-900/80">
+            <div class="rounded-2xl border border-gray-100 bg-white/80 backdrop-blur-lg dark:border-slate-800 dark:bg-slate-900/80">
                 <!-- Calendar Header -->
                 <div class="sticky top-0 z-10 flex items-center justify-between rounded-t-2xl border-b border-gray-100 bg-slate-50/80 px-4 py-3 backdrop-blur-sm dark:border-slate-800 dark:bg-slate-800/80">
                     <button

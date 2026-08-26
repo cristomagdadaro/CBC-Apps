@@ -14,11 +14,11 @@ export default {
         title="Unified Console Logger Service"
         description="CBC-Apps includes a centralized console logging service that automatically enables/disables based on the application environment. This ensures debug logs appear in development but are completely hidden in production."
         icon="LuTerminal">
-        <h3 class="ml-1 text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">For Developers</h3>
+        <h3 class="ml-1 text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">For Developers</h3>
 
         <!-- How It Works -->
         <div class="rounded-xl border border-indigo-100 bg-indigo-50/50 p-5 shadow-sm dark:border-indigo-500/20 dark:bg-indigo-500/10">
-            <h4 class="mb-3.5 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-indigo-600 dark:text-indigo-400">
+            <h4 class="mb-3.5 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-indigo-600 dark:text-indigo-400">
                 <LuSettings2 class="h-3.5 w-3.5" />
                 How It Works
             </h4>
@@ -60,7 +60,7 @@ export default {
 
         <!-- Basic Usage -->
         <div class="rounded-xl border border-emerald-100 bg-emerald-50/50 p-5 shadow-sm dark:border-emerald-500/20 dark:bg-emerald-500/10">
-            <h4 class="mb-2 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
+            <h4 class="mb-2 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-emerald-600 dark:text-emerald-400">
                 <LuCode2 class="h-3.5 w-3.5" />
                 Basic Usage
             </h4>
@@ -89,7 +89,7 @@ export default {
 
         <!-- Available Methods -->
         <div class="rounded-xl border border-purple-100 bg-purple-50/50 p-5 shadow-sm dark:border-purple-500/20 dark:bg-purple-500/10">
-            <h4 class="mb-4 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-purple-600 dark:text-purple-400">
+            <h4 class="mb-4 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-purple-600 dark:text-purple-400">
                 <LuLayoutList class="h-3.5 w-3.5" />
                 Available Methods
             </h4>
@@ -97,7 +97,7 @@ export default {
             <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-3">
                 <!-- Basic Logging -->
                 <div class="space-y-2">
-                    <p class="text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Basic Logging</p>
+                    <p class="text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">Basic Logging</p>
                     <ul class="space-y-2 text-xs font-medium text-slate-600 dark:text-slate-300">
                         <li>
                             <code class="mr-1 rounded-md border border-slate-200 bg-white px-1.5 py-0.5 font-mono text-[0.65rem] font-semibold text-slate-700 shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">log(...args)</code>
@@ -124,7 +124,7 @@ export default {
 
                 <!-- Advanced Methods -->
                 <div class="space-y-2">
-                    <p class="text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Advanced Methods</p>
+                    <p class="text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">Advanced Methods</p>
                     <ul class="space-y-2 text-xs font-medium text-slate-600 dark:text-slate-300">
                         <li>
                             <code class="mr-1 rounded-md border border-slate-200 bg-white px-1.5 py-0.5 font-mono text-[0.65rem] font-semibold text-slate-700 shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">table(data)</code>
@@ -155,7 +155,7 @@ export default {
 
                 <!-- Utility Methods -->
                 <div class="space-y-2">
-                    <p class="text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Utility Methods</p>
+                    <p class="text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">Utility Methods</p>
                     <ul class="space-y-2 text-xs font-medium text-slate-600 dark:text-slate-300">
                         <li>
                             <code class="mr-1 rounded-md border border-slate-200 bg-white px-1.5 py-0.5 font-mono text-[0.65rem] font-semibold text-slate-700 shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">isLoggingEnabled()</code>
@@ -176,7 +176,7 @@ export default {
 
         <!-- Practical Examples -->
         <div class="rounded-xl border border-rose-100 bg-rose-50/50 p-5 shadow-sm dark:border-rose-500/20 dark:bg-rose-500/10">
-            <h4 class="mb-3 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-rose-600 dark:text-rose-400">
+            <h4 class="mb-3 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-rose-600 dark:text-rose-400">
                 <LuSparkles class="h-3.5 w-3.5" />
                 Practical Examples
             </h4>
@@ -232,7 +232,7 @@ export default {
         <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
             <!-- Configuration -->
             <div class="rounded-xl border border-amber-100 bg-amber-50/50 p-5 shadow-sm dark:border-amber-500/20 dark:bg-amber-500/10">
-                <h4 class="mb-3 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-amber-600 dark:text-amber-400">
+                <h4 class="mb-3 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-amber-600 dark:text-amber-400">
                     <LuFingerprint class="h-3.5 w-3.5" />
                     Environment Detection
                 </h4>
@@ -240,11 +240,11 @@ export default {
                     <p>The logger automatically detects these environments:</p>
                     <div class="flex flex-col gap-2">
                         <div class="flex items-center gap-2">
-                            <span class="rounded-md border border-emerald-200 bg-emerald-100 px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-widest text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/20 dark:text-emerald-400">Enabled</span>
+                            <span class="rounded-md border border-emerald-200 bg-emerald-100 px-2 py-0.5 text-[0.65rem] font-bold uppercase text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/20 dark:text-emerald-400">Enabled</span>
                             <span class="text-slate-600 dark:text-slate-400">'local', 'development'</span>
                         </div>
                         <div class="flex items-center gap-2">
-                            <span class="rounded-md border border-slate-300 bg-slate-200 px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-widest text-slate-600 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-300">Disabled</span>
+                            <span class="rounded-md border border-slate-300 bg-slate-200 px-2 py-0.5 text-[0.65rem] font-bold uppercase text-slate-600 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-300">Disabled</span>
                             <span class="text-slate-600 dark:text-slate-400">'staging', 'production', etc.</span>
                         </div>
                     </div>
@@ -271,7 +271,7 @@ export default {
 
             <!-- ApiService Integration -->
             <div class="flex flex-col rounded-xl border border-sky-100 bg-sky-50/50 p-5 shadow-sm dark:border-sky-500/20 dark:bg-sky-500/10">
-                <h4 class="mb-3 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-sky-600 dark:text-sky-400">
+                <h4 class="mb-3 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-sky-600 dark:text-sky-400">
                     <LuShieldCheck class="h-3.5 w-3.5" />
                     ApiService Integration
                 </h4>
@@ -309,7 +309,7 @@ export default {
         <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
             <!-- File Locations -->
             <div class="rounded-xl border border-slate-200/60 bg-slate-50/50 p-5 shadow-sm md:col-span-1 dark:border-slate-700/60 dark:bg-slate-800/30">
-                <h4 class="mb-3 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                <h4 class="mb-3 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">
                     <LuFileCode2 class="h-3.5 w-3.5" />
                     Core Files
                 </h4>
@@ -327,7 +327,7 @@ export default {
 
             <!-- Benefits -->
             <div class="md:col-span-2">
-                <h4 class="mb-3 ml-1 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                <h4 class="mb-3 ml-1 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">
                     <LuZap class="h-3.5 w-3.5" />
                     Key Benefits
                 </h4>

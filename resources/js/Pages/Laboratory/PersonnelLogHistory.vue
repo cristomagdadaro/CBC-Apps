@@ -69,7 +69,7 @@ export default {
                     <!-- Details Left -->
                     <div class="flex-1 space-y-6">
                         <div>
-                            <p class="mb-1 text-[0.65rem] font-semibold uppercase tracking-widest text-indigo-600 dark:text-indigo-400">Personnel History</p>
+                            <p class="mb-1 text-[0.65rem] font-semibold uppercase text-indigo-600 dark:text-indigo-400">Personnel History</p>
                             <h1 class="text-2xl font-black tracking-tight text-slate-900 sm:text-3xl dark:text-white">
                                 {{ personnelSummary.full_name }}
                             </h1>
@@ -82,7 +82,7 @@ export default {
                             <div class="flex items-start gap-2.5 rounded-xl border border-slate-100 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-800/50">
                                 <LuUser class="mt-0.5 h-4 w-4 text-slate-400" />
                                 <div>
-                                    <p class="mb-0.5 text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Employee ID</p>
+                                    <p class="mb-0.5 text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">Employee ID</p>
                                     <p class="text-sm font-medium text-slate-900 dark:text-white">
                                         {{ personnelSummary.employee_id || "-" }}
                                     </p>
@@ -91,7 +91,7 @@ export default {
                             <div class="flex items-start gap-2.5 rounded-xl border border-slate-100 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-800/50">
                                 <LuMail class="mt-0.5 h-4 w-4 text-slate-400" />
                                 <div>
-                                    <p class="mb-0.5 text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Email</p>
+                                    <p class="mb-0.5 text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">Email</p>
                                     <p class="truncate text-sm font-medium text-slate-900 dark:text-white">
                                         {{ personnelSummary.email || "-" }}
                                     </p>
@@ -100,7 +100,7 @@ export default {
                             <div class="flex items-start gap-2.5 rounded-xl border border-slate-100 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-800/50">
                                 <LuPhone class="mt-0.5 h-4 w-4 text-slate-400" />
                                 <div>
-                                    <p class="mb-0.5 text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Phone</p>
+                                    <p class="mb-0.5 text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">Phone</p>
                                     <p class="text-sm font-medium text-slate-900 dark:text-white">
                                         {{ personnelSummary.phone || "-" }}
                                     </p>
@@ -109,7 +109,7 @@ export default {
                             <div class="flex items-start gap-2.5 rounded-xl border border-slate-100 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-800/50">
                                 <LuMapPin class="mt-0.5 h-4 w-4 text-slate-400" />
                                 <div>
-                                    <p class="mb-0.5 text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Address</p>
+                                    <p class="mb-0.5 text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">Address</p>
                                     <p class="truncate text-sm font-medium text-slate-900 dark:text-white">
                                         {{ personnelSummary.address || "-" }}
                                     </p>
@@ -118,7 +118,7 @@ export default {
                             <div class="flex items-start gap-2.5 rounded-xl border border-slate-100 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-800/50">
                                 <LuClock class="mt-0.5 h-4 w-4 text-slate-400" />
                                 <div>
-                                    <p class="mb-0.5 text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">First Logged</p>
+                                    <p class="mb-0.5 text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">First Logged</p>
                                     <p class="text-sm font-medium text-slate-900 dark:text-white">
                                         {{ personnelSummary.first_logged_at || "-" }}
                                     </p>
@@ -127,7 +127,7 @@ export default {
                             <div class="flex items-start gap-2.5 rounded-xl border border-slate-100 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-800/50">
                                 <LuClock class="mt-0.5 h-4 w-4 text-slate-400" />
                                 <div>
-                                    <p class="mb-0.5 text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Last Logged</p>
+                                    <p class="mb-0.5 text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">Last Logged</p>
                                     <p class="text-sm font-medium text-slate-900 dark:text-white">
                                         {{ personnelSummary.last_logged_at || "-" }}
                                     </p>
@@ -142,7 +142,7 @@ export default {
                             v-for="card in statCards"
                             :key="card.label"
                             class="flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-white p-5 text-center shadow-sm dark:border-slate-700 dark:bg-slate-800/80">
-                            <p class="mb-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                            <p class="mb-1.5 text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">
                                 {{ card.label }}
                             </p>
                             <p

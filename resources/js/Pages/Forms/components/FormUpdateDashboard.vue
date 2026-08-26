@@ -1060,7 +1060,7 @@ export default {
                 <div class="mb-4 rounded-2xl bg-indigo-50 p-3 dark:bg-indigo-500/10">
                     <LuUsers class="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
                 </div>
-                <h3 class="mb-1 text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Total Responses</h3>
+                <h3 class="mb-1 text-[0.65rem] font-bold uppercase text-slate-500 dark:text-slate-400">Total Responses</h3>
                 <p class="text-6xl font-black tracking-tighter text-slate-900 dark:text-white">
                     {{ stats.responses_total }}
                 </p>
@@ -1071,7 +1071,7 @@ export default {
             <div class="rounded-2xl bg-white/80 p-6 shadow-sm ring-1 ring-slate-900/5 backdrop-blur-xl dark:bg-slate-900/80 dark:ring-white/5">
                 <div class="mb-6 flex items-center gap-2.5">
                     <LuPieChart class="h-5 w-5 text-indigo-500 dark:text-indigo-400" />
-                    <h3 class="text-xs font-bold uppercase tracking-widest text-slate-600 dark:text-slate-300">By Form Type</h3>
+                    <h3 class="text-xs font-bold uppercase text-slate-600 dark:text-slate-300">By Form Type</h3>
                 </div>
                 <div class="relative h-48">
                     <canvas ref="responseChartCanvas"></canvas>
@@ -1082,7 +1082,7 @@ export default {
             <div class="rounded-2xl bg-white/80 p-6 shadow-sm ring-1 ring-slate-900/5 backdrop-blur-xl dark:bg-slate-900/80 dark:ring-white/5">
                 <div class="mb-6 flex items-center gap-2.5">
                     <LuBarChart2 class="h-5 w-5 text-indigo-500 dark:text-indigo-400" />
-                    <h3 class="text-xs font-bold uppercase tracking-widest text-slate-600 dark:text-slate-300">Event Overview</h3>
+                    <h3 class="text-xs font-bold uppercase text-slate-600 dark:text-slate-300">Event Overview</h3>
                 </div>
                 <div class="relative h-48">
                     <canvas ref="totalsChartCanvas"></canvas>
@@ -1102,7 +1102,7 @@ export default {
 
             <div class="grid items-end gap-4 rounded-xl border border-slate-100 bg-slate-50 p-5 md:grid-cols-4 dark:border-slate-800 dark:bg-slate-800/40">
                 <div>
-                    <label class="mb-1.5 block text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Source Form</label>
+                    <label class="mb-1.5 block text-[0.65rem] font-bold uppercase text-slate-500 dark:text-slate-400">Source Form</label>
                     <div class="relative">
                         <select
                             v-model="selectedChartFormType"
@@ -1118,7 +1118,7 @@ export default {
                     </div>
                 </div>
                 <div>
-                    <label class="mb-1.5 block text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Data Column</label>
+                    <label class="mb-1.5 block text-[0.65rem] font-bold uppercase text-slate-500 dark:text-slate-400">Data Column</label>
                     <div class="relative">
                         <select
                             v-model="selectedChartColumn"
@@ -1134,7 +1134,7 @@ export default {
                     </div>
                 </div>
                 <div>
-                    <label class="mb-1.5 block text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Visualization</label>
+                    <label class="mb-1.5 block text-[0.65rem] font-bold uppercase text-slate-500 dark:text-slate-400">Visualization</label>
                     <div class="relative">
                         <select
                             v-model="selectedChartType"
@@ -1189,10 +1189,10 @@ export default {
                             {{ getChartTitle(chart) }}
                         </h4>
                         <div class="mt-1 flex items-center gap-2">
-                            <span class="inline-flex rounded bg-indigo-100 px-1.5 py-0.5 text-[0.6rem] font-bold uppercase tracking-widest text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300">
+                            <span class="inline-flex rounded bg-indigo-100 px-1.5 py-0.5 text-[0.6rem] font-bold uppercase text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300">
                                 {{ chart.chartType }}
                             </span>
-                            <span class="inline-flex rounded bg-slate-200 px-1.5 py-0.5 text-[0.6rem] font-bold uppercase tracking-widest text-slate-600 dark:bg-slate-700 dark:text-slate-300">
+                            <span class="inline-flex rounded bg-slate-200 px-1.5 py-0.5 text-[0.6rem] font-bold uppercase text-slate-600 dark:bg-slate-700 dark:text-slate-300">
                                 {{ chart.dataType }}
                             </span>
                         </div>
@@ -1263,7 +1263,7 @@ export default {
 
             <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
                 <div class="rounded-xl border border-slate-100 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-800/40">
-                    <h4 class="mb-4 text-center text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                    <h4 class="mb-4 text-center text-[0.65rem] font-bold uppercase text-slate-500 dark:text-slate-400">
                         Regions
                         <span class="ml-1 text-[0.6rem] font-medium text-indigo-500">(Click to filter)</span>
                     </h4>
@@ -1274,7 +1274,7 @@ export default {
                     </div>
                 </div>
                 <div class="rounded-xl border border-slate-100 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-800/40">
-                    <h4 class="mb-4 text-center text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                    <h4 class="mb-4 text-center text-[0.65rem] font-bold uppercase text-slate-500 dark:text-slate-400">
                         Provinces
                         <span class="ml-1 text-[0.6rem] font-medium text-indigo-500">(Click to filter)</span>
                     </h4>
@@ -1285,7 +1285,7 @@ export default {
                     </div>
                 </div>
                 <div class="rounded-xl border border-slate-100 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-800/40">
-                    <h4 class="mb-4 text-center text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Cities</h4>
+                    <h4 class="mb-4 text-center text-[0.65rem] font-bold uppercase text-slate-500 dark:text-slate-400">Cities</h4>
                     <div class="relative h-44">
                         <canvas ref="cityPieCanvas"></canvas>
                     </div>

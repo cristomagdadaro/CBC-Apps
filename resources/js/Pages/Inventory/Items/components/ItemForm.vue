@@ -58,7 +58,7 @@ export default defineComponent({
                     class="w-full text-sm font-semibold" />
 
                 <div class="flex flex-col gap-1">
-                    <label class="text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Supplier *</label>
+                    <label class="text-[0.65rem] font-bold uppercase text-slate-500 dark:text-slate-400">Supplier *</label>
                     <div class="flex flex-col gap-3 sm:flex-row">
                         <div class="flex-1">
                             <custom-dropdown
@@ -89,7 +89,7 @@ export default defineComponent({
                 </div>
 
                 <div class="flex flex-col gap-1">
-                    <label class="text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Category *</label>
+                    <label class="text-[0.65rem] font-bold uppercase text-slate-500 dark:text-slate-400">Category *</label>
                     <custom-dropdown
                         required
                         searchable
@@ -132,7 +132,7 @@ export default defineComponent({
                 </div>
 
                 <div class="flex flex-col gap-1 pb-4">
-                    <label class="mb-1 text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Item Image</label>
+                    <label class="mb-1 text-[0.65rem] font-bold uppercase text-slate-500 dark:text-slate-400">Item Image</label>
                     <file-input
                         v-model="form.image"
                         file-type="image"

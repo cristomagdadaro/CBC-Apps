@@ -436,7 +436,7 @@ export default {
                             :class="req.is_enabled !== false ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-400' : 'bg-slate-200 text-slate-500 dark:bg-slate-700'">
                             {{ req.step_order ?? index + 1 }}
                         </span>
-                        <span class="text-sm font-bold uppercase tracking-widest text-slate-700 dark:text-slate-300">Step {{ req.step_order ?? index + 1 }}</span>
+                        <span class="text-sm font-bold uppercase text-slate-700 dark:text-slate-300">Step {{ req.step_order ?? index + 1 }}</span>
                     </div>
 
                     <div class="flex flex-wrap items-center gap-2">
@@ -528,7 +528,7 @@ export default {
                     }">
                     <!-- Form Type (Full width on mobile, spans 4 cols on desktop) -->
                     <div class="md:col-span-5">
-                        <label class="mb-1.5 block text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Form Type *</label>
+                        <label class="mb-1.5 block text-[0.65rem] font-bold uppercase text-slate-500 dark:text-slate-400">Form Type *</label>
                         <select
                             class="w-full rounded-xl border-slate-300 bg-white px-3 py-2.5 text-sm font-medium text-slate-800 shadow-sm transition-colors focus:border-transparent focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
                             :class="{
@@ -563,7 +563,7 @@ export default {
                         </select>
                         <div
                             v-if="getTemplateInfo(req)"
-                            class="mt-1.5 flex items-center gap-1 text-[0.65rem] font-bold uppercase tracking-widest text-indigo-600 dark:text-indigo-400">
+                            class="mt-1.5 flex items-center gap-1 text-[0.65rem] font-bold uppercase text-indigo-600 dark:text-indigo-400">
                             <LuFileCode2 class="h-3.5 w-3.5" />
                             Custom: {{ getTemplateInfo(req)?.name }}
                         </div>
@@ -579,7 +579,7 @@ export default {
                     <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 md:col-span-7">
                         <!-- Open Time -->
                         <div>
-                            <label class="mb-1.5 block text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Opens At</label>
+                            <label class="mb-1.5 block text-[0.65rem] font-bold uppercase text-slate-500 dark:text-slate-400">Opens At</label>
                             <input
                                 type="datetime-local"
                                 class="w-full rounded-xl border-slate-300 bg-white px-3 py-2.5 text-xs font-medium text-slate-800 shadow-sm transition-colors focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
@@ -599,7 +599,7 @@ export default {
 
                         <!-- Close Time -->
                         <div>
-                            <label class="mb-1.5 block text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Closes At</label>
+                            <label class="mb-1.5 block text-[0.65rem] font-bold uppercase text-slate-500 dark:text-slate-400">Closes At</label>
                             <input
                                 type="datetime-local"
                                 class="w-full rounded-xl border-slate-300 bg-white px-3 py-2.5 text-xs font-medium text-slate-800 shadow-sm transition-colors focus:ring-2 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
@@ -619,7 +619,7 @@ export default {
 
                         <!-- Max Slots -->
                         <div class="col-span-2 sm:col-span-1">
-                            <label class="mb-1.5 block text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                            <label class="mb-1.5 block text-[0.65rem] font-bold uppercase text-slate-500 dark:text-slate-400">
                                 Max Slots
                                 <span class="font-medium normal-case tracking-normal opacity-70">(opt)</span>
                             </label>
@@ -653,7 +653,7 @@ export default {
                     }">
                     <div class="mb-3 flex items-center gap-2">
                         <LuListFilter class="h-4 w-4 text-indigo-500" />
-                        <h4 class="text-[0.65rem] font-bold uppercase tracking-widest text-slate-700 dark:text-slate-300">Conditional Limits</h4>
+                        <h4 class="text-[0.65rem] font-bold uppercase text-slate-700 dark:text-slate-300">Conditional Limits</h4>
                         <span class="ml-1 text-xs font-medium text-slate-400 dark:text-slate-500">Limit submissions based on specific field values.</span>
                     </div>
 
@@ -663,7 +663,7 @@ export default {
                             :key="`${index}-limit-${limitIndex}`"
                             class="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm sm:flex-row sm:items-end dark:border-slate-800 dark:bg-slate-900">
                             <div class="flex-1">
-                                <label class="mb-1.5 block text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Target Field</label>
+                                <label class="mb-1.5 block text-[0.65rem] font-bold uppercase text-slate-500 dark:text-slate-400">Target Field</label>
                                 <input
                                     list="limit-field-options"
                                     type="text"
@@ -674,7 +674,7 @@ export default {
                                     placeholder="e.g. province_address" />
                             </div>
                             <div class="w-full sm:w-32">
-                                <label class="mb-1.5 block text-[0.65rem] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Max per value</label>
+                                <label class="mb-1.5 block text-[0.65rem] font-bold uppercase text-slate-500 dark:text-slate-400">Max per value</label>
                                 <input
                                     type="number"
                                     min="1"
@@ -730,7 +730,7 @@ export default {
             </button>
             <div
                 v-else
-                class="rounded-xl border border-slate-200 bg-slate-50 py-4 text-center text-[0.65rem] font-bold uppercase tracking-widest text-slate-400 dark:border-slate-700 dark:bg-slate-800/40 dark:text-slate-500">
+                class="rounded-xl border border-slate-200 bg-slate-50 py-4 text-center text-[0.65rem] font-bold uppercase text-slate-400 dark:border-slate-700 dark:bg-slate-800/40 dark:text-slate-500">
                 <LuCheckCircle2 class="-mt-0.5 mr-1.5 inline-block h-4 w-4 text-emerald-500" />
                 All available form types have been attached.
             </div>

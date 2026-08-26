@@ -481,36 +481,36 @@ export default {
 
                                 <p
                                     v-if="canStartOauthConnect && !googleMeta.configured"
-                                    class="mt-2 flex items-center gap-1.5 text-[0.65rem] font-bold uppercase tracking-widest opacity-80">
+                                    class="mt-2 flex items-center gap-1.5 text-[0.65rem] font-bold uppercase opacity-80">
                                     <Info class="h-3.5 w-3.5" />
                                     Complete OAuth consent flow to create the server-side token.
                                 </p>
                             </div>
                         </div>
                         <div class="flex flex-col">
-                            <span class="mb-0.5 text-[0.6rem] font-bold uppercase tracking-widest opacity-70">Auth Profile</span>
+                            <span class="mb-0.5 text-[0.6rem] font-bold uppercase opacity-70">Auth Profile</span>
                             <span class="max-w-[150px] truncate">
                                 {{ googleMeta.auth_profile || "service_account" }}
                             </span>
                         </div>
                         <div class="flex flex-col">
-                            <span class="mb-0.5 text-[0.6rem] font-bold uppercase tracking-widest opacity-70">Timezone</span>
+                            <span class="mb-0.5 text-[0.6rem] font-bold uppercase opacity-70">Timezone</span>
                             <span class="max-w-[150px] truncate">
                                 {{ googleMeta.timezone || "Asia/Manila" }}
                             </span>
                         </div>
                         <div class="col-span-2 flex flex-col md:col-span-1 lg:col-span-2">
-                            <span class="mb-0.5 text-[0.6rem] font-bold uppercase tracking-widest opacity-70">Connected Account</span>
+                            <span class="mb-0.5 text-[0.6rem] font-bold uppercase opacity-70">Connected Account</span>
                             <span class="max-w-[300px] truncate">
                                 {{ googleMeta.connected_account_email || "Unknown" }}
                             </span>
                         </div>
                         <div class="col-span-2 flex flex-col md:col-span-1 lg:col-span-2">
-                            <span class="mb-0.5 text-[0.6rem] font-bold uppercase tracking-widest opacity-70">Target Calendar</span>
+                            <span class="mb-0.5 text-[0.6rem] font-bold uppercase opacity-70">Target Calendar</span>
                             <span class="max-w-[300px] truncate">{{ googleMeta.calendar_id }}</span>
                         </div>
                         <div class="col-span-2 mt-1 flex flex-col md:col-span-1 lg:col-span-2">
-                            <span class="mb-0.5 text-[0.6rem] font-bold uppercase tracking-widest opacity-70">Sync Status</span>
+                            <span class="mb-0.5 text-[0.6rem] font-bold uppercase opacity-70">Sync Status</span>
                             <span class="font-bold">
                                 {{ syncedEventCount }} / {{ events.length }}
                                 <span class="font-medium opacity-80">portal events synced</span>
@@ -541,9 +541,9 @@ export default {
                     <div class="mb-5 flex items-center justify-between border-b border-slate-100 pb-3 dark:border-slate-800/60">
                         <div class="flex items-center gap-2">
                             <CalendarClock class="h-4 w-4 text-slate-400 dark:text-slate-500" />
-                            <h3 class="text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Sync Queue</h3>
+                            <h3 class="text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">Sync Queue</h3>
                         </div>
-                        <span class="rounded-md border border-indigo-100 bg-indigo-50 px-2 py-0.5 text-[0.6rem] font-bold uppercase tracking-widest text-indigo-600 shadow-sm dark:border-indigo-500/20 dark:bg-indigo-500/10 dark:text-indigo-400">{{ nextPortalEvents.length }} upcoming</span>
+                        <span class="rounded-md border border-indigo-100 bg-indigo-50 px-2 py-0.5 text-[0.6rem] font-bold uppercase text-indigo-600 shadow-sm dark:border-indigo-500/20 dark:bg-indigo-500/10 dark:text-indigo-400">{{ nextPortalEvents.length }} upcoming</span>
                     </div>
 
                     <div class="space-y-3">
@@ -578,7 +578,7 @@ export default {
                                         {{ event.subtitle }}
                                     </p>
                                 </div>
-                                <span :class="['shrink-0 rounded-md border px-2 py-0.5 text-[0.6rem] font-bold uppercase tracking-widest shadow-sm', isSynced(event) ? 'border-emerald-200 bg-emerald-50 text-emerald-600 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-400' : 'border-slate-200 bg-white text-slate-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400']">
+                                <span :class="['shrink-0 rounded-md border px-2 py-0.5 text-[0.6rem] font-bold uppercase shadow-sm', isSynced(event) ? 'border-emerald-200 bg-emerald-50 text-emerald-600 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-400' : 'border-slate-200 bg-white text-slate-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400']">
                                     {{ isSynced(event) ? "Synced" : "Pending" }}
                                 </span>
                             </div>
@@ -586,7 +586,7 @@ export default {
                             <div class="flex flex-wrap gap-2 border-t border-slate-200/60 pt-3 dark:border-slate-700/60">
                                 <button
                                     type="button"
-                                    class="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-slate-900 px-3 py-1.5 text-[0.65rem] font-bold uppercase tracking-widest text-white transition hover:bg-slate-800 disabled:pointer-events-none disabled:opacity-60 dark:bg-slate-700 dark:hover:bg-slate-600"
+                                    class="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-slate-900 px-3 py-1.5 text-[0.65rem] font-bold uppercase text-white transition hover:bg-slate-800 disabled:pointer-events-none disabled:opacity-60 dark:bg-slate-700 dark:hover:bg-slate-600"
                                     :disabled="syncingEventIds.includes(event.id) || !googleMeta.configured"
                                     @click="syncEvent(event)">
                                     <CloudUpload
@@ -600,7 +600,7 @@ export default {
                                 <button
                                     v-if="isSynced(event)"
                                     type="button"
-                                    class="inline-flex items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-[0.65rem] font-bold uppercase tracking-widest text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700/50"
+                                    class="inline-flex items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-[0.65rem] font-bold uppercase text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700/50"
                                     @click="openGoogleEvent(event)">
                                     <ExternalLink class="h-3 w-3" />
                                     Open
@@ -622,9 +622,9 @@ export default {
                     <div class="mb-5 flex items-center justify-between border-b border-slate-100 pb-3 dark:border-slate-800/60">
                         <div class="flex items-center gap-2">
                             <CalendarSearch class="h-4 w-4 text-slate-400 dark:text-slate-500" />
-                            <h3 class="text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Google Events</h3>
+                            <h3 class="text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">Google Events</h3>
                         </div>
-                        <span class="rounded-md border border-sky-100 bg-sky-50 px-2 py-0.5 text-[0.6rem] font-bold uppercase tracking-widest text-sky-600 shadow-sm dark:border-sky-500/20 dark:bg-sky-500/10 dark:text-sky-400">{{ googleEvents.length }} loaded</span>
+                        <span class="rounded-md border border-sky-100 bg-sky-50 px-2 py-0.5 text-[0.6rem] font-bold uppercase text-sky-600 shadow-sm dark:border-sky-500/20 dark:bg-sky-500/10 dark:text-sky-400">{{ googleEvents.length }} loaded</span>
                     </div>
 
                     <div class="space-y-3">
@@ -661,7 +661,7 @@ export default {
                             <button
                                 v-if="event.html_link"
                                 type="button"
-                                class="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-[0.65rem] font-bold uppercase tracking-widest text-slate-700 transition hover:bg-white active:scale-95 dark:border-slate-700 dark:bg-slate-800/80 dark:text-slate-300 dark:hover:bg-slate-700"
+                                class="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-[0.65rem] font-bold uppercase text-slate-700 transition hover:bg-white active:scale-95 dark:border-slate-700 dark:bg-slate-800/80 dark:text-slate-300 dark:hover:bg-slate-700"
                                 @click="openGoogleLink(event.html_link)">
                                 <ExternalLink class="h-3 w-3" />
                                 View in Google Calendar

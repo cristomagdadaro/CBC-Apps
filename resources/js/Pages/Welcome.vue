@@ -135,7 +135,7 @@ onMounted(() => {
                 <!-- Apps & Services Section -->
                 <div class="flex w-full flex-col items-center justify-center gap-6">
                     <div class="text-center">
-                        <div class="inline-flex items-center gap-2 rounded-full border border-lime-500/30 bg-lime-500/20 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-lime-100 shadow-md backdrop-blur-sm sm:text-sm dark:bg-lime-400/15 dark:text-lime-300">
+                        <div class="inline-flex items-center gap-2 rounded-full border border-lime-500/30 bg-lime-500/20 px-4 py-1.5 text-xs font-bold uppercase text-lime-100 shadow-md backdrop-blur-sm sm:text-sm dark:bg-lime-400/15 dark:text-lime-300">
                             <span class="h-1.5 w-1.5 animate-pulse rounded-full bg-lime-400"></span>
                             Apps & Services
                         </div>
@@ -169,7 +169,7 @@ onMounted(() => {
                     <div
                         class="mt-8 flex w-full max-w-2xl flex-col items-center gap-5"
                         data-guide="mobile-app-version">
-                        <div class="inline-flex items-center gap-2 rounded-full border border-lime-500/20 bg-lime-900/40 px-4 py-1.5 text-[0.65rem] font-extrabold uppercase tracking-widest text-lime-300 shadow-sm backdrop-blur-md sm:text-xs dark:bg-lime-400/10 dark:text-lime-400">Mobile App Version</div>
+                        <div class="inline-flex items-center gap-2 rounded-full border border-lime-500/20 bg-lime-900/40 px-4 py-1.5 text-[0.65rem] font-extrabold uppercase text-lime-300 shadow-sm backdrop-blur-md sm:text-xs dark:bg-lime-400/10 dark:text-lime-400">Mobile App Version</div>
 
                         <!-- Redesigned Glass Panel -->
                         <div class="w-full rounded-3xl border border-white/30 bg-white/20 p-6 shadow-2xl backdrop-blur-sm transition-all duration-300 sm:p-8 dark:border-slate-700/50 dark:bg-slate-900/40">

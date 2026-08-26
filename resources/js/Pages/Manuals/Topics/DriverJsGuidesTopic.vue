@@ -22,7 +22,7 @@ export default {
         icon="LuCompass">
         <!-- Current Guest Flow -->
         <div class="rounded-xl border border-sky-100 bg-sky-50/50 p-5 shadow-sm dark:border-sky-500/20 dark:bg-sky-500/5">
-            <h4 class="mb-3.5 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-sky-600 dark:text-sky-400">
+            <h4 class="mb-3.5 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-sky-600 dark:text-sky-400">
                 <LuRoute class="h-3.5 w-3.5" />
                 Current Guest Flow
             </h4>
@@ -53,7 +53,7 @@ export default {
         <div
             v-if="showDeveloperSections"
             class="space-y-4">
-            <h3 class="ml-1 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+            <h3 class="ml-1 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">
                 <LuFileCode2 class="h-3.5 w-3.5" />
                 Files You Will Touch
             </h3>
@@ -101,7 +101,7 @@ export default {
         <div
             v-if="showDeveloperSections"
             class="rounded-xl border border-emerald-100 bg-emerald-50/50 p-5 shadow-sm dark:border-emerald-500/20 dark:bg-emerald-500/5">
-            <h4 class="mb-3.5 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
+            <h4 class="mb-3.5 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-emerald-600 dark:text-emerald-400">
                 <LuListPlus class="h-3.5 w-3.5" />
                 Adding a Tour to a New Public Feature
             </h4>
@@ -139,7 +139,7 @@ export default {
         <div
             v-if="showDeveloperSections"
             class="rounded-xl border border-amber-100 bg-amber-50/50 p-5 shadow-sm dark:border-amber-500/20 dark:bg-amber-500/5">
-            <h4 class="mb-3 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-amber-600 dark:text-amber-400">
+            <h4 class="mb-3 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-amber-600 dark:text-amber-400">
                 <LuInfo class="h-3.5 w-3.5" />
                 Implementation Notes
             </h4>

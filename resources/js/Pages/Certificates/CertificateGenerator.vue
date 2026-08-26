@@ -125,7 +125,7 @@ export default {
                                 <LuCheckCircle class="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
                             </div>
                             <div>
-                                <p class="mb-0.5 text-[0.65rem] font-bold uppercase tracking-widest text-indigo-600/70 dark:text-indigo-400/80">Selected Event</p>
+                                <p class="mb-0.5 text-[0.65rem] font-bold uppercase text-indigo-600/70 dark:text-indigo-400/80">Selected Event</p>
                                 <p class="text-2xl font-black tracking-tight text-indigo-900 dark:text-indigo-300">#{{ selectedEventId }}</p>
                             </div>
                         </div>

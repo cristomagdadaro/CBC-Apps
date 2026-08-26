@@ -22,12 +22,12 @@ export default {
         icon="LuFileWarning">
         <!-- For Non-Programmers -->
         <div class="space-y-4">
-            <h3 class="ml-1 text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">For Non-Programmers (Inventory Staff)</h3>
+            <h3 class="ml-1 text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">For Non-Programmers (Inventory Staff)</h3>
 
             <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <!-- What are reports -->
                 <div class="rounded-xl border border-sky-100 bg-sky-50/50 p-5 shadow-sm dark:border-sky-500/20 dark:bg-sky-500/5">
-                    <h4 class="mb-4 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-sky-600 dark:text-sky-400">
+                    <h4 class="mb-4 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-sky-600 dark:text-sky-400">
                         <LuHelpCircle class="h-3.5 w-3.5" />
                         What are Inventory Reports?
                     </h4>
@@ -58,7 +58,7 @@ export default {
 
                 <!-- Status Tracking -->
                 <div class="rounded-xl border border-amber-100 bg-amber-50/50 p-5 shadow-sm dark:border-amber-500/20 dark:bg-amber-500/5">
-                    <h4 class="mb-4 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-amber-600 dark:text-amber-400">
+                    <h4 class="mb-4 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-amber-600 dark:text-amber-400">
                         <LuActivity class="h-3.5 w-3.5" />
                         Report Status Tracking
                     </h4>
@@ -97,7 +97,7 @@ export default {
 
             <!-- How to File -->
             <div class="rounded-xl border border-emerald-100 bg-emerald-50/50 p-5 shadow-sm dark:border-emerald-500/20 dark:bg-emerald-500/5">
-                <h4 class="mb-4 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
+                <h4 class="mb-4 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-emerald-600 dark:text-emerald-400">
                     <LuListPlus class="h-3.5 w-3.5" />
                     How to File a Report
                 </h4>
@@ -152,12 +152,12 @@ export default {
         <div
             v-if="showDeveloperSections"
             class="space-y-4 border-t border-slate-100 pt-6 dark:border-slate-800/60">
-            <h3 class="ml-1 text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">For Programmers (Implementation)</h3>
+            <h3 class="ml-1 text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">For Programmers (Implementation)</h3>
 
             <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <!-- Model Structure -->
                 <div class="rounded-xl border border-indigo-100 bg-indigo-50/50 p-5 shadow-sm dark:border-indigo-500/20 dark:bg-indigo-500/5">
-                    <h4 class="mb-3 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-indigo-600 dark:text-indigo-400">
+                    <h4 class="mb-3 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-indigo-600 dark:text-indigo-400">
                         <LuDatabase class="h-3.5 w-3.5" />
                         Report Model Structure
                     </h4>
@@ -184,7 +184,7 @@ export default {
 
                 <!-- Key Files -->
                 <div class="rounded-xl border border-slate-200/60 bg-slate-50/50 p-5 shadow-sm dark:border-slate-700/60 dark:bg-slate-800/30">
-                    <h4 class="mb-3 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-slate-600 dark:text-slate-300">
+                    <h4 class="mb-3 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-slate-600 dark:text-slate-300">
                         <LuFolderTree class="h-3.5 w-3.5" />
                         Key Files
                     </h4>

@@ -24,7 +24,7 @@ export default {
         <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
             <!-- Key Features -->
             <div class="rounded-xl border border-slate-200/60 bg-slate-50/50 p-5 shadow-sm dark:border-slate-700/60 dark:bg-slate-800/30">
-                <h3 class="mb-3.5 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                <h3 class="mb-3.5 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">
                     <LuSparkles class="h-3.5 w-3.5" />
                     Key Features
                 </h3>
@@ -69,7 +69,7 @@ export default {
 
             <!-- Where to Access -->
             <div class="flex flex-col rounded-xl border border-sky-100 bg-sky-50/50 p-5 shadow-sm dark:border-sky-500/20 dark:bg-sky-500/10">
-                <h3 class="mb-3 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-sky-600 dark:text-sky-400">
+                <h3 class="mb-3 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-sky-600 dark:text-sky-400">
                     <LuDatabase class="h-3.5 w-3.5" />
                     Where to Access
                 </h3>
@@ -83,7 +83,7 @@ export default {
 
         <!-- Available Option Groups -->
         <div class="space-y-3">
-            <h3 class="ml-1 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+            <h3 class="ml-1 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">
                 <LuLayoutList class="h-3.5 w-3.5" />
                 Available Option Groups
             </h3>
@@ -149,7 +149,7 @@ export default {
 
         <!-- CRUD Operations -->
         <div class="space-y-3">
-            <h3 class="ml-1 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+            <h3 class="ml-1 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">
                 <LuSettings class="h-3.5 w-3.5" />
                 Managing Options
             </h3>
@@ -228,7 +228,7 @@ export default {
 
         <!-- Option Types Explained -->
         <div class="space-y-3">
-            <h3 class="ml-1 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+            <h3 class="ml-1 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">
                 <LuType class="h-3.5 w-3.5" />
                 Option Types Explained
             </h3>
@@ -284,7 +284,7 @@ export default {
         <div
             v-if="showDeveloperSections"
             class="space-y-3">
-            <h3 class="ml-1 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+            <h3 class="ml-1 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">
                 <LuCode2 class="h-3.5 w-3.5" />
                 Using Options in Code
             </h3>
@@ -316,7 +316,7 @@ export default {
         <!-- Tips & Best Practices -->
         <div class="grid grid-cols-1 gap-6 pt-2 md:grid-cols-2">
             <div class="rounded-xl border border-emerald-100 bg-emerald-50/50 p-5 shadow-sm dark:border-emerald-500/20 dark:bg-emerald-500/5">
-                <h4 class="mb-3 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
+                <h4 class="mb-3 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-emerald-600 dark:text-emerald-400">
                     <LuCheckCircle2 class="h-3.5 w-3.5" />
                     Best Practices
                 </h4>
@@ -341,7 +341,7 @@ export default {
             </div>
 
             <div class="rounded-xl border border-rose-100 bg-rose-50/50 p-5 shadow-sm dark:border-rose-500/20 dark:bg-rose-500/5">
-                <h4 class="mb-3 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-rose-600 dark:text-rose-400">
+                <h4 class="mb-3 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-rose-600 dark:text-rose-400">
                     <LuXCircle class="h-3.5 w-3.5" />
                     Avoid Doing
                 </h4>

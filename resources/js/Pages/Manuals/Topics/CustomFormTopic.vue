@@ -22,7 +22,7 @@ export default {
         icon="LuClipboardList">
         <!-- For Non-Programmers -->
         <div class="space-y-4">
-            <h3 class="ml-1 text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">For Non-Programmers (Event Administrators)</h3>
+            <h3 class="ml-1 text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">For Non-Programmers (Event Administrators)</h3>
 
             <div class="rounded-xl border border-sky-100 bg-sky-50/50 p-5 shadow-sm dark:border-sky-500/20 dark:bg-sky-500/5">
                 <div class="mb-4 flex items-start gap-3 border-b border-sky-100 pb-4 dark:border-sky-500/20">
@@ -30,7 +30,7 @@ export default {
                     <p class="text-xs font-medium leading-relaxed text-slate-600 dark:text-slate-300">If you only need a new form for a specific event, you do not need code changes[cite: 10]. Use the Requirements manager when creating or editing an event form[cite: 10]. If the dropdown does not have the form type you need, ask a developer to create a new custom form type[cite: 10].</p>
                 </div>
 
-                <h4 class="mb-3 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-sky-600 dark:text-sky-400">
+                <h4 class="mb-3 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-sky-600 dark:text-sky-400">
                     <LuSettings2 class="h-3.5 w-3.5" />
                     Steps to Add an Existing Form
                 </h4>
@@ -79,7 +79,7 @@ export default {
             v-if="showDeveloperSections"
             class="space-y-4 border-t border-slate-100 pt-6 dark:border-slate-800/60">
             <div class="mb-4 ml-1">
-                <h3 class="mb-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">For Programmers (Implementation)</h3>
+                <h3 class="mb-1.5 text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">For Programmers (Implementation)</h3>
                 <p class="text-xs font-medium leading-relaxed text-slate-500 dark:text-slate-400">
                     A custom form type is identified by a unique slug (e.g.,
                     <code class="rounded-md border border-slate-200 bg-slate-100 px-1.5 py-0.5 font-mono text-[0.65rem] dark:border-slate-700 dark:bg-slate-800">speaker_evaluation</code>
@@ -91,7 +91,7 @@ export default {
                 <!-- Step 1 & 2 -->
                 <div class="space-y-4">
                     <div class="rounded-xl border border-amber-100 bg-amber-50/50 p-5 shadow-sm dark:border-amber-500/20 dark:bg-amber-500/5">
-                        <h4 class="mb-2.5 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-amber-600 dark:text-amber-400">
+                        <h4 class="mb-2.5 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-amber-600 dark:text-amber-400">
                             <LuCode2 class="h-3.5 w-3.5" />
                             Step 1: Choose Slug
                         </h4>
@@ -103,7 +103,7 @@ export default {
                     </div>
 
                     <div class="rounded-xl border border-emerald-100 bg-emerald-50/50 p-5 shadow-sm dark:border-emerald-500/20 dark:bg-emerald-500/5">
-                        <h4 class="mb-3 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
+                        <h4 class="mb-3 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-emerald-600 dark:text-emerald-400">
                             <LuDatabase class="h-3.5 w-3.5" />
                             Step 2: Backend Registration
                         </h4>
@@ -133,7 +133,7 @@ export default {
                 <!-- Step 3 & 4 -->
                 <div class="space-y-4">
                     <div class="rounded-xl border border-purple-100 bg-purple-50/50 p-5 shadow-sm dark:border-purple-500/20 dark:bg-purple-500/5">
-                        <h4 class="mb-2.5 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-purple-600 dark:text-purple-400">
+                        <h4 class="mb-2.5 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-purple-600 dark:text-purple-400">
                             <LuLayoutTemplate class="h-3.5 w-3.5" />
                             Step 3: Default Field Structure
                         </h4>
@@ -153,7 +153,7 @@ export default {
                     </div>
 
                     <div class="rounded-xl border border-pink-100 bg-pink-50/50 p-5 shadow-sm dark:border-pink-500/20 dark:bg-pink-500/5">
-                        <h4 class="mb-2.5 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-pink-600 dark:text-pink-400">
+                        <h4 class="mb-2.5 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-pink-600 dark:text-pink-400">
                             <LuFileCode class="h-3.5 w-3.5" />
                             Step 4: Create Form Component
                         </h4>
@@ -163,7 +163,7 @@ export default {
                             <code class="break-all rounded-md border border-slate-200 bg-white px-1.5 py-0.5 font-mono text-[0.65rem] text-pink-600 shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-pink-400">resources/js/Pages/Forms/components</code>
                             [cite: 10].
                         </p>
-                        <p class="mb-2 text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500">Examples to follow:</p>
+                        <p class="mb-2 text-[0.65rem] font-semibold uppercase text-slate-500">Examples to follow:</p>
                         <ul class="ml-1 space-y-1.5 text-xs font-medium text-slate-600 dark:text-slate-300">
                             <li class="flex items-center gap-2">
                                 <div class="h-1 w-1 rounded-full bg-pink-400"></div>
@@ -182,7 +182,7 @@ export default {
                 <!-- Step 5, 6, 7 -->
                 <div class="grid grid-cols-1 gap-4 md:grid-cols-3 lg:col-span-2">
                     <div class="rounded-xl border border-indigo-100 bg-indigo-50/50 p-5 shadow-sm dark:border-indigo-500/20 dark:bg-indigo-500/5">
-                        <h4 class="mb-2.5 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-indigo-600 dark:text-indigo-400">
+                        <h4 class="mb-2.5 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-indigo-600 dark:text-indigo-400">
                             <LuGitMerge class="h-3.5 w-3.5" />
                             Step 5: Guest Workflow
                         </h4>
@@ -217,7 +217,7 @@ export default {
                     </div>
 
                     <div class="rounded-xl border border-orange-100 bg-orange-50/50 p-5 shadow-sm dark:border-orange-500/20 dark:bg-orange-500/5">
-                        <h4 class="mb-2.5 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-orange-600 dark:text-orange-400">
+                        <h4 class="mb-2.5 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-orange-600 dark:text-orange-400">
                             <LuListPlus class="h-3.5 w-3.5" />
                             Step 6: Req. Dropdown
                         </h4>
@@ -237,7 +237,7 @@ export default {
                     </div>
 
                     <div class="rounded-xl border border-rose-100 bg-rose-50/50 p-5 shadow-sm dark:border-rose-500/20 dark:bg-rose-500/5">
-                        <h4 class="mb-2.5 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-rose-600 dark:text-rose-400">
+                        <h4 class="mb-2.5 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-rose-600 dark:text-rose-400">
                             <LuTestTube class="h-3.5 w-3.5" />
                             Step 7: Tests/Seeders
                         </h4>
@@ -262,7 +262,7 @@ export default {
             <!-- Checklist & Pitfalls -->
             <div class="grid grid-cols-1 gap-6 pt-4 lg:grid-cols-2">
                 <div class="rounded-xl border border-slate-200/60 bg-slate-50/50 p-5 shadow-sm dark:border-slate-700/60 dark:bg-slate-800/30">
-                    <h3 class="mb-3.5 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                    <h3 class="mb-3.5 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">
                         <LuCheckSquare class="h-3.5 w-3.5" />
                         Quick Checklist
                     </h3>
@@ -305,7 +305,7 @@ export default {
                 </div>
 
                 <div class="rounded-xl border border-rose-100 bg-rose-50/50 p-5 shadow-sm dark:border-rose-500/20 dark:bg-rose-500/5">
-                    <h3 class="mb-3.5 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase tracking-widest text-rose-600 dark:text-rose-400">
+                    <h3 class="mb-3.5 flex items-center gap-1.5 text-[0.65rem] font-semibold uppercase text-rose-600 dark:text-rose-400">
                         <LuAlertTriangle class="h-3.5 w-3.5" />
                         Common Pitfalls
                     </h3>

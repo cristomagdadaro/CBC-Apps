@@ -139,6 +139,12 @@
 - [ID-2026-08-10-001] Resolved. Laboratory Dashboard KPI cards for Active and Overdue Equipment now calculate unique equipment counts rather than total active/overdue sessions. Renamed the session counter to "Active Sessions" and the main table to "Currently Active Sessions" to clarify the distinction between distinct equipment usage and individual personnel check-in sessions.
 - [ID-2026-08-10-002] Resolved. Added a "Recently reported equipments" side panel to the Laboratory Dashboard. The backend `LaboratoryLogService` now queries `supp_equip_reports` for the 5 most recent reports attached to laboratory equipment, and the UI links these entries directly to their dedicated `suppEquipReports.show` pages instead of the transaction view.
 
+## Tracker Updates (2026-08-26)
+- [ID-2026-08-26-001] Resolved. Refactored `InventoryReportService::getDashboardTopPersonnel` to compute dual leaderboards for both 'incoming' and 'outgoing' transactions. The frontend `InventoryDashboard.vue` now features dual toggles for Outgoing/Incoming and Volume/Transac metrics.
+- [ID-2026-08-26-002] Resolved. Removed repetitive `try/catch` boilerplate across Repository layer classes like `AbstractRepoService`, shifting dependency to the global `App\Exceptions\Handler` for centralized error logging.
+- [ID-2026-08-26-003] Resolved. Standardized local development environments by pointing `SPROUTAI_HOST` configuration to `127.0.0.1:8001` across `.env`, `config/services.php`, `config/sanctum.php`, and `routes/web.php`.
+- [ID-2026-08-26-004] Resolved. Cleaned up service boundaries by migrating `getRemainingStocks()` from `TransactionRepo` directly into `InventoryReportService`.
+
 ### Verification Snapshot (2026-06-23)
 - `npm run build`: passed successfully.
 - `php artisan test`: 222 assertions passed successfully across the suite.

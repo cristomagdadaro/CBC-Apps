@@ -9,7 +9,7 @@
 
         <div class="flex items-center gap-1.5 px-1">
             <LuCode2 class="h-3.5 w-3.5 text-slate-400 dark:text-slate-500" />
-            <span class="text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Valid JSON format</span>
+            <span class="text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">Valid JSON format</span>
         </div>
     </div>
 </template>

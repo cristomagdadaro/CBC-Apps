@@ -85,7 +85,7 @@ export default {
                     class="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-sm font-medium text-slate-900 shadow-sm transition-all duration-200 ease-out placeholder:text-slate-400 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500" />
             </div>
             <div class="w-fit shrink-0 rounded-lg border border-slate-100 bg-slate-50 px-3 py-1.5 dark:border-slate-700 dark:bg-slate-800/50">
-                <p class="text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                <p class="text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">
                     Showing
                     <span class="font-bold text-indigo-600 dark:text-indigo-400">
                         {{ filteredIcons.length }}
@@ -117,7 +117,7 @@ export default {
                 <button
                     type="button"
                     @click="copyIconTag(icon.name)"
-                    class="flex w-full items-center justify-center gap-1.5 rounded-lg border px-2 py-1.5 text-[0.6rem] font-bold uppercase tracking-widest transition-all active:scale-95"
+                    class="flex w-full items-center justify-center gap-1.5 rounded-lg border px-2 py-1.5 text-[0.6rem] font-bold uppercase transition-all active:scale-95"
                     :class="copiedName === icon.name ? 'border-emerald-200 bg-emerald-50 text-emerald-600 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-400' : 'border-slate-200 bg-white text-slate-500 hover:bg-slate-50 hover:text-indigo-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-indigo-400'">
                     <template v-if="copiedName === icon.name">
                         <LuCheckCircle2 class="h-3 w-3" />

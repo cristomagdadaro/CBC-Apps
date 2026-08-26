@@ -212,7 +212,7 @@ export default {
                 <!-- Navigation Sidebar -->
                 <div class="lg:col-span-1">
                     <nav class="sticky top-6 flex flex-col gap-1 rounded-2xl border border-slate-200/60 bg-white/80 p-3 shadow-sm backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/80">
-                        <h3 class="mb-1 px-3 py-2 text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Topics</h3>
+                        <h3 class="mb-1 px-3 py-2 text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">Topics</h3>
                         <button
                             v-for="item in visibleMenuItems"
                             :key="item.id"

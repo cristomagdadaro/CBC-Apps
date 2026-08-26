@@ -271,7 +271,7 @@ export default {
                                             </div>
                                             <div>
                                                 <span class="block text-sm font-bold tracking-tight text-slate-900 dark:text-white">Event Workflow</span>
-                                                <span class="mt-0.5 block text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Manage Processing</span>
+                                                <span class="mt-0.5 block text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">Manage Processing</span>
                                             </div>
                                         </div>
                                         <input
@@ -297,7 +297,7 @@ export default {
                                             </div>
                                             <div>
                                                 <span class="block text-sm font-bold tracking-tight text-slate-900 dark:text-white">Participant Workflow</span>
-                                                <span class="mt-0.5 block text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Handle Logic</span>
+                                                <span class="mt-0.5 block text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">Handle Logic</span>
                                             </div>
                                         </div>
                                         <input
@@ -323,7 +323,7 @@ export default {
                                             </div>
                                             <div>
                                                 <span class="block text-sm font-bold tracking-tight text-slate-900 dark:text-white">Verification</span>
-                                                <span class="mt-0.5 block text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">Enable Steps</span>
+                                                <span class="mt-0.5 block text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">Enable Steps</span>
                                             </div>
                                         </div>
                                         <input
@@ -389,7 +389,7 @@ export default {
                                         :key="section.key"
                                         class="rounded-2xl border border-slate-200/60 bg-slate-50/50 p-5 shadow-sm dark:border-slate-700/60 dark:bg-slate-800/30">
                                         <div class="mb-4">
-                                            <h4 class="text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                                            <h4 class="text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">
                                                 {{ section.label }}
                                             </h4>
                                         </div>
@@ -407,13 +407,13 @@ export default {
                                                                 {{ item.label }}
                                                             </h5>
                                                             <span
-                                                                class="inline-flex items-center rounded-md px-2 py-0.5 text-[0.6rem] font-bold uppercase tracking-widest shadow-sm"
+                                                                class="inline-flex items-center rounded-md px-2 py-0.5 text-[0.6rem] font-bold uppercase shadow-sm"
                                                                 :class="moduleStatusBadge(item).className">
                                                                 {{ moduleStatusBadge(item).label }}
                                                             </span>
                                                             <span
                                                                 v-if="isModuleProtected(item)"
-                                                                class="inline-flex items-center rounded-md border border-indigo-200 bg-indigo-50 px-2 py-0.5 text-[0.6rem] font-bold uppercase tracking-widest text-indigo-600 shadow-sm dark:border-indigo-500/30 dark:bg-indigo-500/10 dark:text-indigo-400">
+                                                                class="inline-flex items-center rounded-md border border-indigo-200 bg-indigo-50 px-2 py-0.5 text-[0.6rem] font-bold uppercase text-indigo-600 shadow-sm dark:border-indigo-500/30 dark:bg-indigo-500/10 dark:text-indigo-400">
                                                                 Safeguarded
                                                             </span>
                                                         </div>
@@ -427,7 +427,7 @@ export default {
                                                         <div class="w-full sm:w-40 lg:w-full xl:w-40">
                                                             <label
                                                                 :for="`${item.module}-access`"
-                                                                class="mb-1.5 block text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                                                                class="mb-1.5 block text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">
                                                                 Deployment Access
                                                             </label>
                                                             <select
@@ -446,7 +446,7 @@ export default {
                                                         <div class="w-full sm:w-40 lg:w-full xl:w-40">
                                                             <label
                                                                 :for="`${item.module}-mode`"
-                                                                class="mb-1.5 block text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                                                                class="mb-1.5 block text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">
                                                                 Module Mode
                                                             </label>
                                                             <select
