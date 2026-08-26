@@ -357,8 +357,10 @@ class InventoryReportService
             ],
             'totals' => $this->getDashboardTotals($base),
             'top_issued_items' => $this->getDashboardTopIssuedItems($base),
-            'top_personnel_by_volume' => $topPersonnel['by_volume'],
-            'top_personnel_by_transaction' => $topPersonnel['by_transaction'],
+            'top_personnel_outgoing_volume' => $topPersonnel['outgoing_by_volume'],
+            'top_personnel_outgoing_transaction' => $topPersonnel['outgoing_by_transaction'],
+            'top_personnel_incoming_volume' => $topPersonnel['incoming_by_volume'],
+            'top_personnel_incoming_transaction' => $topPersonnel['incoming_by_transaction'],
             'recent_transactions' => $this->getDashboardRecentTransactions($base),
             'items_per_category' => $this->getDashboardItemsPerCategory($base),
             'items_per_location' => $this->getDashboardItemsPerLocation($base),
@@ -482,27 +484,34 @@ class InventoryReportService
 
     private function getDashboardTopPersonnel(Builder $base, int $limit = 5): array
     {
-        $personnelStats = (clone $base)
-            ->where('transactions.transac_type', 'outgoing')
-            ->join('personnels', 'transactions.personnel_id', '=', 'personnels.id')
-            ->selectRaw("
-                CONCAT(personnels.fname, ' ', personnels.lname) as name, 
-                personnels.position, 
-                personnels.employee_id, 
-                SUM(ABS(transactions.quantity)) as total_volume, 
-                COUNT(transactions.id) as transac_count
-            ")
-            ->groupBy(
-                'personnels.id', 
-                'personnels.fname', 
-                'personnels.lname', 
-                'personnels.position', 
-                'personnels.employee_id'
-            );
+        $personnelStats = function ($type) use ($base) {
+            return (clone $base)
+                ->where('transactions.transac_type', $type)
+                ->join('personnels', 'transactions.personnel_id', '=', 'personnels.id')
+                ->selectRaw("
+                    CONCAT(personnels.fname, ' ', personnels.lname) as name, 
+                    personnels.position, 
+                    personnels.employee_id, 
+                    SUM(ABS(transactions.quantity)) as total_volume, 
+                    COUNT(transactions.id) as transac_count
+                ")
+                ->groupBy(
+                    'personnels.id', 
+                    'personnels.fname', 
+                    'personnels.lname', 
+                    'personnels.position', 
+                    'personnels.employee_id'
+                );
+        };
+
+        $outgoing = $personnelStats('outgoing');
+        $incoming = $personnelStats('incoming');
 
         return [
-            'by_volume' => (clone $personnelStats)->orderByDesc('total_volume')->limit($limit)->get(),
-            'by_transaction' => (clone $personnelStats)->orderByDesc('transac_count')->limit($limit)->get(),
+            'outgoing_by_volume' => (clone $outgoing)->orderByDesc('total_volume')->limit($limit)->get(),
+            'outgoing_by_transaction' => (clone $outgoing)->orderByDesc('transac_count')->limit($limit)->get(),
+            'incoming_by_volume' => (clone $incoming)->orderByDesc('total_volume')->limit($limit)->get(),
+            'incoming_by_transaction' => (clone $incoming)->orderByDesc('transac_count')->limit($limit)->get(),
         ];
     }
 

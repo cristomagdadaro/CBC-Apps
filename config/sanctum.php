@@ -16,6 +16,7 @@ $defaultStatefulDomains = [
     '::1',
     'onecbc.philrice.gov.ph',
     '192.168.36.10',
+    env('SPROUTAI_HOST', 'http://127.0.0.1:8001')
 ];
 
 $localAppUrl = (string) env('APP_URL_LOCAL', '');

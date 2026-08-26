@@ -278,7 +278,7 @@ export default {
                                 <div class="ml-4 font-mono text-[0.65rem] font-medium tracking-wide text-[#858585]">Callback URIs</div>
                             </div>
                             <pre class="vscode-scrollbar overflow-x-auto p-4 font-mono text-[0.7rem] leading-loose text-[#d4d4d4]"><code class="!bg-transparent !p-0 !border-0 !shadow-none !text-inherit"><span class="text-[#ce9178]">http://127.0.0.1:8000/apps/rentals/calendar/google/callback</span>
-<span class="text-[#ce9178]">https://onecbc.philrice.gov.ph/apps/rentals/calendar/google/callback</span></code></pre>
+                            <span class="text-[#ce9178]">https://onecbc.philrice.gov.ph/apps/rentals/calendar/google/callback</span></code></pre>
                         </div>
                     </div>
                 </div>

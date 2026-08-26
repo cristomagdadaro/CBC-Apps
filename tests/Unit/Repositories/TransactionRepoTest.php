@@ -12,6 +12,7 @@ use App\Models\Transaction;
 use App\Models\User;
 use App\Repositories\LaboratoryEquipmentLogRepo;
 use App\Repositories\TransactionRepo;
+use App\Services\Inventory\InventoryReportService;
 use Illuminate\Support\Collection;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -264,7 +265,8 @@ class TransactionRepoTest extends TestCase
             'project_code' => null,
         ]);
 
-        $stocks = $repo->getRemainingStocks(new Collection([
+        $service = $this->app->make(InventoryReportService::class);
+        $stocks = $service->getRemainingStocks(new Collection([
             'include_all_categories' => true,
             'paginate' => false,
             'per_page' => '*',

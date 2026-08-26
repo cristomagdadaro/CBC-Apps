@@ -25,3 +25,17 @@ SoC (Separation of Concerns): Different sections of a program should handle dist
 Composition over Inheritance: Instead of building deep, fragile class hierarchies, build classes by assembling smaller, modular pieces of functionality.
 
 Law of Demeter (Principle of Least Knowledge): A unit should have limited knowledge about other units. Objects should only talk to their immediate friends, not strangers.
+
+---
+
+## Inventory Module Realizations (August 2026)
+
+Following a comprehensive review and refactor of the Inventory module (`InventoryReportService`, `InventoryRecountService`, `AbstractRepoService`, and related controllers/pipelines), here are the architectural contemplations and realizations applied to adhere strictly to the above standards:
+
+1. **Fail Fast & KISS (Repositories):** We removed redundant `try/catch` wrapping within the `AbstractRepoService.php` baseline. Intercepting exceptions solely to re-throw them violated Fail Fast (by introducing boilerplate) and KISS. Laravel's global exception handler is now the authoritative source of truth for runtime failures, cleaning up data-access logic application-wide.
+
+2. **Single Responsibility & SoC (Services):** `InventoryReportService.php` and `InventoryRecountService.php` were extremely heavy. We applied rigorous DRY and SRP principles, extracting "canonical" expressions (`canonicalTransactionFieldExpression`) so that complex SQL calculations exist in exactly *one* authoritative place. Massive query builder methods (`getRemainingStocks`, `getInventoryDashboardMetrics`) were heavily defragmented into hyper-focused micro-functions.
+
+3. **Dependency Inversion & Form Requests (Controllers):** `TransactionController` perfectly adheres to SoC and Fail Fast. It offloads all validation to FormRequests (`CreateTransactionRequest`, `NewOutgoingRequest`) before hitting controller logic, failing instantly upon bad data. It depends heavily on abstraction (Dependency Injection for Repositories and Services) rather than concrete implementations.
+
+4. **Composition over Inheritance (Pipelines):** The transaction creation lifecycle correctly avoids deep, fragile class hierarchies. Instead, it utilizes Laravel Pipelines (`ResolveUserByEmployeeId`, `AssignTransactionUuid`, `PersistTransaction`). These modular, self-contained pieces of functionality allow the transaction flow to be infinitely extensible without modifying core classes (Open/Closed Principle).

@@ -36,7 +36,7 @@ Route::get('/ai', function() {
 
     $signature = hash_hmac('sha256', $payload, env('SPROUTAI_INTERNAL_SYNC_TOKEN'));
 
-    $redirectUrl = rtrim(env('SPROUTAI_HOST', 'https://onecbc.philrice.gov.ph/ai'), '/') . '/sso-login?' . http_build_query([
+    $redirectUrl = rtrim(env('SPROUTAI_HOST', 'http://127.0.0.1:8001/login'), '/') . '/sso-login?' . http_build_query([
         'payload' => $payload,
         'signature' => $signature,
     ]);

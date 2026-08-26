@@ -24,7 +24,7 @@ class Handler extends ExceptionHandler
     public function register(): void
     {
         $this->reportable(function (Throwable $e) {
-            //
+            \Illuminate\Support\Facades\Log::error('Error occurred: ' . $e->getMessage(), ['exception' => $e]);
         });
     }
 }

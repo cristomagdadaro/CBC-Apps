@@ -27,54 +27,38 @@ abstract class AbstractRepoService {
 
     public function create(array $data)
     {
-        try {
-            $model = $this->model->create($data);
-            $model->save();
+        $model = $this->model->create($data);
+        $model->save();
 
-            return $model;
-        } catch (Exception $error) {
-            $this->sendError($error);
-        }
+        return $model;
     }
 
     public function update(int|string $id, array $data): Model
     {
-        try {
-            $model = $this->model->findOrFail($id);
-            $model->fill($data);
-            $model->save();
+        $model = $this->model->findOrFail($id);
+        $model->fill($data);
+        $model->save();
 
-            return $model;
-        } catch (Exception $error) {
-            $this->sendError($error);
-        }
+        return $model;
     }
 
     public function delete(int|string $id): Model
     {
-        try {
-            $model = $this->model->findOrFail($id);
-            
-            $deletedData = $model->getAttributes();
-            
-            $model->delete();
-            
-            $model->setRawAttributes($deletedData);
-            
-            return $model;
-        } catch (Exception $e) {
-            $this->sendError($e);
-        }
+        $model = $this->model->findOrFail($id);
+        
+        $deletedData = $model->getAttributes();
+        
+        $model->delete();
+        
+        $model->setRawAttributes($deletedData);
+        
+        return $model;
     }
 
 
     public function search(Collection $parameters, bool $withPagination = true, bool $isTrashed = false)
     {
-        try {
-            return $this->buildSearchQuery($parameters, $withPagination, $isTrashed);
-        } catch (Exception $error) {
-            $this->sendError($error);
-        }
+        return $this->buildSearchQuery($parameters, $withPagination, $isTrashed);
     }
 
     protected function buildSearchQuery(Collection $parameters, bool $withPagination, bool $isTrashed)
@@ -385,18 +369,22 @@ abstract class AbstractRepoService {
 
     protected function applyFullNameSearch(Builder $query, Model $model, string $operator, string $value): void
     {
+        $validOperators = ['=', '!=', 'like', 'ilike', '<', '>', '<=', '>='];
+        $safeOperator = in_array(strtolower(trim($operator)), $validOperators) ? $operator : '=';
+
         $expression = $this->fullNameExpression($model);
 
-        $query->whereRaw("{$expression} {$operator} ?", [$value]);
+        $query->whereRaw("{$expression} {$safeOperator} ?", [$value]);
     }
-
+    
     protected function fullNameExpression(Model $model): string
     {
         $driver = $model->getConnection()->getDriverName();
+        $table = $model->getTable(); 
 
         return match ($driver) {
-            'sqlite' => "TRIM(REPLACE(REPLACE(COALESCE(fname, '') || ' ' || COALESCE(mname, '') || ' ' || COALESCE(lname, '') || ' ' || COALESCE(suffix, ''), '  ', ' '), '  ', ' '))",
-            default => "TRIM(CONCAT_WS(' ', fname, mname, lname, suffix))",
+            'sqlite' => "TRIM(REPLACE(REPLACE(COALESCE({$table}.fname, '') || ' ' || COALESCE({$table}.mname, '') || ' ' || COALESCE({$table}.lname, '') || ' ' || COALESCE({$table}.suffix, ''), '  ', ' '), '  ', ' '))",
+            default => "TRIM(CONCAT_WS(' ', {$table}.fname, {$table}.mname, {$table}.lname, {$table}.suffix))",
         };
     }
 
@@ -465,14 +453,5 @@ abstract class AbstractRepoService {
         }
 
         return $query->paginate($perPage, ['*'], 'page', $page)->withQueryString();
-    }
-
-    /**
-     * @throws Throwable
-     */
-    public function sendError(Throwable $error): never
-    {
-        Log::error('Error occurred: ' . $error->getMessage(), ['exception' => $error]);
-        throw $error;
     }
 }

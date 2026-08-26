@@ -67,14 +67,17 @@ export default {
                     total_transactions: 0,
                 },
                 top_issued_items: [],
-                top_personnel_by_volume: [],
-                top_personnel_by_transaction: [],
+                top_personnel_outgoing_volume: [],
+                top_personnel_outgoing_transaction: [],
+                top_personnel_incoming_volume: [],
+                top_personnel_incoming_transaction: [],
                 recent_transactions: [],
                 items_per_category: [],
                 items_per_location: [],
                 items_per_project_code: [],
                 stock_buckets: { empty: 0, low: 0, mid: 0, high: 0 },
             },
+            topPersonnelType: "outgoing",
             topPersonnelMode: "volume",
             realtimeCleanup: null,
             realtimeRefreshTimer: null,
@@ -203,7 +206,9 @@ export default {
             return Math.max(...(this.dashboard?.top_issued_items || []).map((i) => i.total_quantity), 1);
         },
         topPersonnel() {
-            return this.topPersonnelMode === "volume" ? this.dashboard.top_personnel_by_volume : this.dashboard.top_personnel_by_transaction;
+            const type = this.topPersonnelType;
+            const mode = this.topPersonnelMode;
+            return this.dashboard[`top_personnel_${type}_${mode}`] || [];
         },
     },
     methods: {
@@ -226,8 +231,10 @@ export default {
                         total_transactions: 0,
                     },
                     top_issued_items: payload?.top_issued_items ?? [],
-                    top_personnel_by_volume: payload?.top_personnel_by_volume ?? [],
-                    top_personnel_by_transaction: payload?.top_personnel_by_transaction ?? [],
+                    top_personnel_outgoing_volume: payload?.top_personnel_outgoing_volume ?? [],
+                    top_personnel_outgoing_transaction: payload?.top_personnel_outgoing_transaction ?? [],
+                    top_personnel_incoming_volume: payload?.top_personnel_incoming_volume ?? [],
+                    top_personnel_incoming_transaction: payload?.top_personnel_incoming_transaction ?? [],
                     recent_transactions: this.convertToTransaction(payload?.recent_transactions) ?? [],
                     items_per_category: payload?.items_per_category ?? [],
                     items_per_location: payload?.items_per_location ?? [],
@@ -600,23 +607,37 @@ export default {
                     <div class="mb-4 flex items-center justify-between">
                         <div class="flex items-center gap-2">
                             <Users class="w-4.5 h-4.5 text-blue-500" />
-                            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-800 sm:text-sm dark:text-slate-200">Top Personnel</h3>
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-800 sm:text-sm dark:text-slate-200">Leading Stock Movers</h3>
                         </div>
-                        
-                        <!-- Toggle Button Group -->
-                        <div class="flex items-center rounded-lg border border-slate-200 bg-slate-100 p-0.5 dark:border-slate-700 dark:bg-slate-800">
-                            <button 
-                                @click="topPersonnelMode = 'volume'"
-                                :class="['px-2 py-1 text-[0.65rem] sm:text-xs font-semibold rounded-md transition-colors', topPersonnelMode === 'volume' ? 'bg-white text-slate-900 shadow-sm dark:bg-slate-700 dark:text-white' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200']"
-                            >
-                                Volume
-                            </button>
-                            <button 
-                                @click="topPersonnelMode = 'transaction'"
-                                :class="['px-2 py-1 text-[0.65rem] sm:text-xs font-semibold rounded-md transition-colors', topPersonnelMode === 'transaction' ? 'bg-white text-slate-900 shadow-sm dark:bg-slate-700 dark:text-white' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200']"
-                            >
-                                Transac
-                            </button>
+
+                        <div class="flex items-center gap-1.5 sm:gap-2">
+                            <!-- In/Out Toggle -->
+                            <div class="flex items-center rounded-lg border border-slate-200 bg-slate-100 p-0.5 dark:border-slate-700 dark:bg-slate-800">
+                                <button
+                                    @click="topPersonnelType = 'outgoing'"
+                                    :class="['rounded-md px-2 py-1 text-[0.65rem] font-semibold transition-colors sm:text-xs', topPersonnelType === 'outgoing' ? 'bg-white text-slate-900 shadow-sm dark:bg-slate-700 dark:text-white' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200']">
+                                    Outgoing
+                                </button>
+                                <button
+                                    @click="topPersonnelType = 'incoming'"
+                                    :class="['rounded-md px-2 py-1 text-[0.65rem] font-semibold transition-colors sm:text-xs', topPersonnelType === 'incoming' ? 'bg-white text-slate-900 shadow-sm dark:bg-slate-700 dark:text-white' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200']">
+                                    Incoming
+                                </button>
+                            </div>
+
+                            <!-- Vol/Transac Toggle -->
+                            <div class="flex items-center rounded-lg border border-slate-200 bg-slate-100 p-0.5 dark:border-slate-700 dark:bg-slate-800">
+                                <button
+                                    @click="topPersonnelMode = 'volume'"
+                                    :class="['rounded-md px-2 py-1 text-[0.65rem] font-semibold transition-colors sm:text-xs', topPersonnelMode === 'volume' ? 'bg-white text-slate-900 shadow-sm dark:bg-slate-700 dark:text-white' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200']">
+                                    Volume
+                                </button>
+                                <button
+                                    @click="topPersonnelMode = 'transaction'"
+                                    :class="['rounded-md px-2 py-1 text-[0.65rem] font-semibold transition-colors sm:text-xs', topPersonnelMode === 'transaction' ? 'bg-white text-slate-900 shadow-sm dark:bg-slate-700 dark:text-white' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200']">
+                                    Transac
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -636,23 +657,33 @@ export default {
                                     <p
                                         class="truncate text-[0.7rem] text-slate-500 dark:text-slate-400"
                                         v-if="person.position || person.employee_id">
-                                        {{ person.position }} 
-                                        <span v-if="person.position && person.employee_id" class="mx-1 opacity-50">&bull;</span>
+                                        {{ person.position }}
+                                        <span
+                                            v-if="person.position && person.employee_id"
+                                            class="mx-1 opacity-50">
+                                            &bull;
+                                        </span>
                                         {{ person.employee_id }}
                                     </p>
                                 </div>
                             </div>
 
                             <div class="shrink-0 text-right">
-                                <span class="text-xs font-extrabold sm:text-sm" :class="topPersonnelMode === 'volume' ? 'text-blue-600 dark:text-blue-400' : 'text-slate-700 dark:text-slate-300'">{{ person.total_volume }} units</span>
-                                <p class="text-[0.65rem]" :class="topPersonnelMode === 'transaction' ? 'text-blue-600 font-semibold dark:text-blue-400' : 'text-slate-500 dark:text-slate-400'">{{ person.transac_count }} transactions</p>
+                                <template v-if="topPersonnelMode === 'volume'">
+                                    <span class="text-xs font-extrabold text-blue-600 sm:text-sm dark:text-blue-400">{{ person.total_volume }} units</span>
+                                    <p class="text-[0.65rem] text-slate-500 dark:text-slate-400">{{ person.transac_count }} transactions</p>
+                                </template>
+                                <template v-else>
+                                    <span class="text-xs font-extrabold text-blue-600 sm:text-sm dark:text-blue-400">{{ person.transac_count }} transactions</span>
+                                    <p class="text-[0.65rem] text-slate-500 dark:text-slate-400">{{ person.total_volume }} units</p>
+                                </template>
                             </div>
                         </div>
                     </div>
                     <div
                         v-else
                         class="py-8 text-center text-xs text-slate-500 dark:text-slate-400">
-                        No outgoing transactions recorded for this scope period.
+                        No {{ topPersonnelType }} transactions recorded for this scope period.
                     </div>
                 </div>
             </div>
@@ -787,7 +818,7 @@ export default {
                                 :key="row.id"
                                 class="transition-colors hover:bg-slate-50/80 dark:hover:bg-slate-800/40">
                                 <td class="whitespace-nowrap p-3 font-medium text-slate-600 dark:text-slate-300">
-                                    {{ formatDateTime(row.created_at) }}
+                                    {{ row.created_at }}
                                 </td>
                                 <td class="whitespace-nowrap p-3 font-semibold text-slate-900 dark:text-slate-100">
                                     {{ row.actor_display_name || "-" }}
