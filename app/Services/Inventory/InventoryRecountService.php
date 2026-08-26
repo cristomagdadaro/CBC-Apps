@@ -36,10 +36,7 @@ class InventoryRecountService
                     ' . $this->reportService->canonicalTransactionFieldExpression('barcode_prri') . ' as barcode_prri,
                     ' . $this->reportService->canonicalTransactionFieldExpression('unit') . ' as unit,
                     ' . $this->reportService->canonicalTransactionFieldExpression('project_code') . ' as project_code,
-                    SUM(CASE WHEN transactions.transac_type = "incoming" THEN transactions.quantity ELSE 0 END) as total_incoming,
-                    SUM(CASE WHEN transactions.transac_type = "outgoing" THEN ABS(transactions.quantity) ELSE 0 END) as total_outgoing,
-                    (SUM(CASE WHEN transactions.transac_type = "incoming" THEN transactions.quantity ELSE 0 END)
-                      - SUM(CASE WHEN transactions.transac_type = "outgoing" THEN ABS(transactions.quantity) ELSE 0 END)) as remaining_quantity,
+                    ' . $this->reportService->canonicalStockCalculationExpression('total_incoming', 'total_outgoing', 'remaining_quantity') . ',
                     MAX(transactions.created_at) as latest_transaction_at'
                 )
                 ->join('items', 'transactions.item_id', '=', 'items.id')

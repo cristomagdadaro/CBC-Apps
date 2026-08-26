@@ -19,44 +19,28 @@ class InventoryReportService
 
     public function getRemainingStocks(Collection $parameters, array $consumableCategoryIds = [1, 2, 3, 5, 6, 11, 12]): Collection
     {
-        $rawSearch = $parameters->get('search');
-        $searchTerm = $rawSearch !== null ? trim((string) $rawSearch) : '';
-        $hasSearchTerm = $searchTerm !== '';
-        $isExact  = filter_var($parameters->get('is_exact', false), FILTER_VALIDATE_BOOLEAN);
-        $sort     = $parameters->get('sort', 'id');
-        $order    = strtolower($parameters->get('order', 'asc')) === 'desc' ? 'desc' : 'asc';
-        $perPage  = $parameters->get('per_page', '*');
-        $page     = (int) $parameters->get('page', 1);
-        $paginate = filter_var($parameters->get('paginate', true), FILTER_VALIDATE_BOOLEAN);
-        $filter    = $parameters->get('filter');
-        $filterBy  = $parameters->get('filter_by');
-        $minRemaining = $parameters->get('min_remaining');
-        $includeAllCategories = filter_var($parameters->get('include_all_categories', false), FILTER_VALIDATE_BOOLEAN);
-        $storageLocationId = $parameters->get('storage_location_id');
-        $storageLocationCode = $this->normalizeLocationCode($storageLocationId);
+        $query = $this->buildRemainingStocksBaseQuery();
 
-        $orderByRaw = match ($sort) {
-            'name'               => 'items.name',
-            'brand'              => 'items.brand',
-            'unit'               => 'unit',
-            'barcode'            => 'transactions.barcode',
-            'barcode_prri'       => 'barcode_prri',
-            'total_ingoing'      => 'total_ingoing',
-            'total_outgoing'     => 'total_outgoing',
-            'remaining_quantity' => 'remaining_quantity',
-            'expiration'         => 'expiration',
-            default              => 'items.id',
-        };
+        $this->applyRemainingStocksCategoryFilter($query, $parameters, $consumableCategoryIds);
+        $this->applyRemainingStocksStockLevelFilter($query, $parameters);
+        $this->applyRemainingStocksProjectCodeFilter($query, $parameters);
+        $this->applyRemainingStocksBarcodeFilter($query, $parameters);
+        $this->applyRemainingStocksLocationFilter($query, $parameters);
+        $this->applyRemainingStocksMinRemainingFilter($query, $parameters);
+        $this->applyRemainingStocksSearchFilter($query, $parameters);
+        $this->applyRemainingStocksSorting($query, $parameters);
 
-        $query = $this->transactionModel->newQuery()->selectRaw(
+        return $this->executeRemainingStocksQuery($query, $parameters);
+    }
+
+    private function buildRemainingStocksBaseQuery(): Builder
+    {
+        return $this->transactionModel->newQuery()->selectRaw(
             'items.name, items.description, items.brand, items.id as item_id, transactions.barcode,' .
                 ' ' . $this->canonicalTransactionFieldExpression('unit') . ' as unit,' .
                 ' ' . $this->canonicalTransactionFieldExpression('barcode_prri') . ' as barcode_prri,' .
                 ' ' . $this->canonicalTransactionFieldExpression('project_code') . ' as project_code,' .
-                ' SUM(CASE WHEN transactions.transac_type = "incoming" THEN transactions.quantity ELSE 0 END) as total_ingoing,' .
-                ' SUM(CASE WHEN transactions.transac_type = "outgoing" THEN ABS(transactions.quantity) ELSE 0 END) as total_outgoing,' .
-                ' (SUM(CASE WHEN transactions.transac_type = "incoming" THEN transactions.quantity ELSE 0 END) - ' .
-                '  SUM(CASE WHEN transactions.transac_type = "outgoing" THEN ABS(transactions.quantity) ELSE 0 END)) as remaining_quantity,' .
+                $this->canonicalStockCalculationExpression() . ',' .
                 ' MIN(CASE WHEN transactions.transac_type = "incoming" THEN transactions.expiration END) as expiration,' .
                 ' CASE ' .
                 '   WHEN MIN(CASE WHEN transactions.transac_type = "incoming" THEN transactions.expiration END) IS NULL THEN 2 ' .
@@ -68,15 +52,19 @@ class InventoryReportService
             ->whereNotNull('transactions.barcode')
             ->whereRaw('TRIM(transactions.barcode) <> ""')
             ->groupBy('items.id', 'items.name', 'items.description', 'items.brand', 'transactions.barcode');
+    }
 
-        $categoryFilter    = $parameters->get('category_filter');
-        $projectCodeFilter = $parameters->get('project_code_filter');
-        $stockLevelFilter  = $parameters->get('stock_level_filter');
+    private function applyRemainingStocksCategoryFilter(Builder $query, Collection $parameters, array $consumableCategoryIds): void
+    {
+        $filter = $parameters->get('filter');
+        $filterBy = $parameters->get('filter_by');
+        $categoryFilter = $parameters->get('category_filter');
+        $includeAllCategories = filter_var($parameters->get('include_all_categories', false), FILTER_VALIDATE_BOOLEAN);
 
         $activeCategoryFilter = $categoryFilter ?? ($filter === 'category' ? $filterBy : null);
+
         if ($activeCategoryFilter) {
             $values = is_array($activeCategoryFilter) ? $activeCategoryFilter : [$activeCategoryFilter];
-
             $ids = [];
             $names = [];
 
@@ -91,14 +79,10 @@ class InventoryReportService
             if (!empty($names)) {
                 $catIds = Category::where(function ($q) use ($names) {
                     $q->whereIn('name', $names);
-
                     foreach ($names as $name) {
                         $q->orWhere('name', 'like', "%{$name}%");
                     }
-                })
-                    ->pluck('id')
-                    ->toArray();
-
+                })->pluck('id')->toArray();
                 $ids = array_merge($ids, $catIds);
             }
 
@@ -116,13 +100,19 @@ class InventoryReportService
                     }
                 });
             }
-        } else {
-            if (!$includeAllCategories && !empty($consumableCategoryIds)) {
-                $query->whereIn('items.category_id', $consumableCategoryIds);
-            }
+        } elseif (!$includeAllCategories && !empty($consumableCategoryIds)) {
+            $query->whereIn('items.category_id', $consumableCategoryIds);
         }
-        
+    }
+
+    private function applyRemainingStocksStockLevelFilter(Builder $query, Collection $parameters): void
+    {
+        $filter = $parameters->get('filter');
+        $filterBy = $parameters->get('filter_by');
+        $stockLevelFilter = $parameters->get('stock_level_filter');
+
         $activeStockLevelFilter = $stockLevelFilter ?? ($filter === 'quantity' ? $filterBy : null);
+
         if ($activeStockLevelFilter) {
             $percentageExpr = 'CASE WHEN total_ingoing <> 0 THEN remaining_quantity / total_ingoing ELSE 0 END';
 
@@ -141,24 +131,59 @@ class InventoryReportService
                     break;
             }
         }
-        
+    }
+
+    private function applyRemainingStocksProjectCodeFilter(Builder $query, Collection $parameters): void
+    {
+        $filter = $parameters->get('filter');
+        $filterBy = $parameters->get('filter_by');
+        $projectCodeFilter = $parameters->get('project_code_filter');
+
         $activeProjectCodeFilter = $projectCodeFilter ?? ($filter === 'project_code' ? $filterBy : null);
+
         if ($activeProjectCodeFilter) {
             $query->where('transactions.project_code', $activeProjectCodeFilter);
         }
+    }
+
+    private function applyRemainingStocksBarcodeFilter(Builder $query, Collection $parameters): void
+    {
+        $filter = $parameters->get('filter');
+        $rawSearch = $parameters->get('search');
+        $searchTerm = $rawSearch !== null ? trim((string) $rawSearch) : '';
+        $hasSearchTerm = $searchTerm !== '';
 
         if ($filter === 'barcode' && $hasSearchTerm) {
             $like = '%' . $searchTerm . '%';
             $query->havingRaw('barcode LIKE ?', [$like]);
         }
+    }
+
+    private function applyRemainingStocksLocationFilter(Builder $query, Collection $parameters): void
+    {
+        $storageLocationId = $parameters->get('storage_location_id');
+        $storageLocationCode = $this->normalizeLocationCode($storageLocationId);
 
         if ($storageLocationCode !== null) {
             $query->where('transactions.barcode', 'like', "CBC-{$storageLocationCode}-%");
         }
+    }
+
+    private function applyRemainingStocksMinRemainingFilter(Builder $query, Collection $parameters): void
+    {
+        $minRemaining = $parameters->get('min_remaining');
 
         if ($minRemaining !== null && is_numeric($minRemaining)) {
             $query->havingRaw('remaining_quantity >= ?', [(float) $minRemaining]);
         }
+    }
+
+    private function applyRemainingStocksSearchFilter(Builder $query, Collection $parameters): void
+    {
+        $rawSearch = $parameters->get('search');
+        $searchTerm = $rawSearch !== null ? trim((string) $rawSearch) : '';
+        $hasSearchTerm = $searchTerm !== '';
+        $isExact = filter_var($parameters->get('is_exact', false), FILTER_VALIDATE_BOOLEAN);
 
         if ($hasSearchTerm) {
             if ($isExact) {
@@ -203,15 +228,39 @@ class InventoryReportService
                 }
             }
         }
+    }
 
-        // When sorting by name, order by expiration priority first, then name A-Z
-        // Otherwise, apply the standard orderByRaw
+    private function applyRemainingStocksSorting(Builder $query, Collection $parameters): void
+    {
+        $sort = $parameters->get('sort', 'id');
+        $order = strtolower($parameters->get('order', 'asc')) === 'desc' ? 'desc' : 'asc';
+
+        $orderByRaw = match ($sort) {
+            'name'               => 'items.name',
+            'brand'              => 'items.brand',
+            'unit'               => 'unit',
+            'barcode'            => 'transactions.barcode',
+            'barcode_prri'       => 'barcode_prri',
+            'total_ingoing'      => 'total_ingoing',
+            'total_outgoing'     => 'total_outgoing',
+            'remaining_quantity' => 'remaining_quantity',
+            'expiration'         => 'expiration',
+            default              => 'items.id',
+        };
+
         if ($sort === 'name') {
             $query->orderByRaw('expiration_priority ASC')
                 ->orderByRaw('items.name ' . $order);
         } else {
             $query->orderByRaw($orderByRaw . ' ' . $order);
         }
+    }
+
+    private function executeRemainingStocksQuery(Builder $query, Collection $parameters): Collection
+    {
+        $perPage = $parameters->get('per_page', '*');
+        $page = (int) $parameters->get('page', 1);
+        $paginate = filter_var($parameters->get('paginate', true), FILTER_VALIDATE_BOOLEAN);
 
         if ($paginate && $perPage !== '*') {
             $data = $query->paginate($perPage, ['*'], 'page', $page);
@@ -288,58 +337,99 @@ class InventoryReportService
         $scope = strtolower((string) $parameters->get('scope', 'all'));
         [$start, $end] = $this->resolveDashboardDateRange($scope, $parameters);
 
-        $base = $this->transactionModel->newQuery()
-            ->when($start && $end, function (Builder $query) use ($start, $end) {
-                $query->whereBetween('transactions.created_at', [$start, $end]);
-            });
+        $base = $this->transactionModel->newQuery()->when($start && $end, function (Builder $query) use ($start, $end) {
+            $query->whereBetween('transactions.created_at', [$start, $end]);
+        });
 
-        $incomingCount = (clone $base)
-            ->where('transactions.transac_type', 'incoming')
-            ->count();
+        $topPersonnel = $this->getDashboardTopPersonnel($base);
 
-        $outgoingCount = (clone $base)
-            ->where('transactions.transac_type', 'outgoing')
-            ->count();
+        return [
+            'scope' => $scope,
+            'range' => [
+                'start' => $start?->toDateTimeString(),
+                'end' => $end?->toDateTimeString(),
+            ],
+            'filters' => [
+                'date' => $parameters->get('date'),
+                'week' => $parameters->get('week'),
+                'month' => $parameters->get('month'),
+                'year' => $parameters->get('year'),
+            ],
+            'totals' => $this->getDashboardTotals($base),
+            'top_issued_items' => $this->getDashboardTopIssuedItems($base),
+            'top_personnel_by_volume' => $topPersonnel['by_volume'],
+            'top_personnel_by_transaction' => $topPersonnel['by_transaction'],
+            'recent_transactions' => $this->getDashboardRecentTransactions($base),
+            'items_per_category' => $this->getDashboardItemsPerCategory($base),
+            'items_per_location' => $this->getDashboardItemsPerLocation($base),
+            'items_per_project_code' => $this->getDashboardItemsPerProjectCode($base),
+            'stock_buckets' => $this->getDashboardStockBuckets($base),
+        ];
+    }
 
-        $totalIncomingQuantity = (float) ((clone $base)
-            ->where('transactions.transac_type', 'incoming')
-            ->sum('transactions.quantity') ?: 0);
+    private function getDashboardTotals(Builder $base): array
+    {
+        $incomingCount = (clone $base)->where('transactions.transac_type', 'incoming')->count();
+        $outgoingCount = (clone $base)->where('transactions.transac_type', 'outgoing')->count();
+        $totalIncomingQuantity = (float) ((clone $base)->where('transactions.transac_type', 'incoming')->sum('transactions.quantity') ?: 0);
+        $totalOutgoingQuantity = (float) ((clone $base)->where('transactions.transac_type', 'outgoing')->sum(DB::raw('ABS(transactions.quantity)')) ?: 0);
 
-        $totalOutgoingQuantity = (float) ((clone $base)
-            ->where('transactions.transac_type', 'outgoing')
-            ->sum(DB::raw('ABS(transactions.quantity)')) ?: 0);
+        return [
+            'incoming' => (int) $incomingCount,
+            'outgoing' => (int) $outgoingCount,
+            'incoming_count' => (int) $incomingCount,
+            'outgoing_count' => (int) $outgoingCount,
+            'incoming_quantity' => $totalIncomingQuantity,
+            'outgoing_quantity' => $totalOutgoingQuantity,
+            'total_transactions' => (int) ($incomingCount + $outgoingCount),
+        ];
+    }
 
-        $topIssuedItems = (clone $base)
+    private function getDashboardTopIssuedItems(Builder $base, int $limit = 5): Collection
+    {
+        return (clone $base)
             ->where('transactions.transac_type', 'outgoing')
             ->join('items', 'transactions.item_id', '=', 'items.id')
             ->selectRaw('items.name, items.brand, items.description, SUM(ABS(transactions.quantity)) as total_quantity, COUNT(transactions.id) as transac_count')
             ->groupBy('items.id', 'items.name', 'items.brand', 'items.description')
             ->orderByDesc('total_quantity')
-            ->limit(5)
+            ->limit($limit)
             ->get();
+    }
 
-        $recentTransactions = (clone $base)
+    private function getDashboardRecentTransactions(Builder $base, int $limit = 10): Collection
+    {
+        return (clone $base)
             ->with(['item', 'personnel', 'user'])
             ->orderByDesc('transactions.created_at')
-            ->limit(10)
+            ->limit($limit)
             ->get();
+    }
 
-        $itemsPerCategory = (clone $base)
+    private function getDashboardItemsPerCategory(Builder $base): Collection
+    {
+        return (clone $base)
             ->join('items', 'transactions.item_id', '=', 'items.id')
             ->join('categories', 'items.category_id', '=', 'categories.id')
             ->selectRaw('categories.name as label, COUNT(DISTINCT transactions.item_id) as total')
             ->groupBy('categories.name')
             ->orderByDesc('total')
             ->get();
+    }
 
-        $itemsPerProjectCode = (clone $base)
+    private function getDashboardItemsPerProjectCode(Builder $base): Collection
+    {
+        return (clone $base)
             ->whereNotNull('transactions.project_code')
             ->where('transactions.project_code', '!=', '')
             ->selectRaw('transactions.project_code as label, COUNT(DISTINCT transactions.item_id) as total')
             ->groupBy('transactions.project_code')
             ->orderByDesc('total')
             ->get();
+    }
 
+    private function getDashboardItemsPerLocation(Builder $base): Collection
+    {
         $latestBarcodeRows = (clone $base)
             ->whereNotNull('transactions.item_id')
             ->whereNotNull('transactions.barcode')
@@ -350,7 +440,7 @@ class InventoryReportService
 
         $locationLookup = $this->buildStorageLocationLookup();
 
-        $itemsPerLocation = $latestBarcodeRows
+        return $latestBarcodeRows
             ->map(function ($row) use ($locationLookup) {
                 $code = $this->extractLocationCodeFromBarcode($row->barcode);
                 $label = $code ? ($locationLookup[$code] ?? 'Unknown Location') : 'Unknown Location';
@@ -368,25 +458,30 @@ class InventoryReportService
             ->values()
             ->sortByDesc('total')
             ->values();
+    }
 
+    private function getDashboardStockBuckets(Builder $base): array
+    {
         $stockBaseQuery = (clone $base)
             ->join('items', 'transactions.item_id', '=', 'items.id')
             ->selectRaw(
                 'items.id as item_id,' .
-                    ' SUM(CASE WHEN transactions.transac_type = "incoming" THEN transactions.quantity ELSE 0 END) as total_ingoing,' .
-                    ' SUM(CASE WHEN transactions.transac_type = "incoming" THEN transactions.quantity WHEN transactions.transac_type = "outgoing" THEN -ABS(transactions.quantity) ELSE 0 END) as remaining_quantity'
+                    $this->canonicalStockCalculationExpression()
             )
             ->groupBy('items.id');
 
         $percentageExpr = 'CASE WHEN total_ingoing <> 0 THEN remaining_quantity / total_ingoing ELSE 0 END';
 
-        $stockBuckets = [
+        return [
             'empty' => (clone $stockBaseQuery)->havingRaw("$percentageExpr <= 0")->count(),
             'low' => (clone $stockBaseQuery)->havingRaw("$percentageExpr > 0 AND $percentageExpr <= 0.25")->count(),
             'mid' => (clone $stockBaseQuery)->havingRaw("$percentageExpr > 0.25 AND $percentageExpr <= 0.75")->count(),
             'high' => (clone $stockBaseQuery)->havingRaw("$percentageExpr > 0.75")->count(),
         ];
+    }
 
+    private function getDashboardTopPersonnel(Builder $base, int $limit = 5): array
+    {
         $personnelStats = (clone $base)
             ->where('transactions.transac_type', 'outgoing')
             ->join('personnels', 'transactions.personnel_id', '=', 'personnels.id')
@@ -405,45 +500,9 @@ class InventoryReportService
                 'personnels.employee_id'
             );
 
-        $topPersonnelByVolume = (clone $personnelStats)
-            ->orderByDesc('total_volume')
-            ->limit(5)
-            ->get();
-
-        $topPersonnelByTransaction = (clone $personnelStats)
-            ->orderByDesc('transac_count')
-            ->limit(5)
-            ->get();
-
         return [
-            'scope' => $scope,
-            'range' => [
-                'start' => $start?->toDateTimeString(),
-                'end' => $end?->toDateTimeString(),
-            ],
-            'filters' => [
-                'date' => $parameters->get('date'),
-                'week' => $parameters->get('week'),
-                'month' => $parameters->get('month'),
-                'year' => $parameters->get('year'),
-            ],
-            'totals' => [
-                'incoming' => (int) $incomingCount,
-                'outgoing' => (int) $outgoingCount,
-                'incoming_count' => (int) $incomingCount,
-                'outgoing_count' => (int) $outgoingCount,
-                'incoming_quantity' => (float) $totalIncomingQuantity,
-                'outgoing_quantity' => (float) $totalOutgoingQuantity,
-                'total_transactions' => (int) ($incomingCount + $outgoingCount),
-            ],
-            'top_issued_items' => $topIssuedItems,
-            'top_personnel_by_volume' => $topPersonnelByVolume,
-            'top_personnel_by_transaction' => $topPersonnelByTransaction,
-            'recent_transactions' => $recentTransactions,
-            'items_per_category' => $itemsPerCategory,
-            'items_per_location' => $itemsPerLocation,
-            'items_per_project_code' => $itemsPerProjectCode,
-            'stock_buckets' => $stockBuckets,
+            'by_volume' => (clone $personnelStats)->orderByDesc('total_volume')->limit($limit)->get(),
+            'by_transaction' => (clone $personnelStats)->orderByDesc('transac_count')->limit($limit)->get(),
         ];
     }
 
@@ -566,7 +625,7 @@ class InventoryReportService
         return null;
     }
 
-    private function canonicalTransactionFieldExpression(string $field): string
+    public function canonicalTransactionFieldExpression(string $field): string
     {
         $qualifiedField = "transactions.{$field}";
 
@@ -574,5 +633,16 @@ class InventoryReportService
             'NULLIF(MAX(CASE WHEN transactions.transac_type = "incoming" AND ' . $qualifiedField . ' IS NOT NULL AND TRIM(' . $qualifiedField . ') <> "" THEN ' . $qualifiedField . ' END), ""), ' .
             'NULLIF(MAX(CASE WHEN ' . $qualifiedField . ' IS NOT NULL AND TRIM(' . $qualifiedField . ') <> "" THEN ' . $qualifiedField . ' END), "")' .
             ')';
+    }
+
+    public function canonicalStockCalculationExpression(
+        string $incomingAlias = 'total_ingoing', 
+        string $outgoingAlias = 'total_outgoing', 
+        string $remainingAlias = 'remaining_quantity'
+    ): string {
+        return ' SUM(CASE WHEN transactions.transac_type = "incoming" THEN transactions.quantity ELSE 0 END) as ' . $incomingAlias . ',' .
+               ' SUM(CASE WHEN transactions.transac_type = "outgoing" THEN ABS(transactions.quantity) ELSE 0 END) as ' . $outgoingAlias . ',' .
+               ' (SUM(CASE WHEN transactions.transac_type = "incoming" THEN transactions.quantity ELSE 0 END) - ' .
+               '  SUM(CASE WHEN transactions.transac_type = "outgoing" THEN ABS(transactions.quantity) ELSE 0 END)) as ' . $remainingAlias;
     }
 }
