@@ -4,7 +4,7 @@ import ApiMixin from "@/Modules/mixins/ApiMixin";
 import ConcreteApiService from "@/Modules/infrastructure/ConcreteApiService";
 import Transaction from "@/Modules/domain/Transaction";
 import { subscribeToRealtimeChannels } from "@/Modules/realtime/subscriptions";
-import { ArrowUpDown, ArrowDownLeft, ArrowUpRight, AlertTriangle, Layers, MapPin, FolderGit2, TrendingUp, PackageCheck, RefreshCw, Calendar, Box } from "lucide-vue-next";
+import { ArrowUpDown, ArrowDownLeft, ArrowUpRight, AlertTriangle, Layers, MapPin, FolderGit2, TrendingUp, PackageCheck, RefreshCw, Calendar, Box, Users } from "lucide-vue-next";
 
 export default {
     name: "InventoryDashboard",
@@ -22,6 +22,7 @@ export default {
         RefreshCw,
         Calendar,
         Box,
+        Users,
     },
     mixins: [ApiMixin],
     data() {
@@ -66,12 +67,15 @@ export default {
                     total_transactions: 0,
                 },
                 top_issued_items: [],
+                top_personnel_by_volume: [],
+                top_personnel_by_transaction: [],
                 recent_transactions: [],
                 items_per_category: [],
                 items_per_location: [],
                 items_per_project_code: [],
                 stock_buckets: { empty: 0, low: 0, mid: 0, high: 0 },
             },
+            topPersonnelMode: "volume",
             realtimeCleanup: null,
             realtimeRefreshTimer: null,
         };
@@ -198,6 +202,9 @@ export default {
         maxIssuedQuantity() {
             return Math.max(...(this.dashboard?.top_issued_items || []).map((i) => i.total_quantity), 1);
         },
+        topPersonnel() {
+            return this.topPersonnelMode === "volume" ? this.dashboard.top_personnel_by_volume : this.dashboard.top_personnel_by_transaction;
+        },
     },
     methods: {
         async loadDashboard() {
@@ -219,6 +226,8 @@ export default {
                         total_transactions: 0,
                     },
                     top_issued_items: payload?.top_issued_items ?? [],
+                    top_personnel_by_volume: payload?.top_personnel_by_volume ?? [],
+                    top_personnel_by_transaction: payload?.top_personnel_by_transaction ?? [],
                     recent_transactions: this.convertToTransaction(payload?.recent_transactions) ?? [],
                     items_per_category: payload?.items_per_category ?? [],
                     items_per_location: payload?.items_per_location ?? [],
@@ -505,7 +514,7 @@ export default {
             </div>
 
             <!-- Middle Section: Stock Buckets & Top Issued Items -->
-            <div class="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-2">
+            <div class="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-3">
                 <!-- Stock Health Buckets Card -->
                 <div class="shadow-xs rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 dark:border-slate-800 dark:bg-slate-900">
                     <div class="mb-4 flex items-center justify-between">
@@ -576,6 +585,67 @@ export default {
                             <div class="shrink-0 text-right">
                                 <span class="text-xs font-extrabold text-rose-600 sm:text-sm dark:text-rose-400">{{ item.total_quantity }} units</span>
                                 <p class="text-[0.65rem] text-slate-500 dark:text-slate-400">{{ item.transac_count }} transactions</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div
+                        v-else
+                        class="py-8 text-center text-xs text-slate-500 dark:text-slate-400">
+                        No outgoing transactions recorded for this scope period.
+                    </div>
+                </div>
+
+                <!-- Top Personnel -->
+                <div class="shadow-xs rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 dark:border-slate-800 dark:bg-slate-900">
+                    <div class="mb-4 flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <Users class="w-4.5 h-4.5 text-blue-500" />
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-800 sm:text-sm dark:text-slate-200">Top Personnel</h3>
+                        </div>
+                        
+                        <!-- Toggle Button Group -->
+                        <div class="flex items-center rounded-lg border border-slate-200 bg-slate-100 p-0.5 dark:border-slate-700 dark:bg-slate-800">
+                            <button 
+                                @click="topPersonnelMode = 'volume'"
+                                :class="['px-2 py-1 text-[0.65rem] sm:text-xs font-semibold rounded-md transition-colors', topPersonnelMode === 'volume' ? 'bg-white text-slate-900 shadow-sm dark:bg-slate-700 dark:text-white' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200']"
+                            >
+                                Volume
+                            </button>
+                            <button 
+                                @click="topPersonnelMode = 'transaction'"
+                                :class="['px-2 py-1 text-[0.65rem] sm:text-xs font-semibold rounded-md transition-colors', topPersonnelMode === 'transaction' ? 'bg-white text-slate-900 shadow-sm dark:bg-slate-700 dark:text-white' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200']"
+                            >
+                                Transac
+                            </button>
+                        </div>
+                    </div>
+
+                    <div
+                        v-if="topPersonnel && topPersonnel.length"
+                        class="space-y-3">
+                        <div
+                            v-for="(person, idx) in topPersonnel"
+                            :key="`top-personnel-${idx}`"
+                            class="flex items-center justify-between gap-3 rounded-xl border border-slate-200/70 bg-slate-50 p-2.5 dark:border-slate-700/70 dark:bg-slate-800/60">
+                            <div class="flex min-w-0 items-center gap-3">
+                                <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-slate-200 text-xs font-bold text-slate-700 dark:bg-slate-700 dark:text-slate-300">#{{ idx + 1 }}</span>
+                                <div class="min-w-0 leading-tight">
+                                    <p class="truncate text-xs font-semibold text-slate-900 sm:text-sm dark:text-slate-100">
+                                        {{ person.name }}
+                                    </p>
+                                    <p
+                                        class="truncate text-[0.7rem] text-slate-500 dark:text-slate-400"
+                                        v-if="person.position || person.employee_id">
+                                        {{ person.position }} 
+                                        <span v-if="person.position && person.employee_id" class="mx-1 opacity-50">&bull;</span>
+                                        {{ person.employee_id }}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="shrink-0 text-right">
+                                <span class="text-xs font-extrabold sm:text-sm" :class="topPersonnelMode === 'volume' ? 'text-blue-600 dark:text-blue-400' : 'text-slate-700 dark:text-slate-300'">{{ person.total_volume }} units</span>
+                                <p class="text-[0.65rem]" :class="topPersonnelMode === 'transaction' ? 'text-blue-600 font-semibold dark:text-blue-400' : 'text-slate-500 dark:text-slate-400'">{{ person.transac_count }} transactions</p>
                             </div>
                         </div>
                     </div>

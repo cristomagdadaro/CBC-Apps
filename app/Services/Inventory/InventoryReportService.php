@@ -387,6 +387,34 @@ class InventoryReportService
             'high' => (clone $stockBaseQuery)->havingRaw("$percentageExpr > 0.75")->count(),
         ];
 
+        $personnelStats = (clone $base)
+            ->where('transactions.transac_type', 'outgoing')
+            ->join('personnels', 'transactions.personnel_id', '=', 'personnels.id')
+            ->selectRaw("
+                CONCAT(personnels.fname, ' ', personnels.lname) as name, 
+                personnels.position, 
+                personnels.employee_id, 
+                SUM(ABS(transactions.quantity)) as total_volume, 
+                COUNT(transactions.id) as transac_count
+            ")
+            ->groupBy(
+                'personnels.id', 
+                'personnels.fname', 
+                'personnels.lname', 
+                'personnels.position', 
+                'personnels.employee_id'
+            );
+
+        $topPersonnelByVolume = (clone $personnelStats)
+            ->orderByDesc('total_volume')
+            ->limit(5)
+            ->get();
+
+        $topPersonnelByTransaction = (clone $personnelStats)
+            ->orderByDesc('transac_count')
+            ->limit(5)
+            ->get();
+
         return [
             'scope' => $scope,
             'range' => [
@@ -409,6 +437,8 @@ class InventoryReportService
                 'total_transactions' => (int) ($incomingCount + $outgoingCount),
             ],
             'top_issued_items' => $topIssuedItems,
+            'top_personnel_by_volume' => $topPersonnelByVolume,
+            'top_personnel_by_transaction' => $topPersonnelByTransaction,
             'recent_transactions' => $recentTransactions,
             'items_per_category' => $itemsPerCategory,
             'items_per_location' => $itemsPerLocation,
