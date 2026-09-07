@@ -7,6 +7,7 @@
         :hint="hint"
         :guide="guide"
         :clearable="false"
+        :show-valid-indicator="showValidIndicator"
         :has-value="!!selected"
         :disabled="disabled">
         <template #label-icon>
@@ -26,7 +27,7 @@
             <div :class="['relative rounded-xl border', !showSelectedOption ? 'inline-block w-auto' : 'w-full']">
                 <div
                     :id="inputId"
-                    :class="['flex items-center justify-between gap-2 rounded-xl px-3 py-2.5 transition-all duration-200', !showSelectedOption ? 'w-auto' : 'w-full', 'bg-white dark:bg-slate-900 dark:text-slate-100', disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer', isInvalid ? '' : 'focus-within:ring-0']"
+                    :class="['flex items-center justify-between gap-2 rounded-xl py-2.5 pl-3 transition-all duration-200', (isInvalid || (isValid && showValidIndicator)) ? 'pr-9' : 'pr-3', !showSelectedOption ? 'w-auto' : 'w-full', 'bg-white dark:bg-slate-900 dark:text-slate-100', disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer', isInvalid ? '' : 'focus-within:ring-0']"
                     :aria-invalid="isInvalid"
                     :aria-describedby="guideId"
                     @click.prevent="toggle">
@@ -84,10 +85,7 @@
                     <div
                         v-show="open"
                         ref="dropdownMenu"
-                        :class="[
-                            'absolute z-50 mt-1.5 flex max-h-[30vh] min-w-full w-max flex-col overflow-visible rounded-xl border border-slate-200 bg-white shadow-lg dark:border-slate-800 dark:bg-slate-900',
-                            menuAlignRight ? 'right-0' : 'left-0'
-                        ]">
+                        :class="['absolute z-50 mt-1.5 flex max-h-[30vh] w-max min-w-full flex-col overflow-visible rounded-xl border border-slate-200 bg-white shadow-lg dark:border-slate-800 dark:bg-slate-900', menuAlignRight ? 'right-0' : 'left-0']">
                         <!-- Options List -->
                         <div class="flex-1 overflow-visible overflow-y-auto py-1">
                             <!-- No Options -->

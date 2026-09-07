@@ -18,6 +18,7 @@ export default {
         guide: { type: String, default: null },
         datalistId: { type: String, default: null },
         datalistOptions: { type: Array, default: null },
+        showValidIndicator: { type: Boolean, default: true },
     },
     emits: ["update:modelValue", "clear"],
     data() {
