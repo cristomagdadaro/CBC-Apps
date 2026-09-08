@@ -11,7 +11,7 @@
             <div
                 class="flex items-center gap-1.5"
                 title="Turn on exact match filter">
-                <span class="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Exact</span>
+                <span class="uppercasetext-slate-500 text-[10px] font-semibold">Exact</span>
                 <input
                     type="checkbox"
                     v-model="is_exact"

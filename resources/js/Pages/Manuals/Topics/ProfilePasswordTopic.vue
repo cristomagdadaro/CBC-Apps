@@ -333,17 +333,17 @@ export default {
                     </h4>
                     <ul class="space-y-3.5 text-xs font-medium text-slate-600 dark:text-slate-400">
                         <li>
-                            <span class="mb-1.5 block text-[0.6rem] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">Main profile page</span>
+                            <span class="uppercasetext-slate-400 mb-1.5 block text-[0.6rem] font-semibold dark:text-slate-500">Main profile page</span>
                             <code class="block break-all rounded-md border border-slate-200 bg-white px-2 py-1.5 font-mono text-[0.65rem] font-semibold text-indigo-500 shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-indigo-400">resources/js/Pages/Profile/Show.vue</code>
                             [cite: 3]
                         </li>
                         <li>
-                            <span class="mb-1.5 block text-[0.6rem] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">Profile update form</span>
+                            <span class="uppercasetext-slate-400 mb-1.5 block text-[0.6rem] font-semibold dark:text-slate-500">Profile update form</span>
                             <code class="block break-all rounded-md border border-slate-200 bg-white px-2 py-1.5 font-mono text-[0.65rem] font-semibold text-indigo-500 shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-indigo-400">resources/js/Pages/Profile/Partials/UpdateProfileInformationForm.vue</code>
                             [cite: 3]
                         </li>
                         <li>
-                            <span class="mb-1.5 block text-[0.6rem] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">Password update form</span>
+                            <span class="uppercasetext-slate-400 mb-1.5 block text-[0.6rem] font-semibold dark:text-slate-500">Password update form</span>
                             <code class="block break-all rounded-md border border-slate-200 bg-white px-2 py-1.5 font-mono text-[0.65rem] font-semibold text-indigo-500 shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-indigo-400">resources/js/Pages/Profile/Partials/UpdatePasswordForm.vue</code>
                             [cite: 3]
                         </li>
@@ -358,17 +358,17 @@ export default {
                     </h4>
                     <ul class="space-y-4 text-xs font-medium text-slate-600 dark:text-slate-400">
                         <li>
-                            <span class="mb-1.5 block text-[0.6rem] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">User model with profile fields</span>
+                            <span class="uppercasetext-slate-400 mb-1.5 block text-[0.6rem] font-semibold dark:text-slate-500">User model with profile fields</span>
                             <code class="break-all rounded-md border border-slate-200 bg-white px-1.5 py-0.5 font-mono text-[0.65rem] font-semibold text-slate-700 shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">app/Models/User.php</code>
                             [cite: 3]
                         </li>
                         <li>
-                            <span class="mb-1.5 block text-[0.6rem] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">Built-in authentication system</span>
+                            <span class="uppercasetext-slate-400 mb-1.5 block text-[0.6rem] font-semibold dark:text-slate-500">Built-in authentication system</span>
                             <code class="rounded-md border border-slate-200 bg-white px-1.5 py-0.5 font-mono text-[0.65rem] font-semibold text-slate-700 shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">Laravel Fortify</code>
                             [cite: 3]
                         </li>
                         <li>
-                            <span class="mb-1.5 block text-[0.6rem] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">Hashing Algorithm</span>
+                            <span class="uppercasetext-slate-400 mb-1.5 block text-[0.6rem] font-semibold dark:text-slate-500">Hashing Algorithm</span>
                             <p class="leading-relaxed">
                                 Passwords are hashed using
                                 <code class="mx-0.5 rounded-md border border-slate-200 bg-white px-1.5 py-0.5 font-mono text-[0.65rem] font-semibold text-slate-700 shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">bcrypt</code>

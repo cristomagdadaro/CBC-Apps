@@ -127,7 +127,7 @@ export default {
                     <h1 class="truncate text-sm font-bold text-slate-900 dark:text-white">
                         {{ isEdit ? "Edit: " + (form.title || "Form") : "Create New Form" }}
                     </h1>
-                    <div class="mt-0.5 text-[0.65rem] font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                    <div class="uppercasetext-slate-500 mt-0.5 text-[0.65rem] font-medium dark:text-slate-400">
                         {{ form.event_id ? `ID: #${form.event_id}` : "Draft" }}
                     </div>
                 </div>
@@ -186,7 +186,7 @@ export default {
                             <LuFileEdit class="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
                         </div>
                         <div>
-                            <h1 class="text-normal font-semibold leading-none tracking-tight text-slate-900 dark:text-white">
+                            <h1 class="text-normal font-semibold leading-none text-slate-900 dark:text-white">
                                 {{ isEdit ? "Edit Event Form" : "Create New Form" }}
                             </h1>
                         </div>
@@ -281,7 +281,7 @@ export default {
                             v-show="activeSection === 'details'"
                             class="overflow-hidden rounded-2xl bg-white/80 shadow-sm ring-1 ring-slate-900/5 backdrop-blur-xl transition-all duration-300 dark:bg-slate-900/80 dark:ring-white/5">
                             <div class="border-b border-slate-100 bg-slate-50/50 px-6 py-5 dark:border-slate-800 dark:bg-slate-800/20">
-                                <h2 class="flex items-center gap-2.5 text-sm font-black uppercase tracking-wide text-slate-900 dark:text-white">
+                                <h2 class="flex items-center gap-2.5 text-sm font-black uppercase text-slate-900 dark:text-white">
                                     <LuFileText class="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
                                     Event Details
                                 </h2>
@@ -396,7 +396,7 @@ export default {
                             v-show="activeSection === 'requirements'"
                             class="overflow-hidden rounded-2xl bg-white/80 shadow-sm ring-1 ring-slate-900/5 backdrop-blur-xl transition-all duration-300 dark:bg-slate-900/80 dark:ring-white/5">
                             <div class="border-b border-slate-100 bg-slate-50/50 px-6 py-5 dark:border-slate-800 dark:bg-slate-800/20">
-                                <h2 class="flex items-center gap-2.5 text-sm font-black uppercase tracking-wide text-slate-900 dark:text-white">
+                                <h2 class="flex items-center gap-2.5 text-sm font-black uppercase text-slate-900 dark:text-white">
                                     <LuListChecks class="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
                                     Attached Forms
                                 </h2>
@@ -414,7 +414,7 @@ export default {
                             v-show="activeSection === 'style'"
                             class="overflow-hidden rounded-2xl bg-white/80 shadow-sm ring-1 ring-slate-900/5 backdrop-blur-xl transition-all duration-300 dark:bg-slate-900/80 dark:ring-white/5">
                             <div class="border-b border-slate-100 bg-slate-50/50 px-6 py-5 dark:border-slate-800 dark:bg-slate-800/20">
-                                <h2 class="flex items-center gap-2.5 text-sm font-black uppercase tracking-wide text-slate-900 dark:text-white">
+                                <h2 class="flex items-center gap-2.5 text-sm font-black uppercase text-slate-900 dark:text-white">
                                     <LuPalette class="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
                                     Theme & Appearance
                                 </h2>
@@ -432,7 +432,7 @@ export default {
                             <button
                                 @click="submitProxy"
                                 :disabled="processing || isSaving"
-                                class="flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-3.5 font-black tracking-wide text-white shadow-md shadow-indigo-600/20 transition-all hover:bg-indigo-700 active:scale-95 disabled:opacity-50">
+                                class="flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-3.5 font-black text-white shadow-md shadow-indigo-600/20 transition-all hover:bg-indigo-700 active:scale-95 disabled:opacity-50">
                                 <LuLoader2
                                     v-if="processing || isSaving"
                                     class="h-5 w-5 animate-spin" />
@@ -449,13 +449,13 @@ export default {
                 <div class="no-scrollbar sticky top-[5.5rem] hidden h-[calc(100vh-6.5rem)] self-start overflow-y-auto pb-8 lg:col-span-4 lg:block xl:col-span-6">
                     <div class="space-y-4">
                         <div class="flex items-center justify-between px-2">
-                            <h2 class="flex items-center gap-2.5 text-sm font-black uppercase tracking-wide text-slate-900 dark:text-white">
+                            <h2 class="flex items-center gap-2.5 text-sm font-black uppercase text-slate-900 dark:text-white">
                                 <LuEye class="h-4 w-4 text-indigo-500" />
                                 Live Preview
                             </h2>
                             <span
                                 v-if="!canPreview"
-                                class="rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-[0.65rem] font-bold uppercase tracking-wider text-amber-600 shadow-sm dark:border-amber-800/50 dark:bg-amber-900/20 dark:text-amber-400">
+                                class="uppercasetext-amber-600 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-[0.65rem] font-bold shadow-sm dark:border-amber-800/50 dark:bg-amber-900/20 dark:text-amber-400">
                                 Fill details to preview
                             </span>
                         </div>
@@ -483,7 +483,7 @@ export default {
                                     <div class="mb-5 flex h-20 w-20 items-center justify-center rounded-3xl border border-slate-700 bg-slate-800 shadow-sm">
                                         <LuFileQuestion class="h-10 w-10 opacity-60" />
                                     </div>
-                                    <p class="text-base font-semibold tracking-wide">Enter form title and start date to see the live preview.</p>
+                                    <p class="text-base font-semibold">Enter form title and start date to see the live preview.</p>
                                 </div>
                             </div>
 

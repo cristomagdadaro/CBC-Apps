@@ -119,7 +119,7 @@ onMounted(() => {
                     class="px-2 text-center text-gray-800 dark:text-gray-100">
                     <div class="relative mx-auto w-fit">
                         <div class="flex flex-col items-center justify-center gap-2 sm:flex-row">
-                            <h1 class="whitespace-nowrap font-[Montserrat] text-4xl font-extrabold leading-none tracking-tight text-lime-400 drop-shadow-md sm:text-5xl md:text-6xl dark:text-lime-400">
+                            <h1 class="whitespace-nowrap font-[Montserrat] text-4xl font-extrabold leading-none text-lime-400 drop-shadow-md sm:text-5xl md:text-6xl dark:text-lime-400">
                                 {{ $appName }}
                             </h1>
                             <span class="mt-2 inline-flex items-center rounded-full border border-lime-500/30 bg-lime-500/20 px-2.5 py-0.5 text-[0.65rem] font-bold text-lime-300 shadow-sm sm:mt-1 sm:self-start sm:text-xs">
@@ -144,8 +144,8 @@ onMounted(() => {
                     <!-- Admin Badge -->
                     <h3
                         v-if="isAdminUser"
-                        class="flex flex-col rounded-xl border border-amber-400/40 bg-amber-500/20 px-4 py-2 text-center text-xs font-bold uppercase tracking-wider text-amber-100 shadow-lg backdrop-blur-sm sm:text-sm dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-400">
-                        <span class="tracking-wide">Admin View - All Services</span>
+                        class="flex flex-col rounded-xl border border-amber-400/40 bg-amber-500/20 px-4 py-2 text-center text-xs font-bold uppercase text-amber-100 shadow-lg backdrop-blur-sm sm:text-sm dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-400">
+                        <span>Admin View - All Services</span>
                         <span class="text-xs font-normal lowercase opacity-90 first-letter:uppercase">Bypassed Module Access Controls</span>
                     </h3>
 
@@ -187,8 +187,8 @@ onMounted(() => {
                                         <path d="M2.76 3.061a.5.5 0 0 1 .679.2l1.283 2.352A8.9 8.9 0 0 1 8 5a8.9 8.9 0 0 1 3.278.613l1.283-2.352a.5.5 0 1 1 .878.478l-1.252 2.295C14.475 7.266 16 9.477 16 12H0c0-2.523 1.525-4.734 3.813-5.966L2.56 3.74a.5.5 0 0 1 .2-.678ZM5 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2m6 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2" />
                                     </svg>
                                     <div class="relative z-10 flex flex-col items-start text-left leading-none">
-                                        <span class="text-[0.65rem] font-medium uppercase tracking-wide text-slate-300">Get it on</span>
-                                        <span class="mt-1 text-base font-bold tracking-tight text-white sm:text-lg">Android</span>
+                                        <span class="text-[0.65rem] font-medium uppercase text-slate-300">Get it on</span>
+                                        <span class="mt-1 text-base font-bold text-white sm:text-lg">Android</span>
                                     </div>
                                 </a>
 
@@ -203,8 +203,8 @@ onMounted(() => {
                                         <path d="M11.182.008C11.148-.03 9.923.023 8.857 1.18c-1.066 1.156-.902 2.482-.878 2.516s1.52.087 2.475-1.258.762-2.391.728-2.43m3.314 11.733c-.048-.096-2.325-1.234-2.113-3.422s1.675-2.789 1.698-2.854-.597-.79-1.254-1.157a3.7 3.7 0 0 0-1.563-.434c-.108-.003-.483-.095-1.254.116-.508.139-1.653.589-1.968.607-.316.018-1.256-.522-2.267-.665-.647-.125-1.333.131-1.824.328-.49.196-1.422.754-2.074 2.237-.652 1.482-.311 3.83-.067 4.56s.625 1.924 1.273 2.796c.576.984 1.34 1.667 1.659 1.899s1.219.386 1.843.067c.502-.308 1.408-.485 1.766-.472.357.013 1.061.154 1.782.539.571.197 1.111.115 1.652-.105.541-.221 1.324-1.059 2.238-2.758q.52-1.185.473-1.282" />
                                     </svg>
                                     <div class="flex flex-col items-start text-left leading-none">
-                                        <span class="text-[0.65rem] font-medium uppercase tracking-wide">Coming to</span>
-                                        <span class="mt-1 text-base font-bold tracking-tight sm:text-lg">iOS</span>
+                                        <span class="text-[0.65rem] font-medium uppercase">Coming to</span>
+                                        <span class="mt-1 text-base font-bold sm:text-lg">iOS</span>
                                     </div>
                                 </button>
                             </div>
@@ -212,7 +212,7 @@ onMounted(() => {
                             <!-- Important Notice Card -->
                             <div class="mx-auto mt-6 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-100/80 p-4 text-left shadow-sm sm:p-5 dark:border-amber-700/50 dark:bg-amber-900/30">
                                 <div class="flex w-full flex-col gap-1.5">
-                                    <span class="flex items-center gap-1.5 text-[0.7rem] font-bold uppercase tracking-wider text-amber-700 sm:text-xs dark:text-amber-400">
+                                    <span class="flex items-center gap-1.5 text-[0.7rem] font-bold uppercase text-amber-700 sm:text-xs dark:text-amber-400">
                                         <svg
                                             class="h-4 w-4 shrink-0"
                                             viewBox="0 0 24 24"

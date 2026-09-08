@@ -42,20 +42,20 @@ export default {
 
         <div class="mx-auto max-w-6xl space-y-6 px-4 py-6">
             <section class="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
-                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">Parent Study</p>
+                <p class="text-xs font-semibold uppercase text-emerald-700">Parent Study</p>
                 <div class="mt-3 grid gap-4 md:grid-cols-3">
                     <div>
-                        <p class="text-xs uppercase tracking-wide text-gray-500">Study</p>
+                        <p class="text-xs uppercase text-gray-500">Study</p>
                         <p class="mt-1 text-sm font-medium text-gray-900">{{ study.title }}</p>
                     </div>
                     <div>
-                        <p class="text-xs uppercase tracking-wide text-gray-500">Project</p>
+                        <p class="text-xs uppercase text-gray-500">Project</p>
                         <p class="mt-1 text-sm font-medium text-gray-900">
                             {{ study.project?.title || "Project" }}
                         </p>
                     </div>
                     <div>
-                        <p class="text-xs uppercase tracking-wide text-gray-500">Commodity</p>
+                        <p class="text-xs uppercase text-gray-500">Commodity</p>
                         <p class="mt-1 text-sm font-medium text-gray-900">
                             {{ study.project?.commodity || "Rice" }}
                         </p>

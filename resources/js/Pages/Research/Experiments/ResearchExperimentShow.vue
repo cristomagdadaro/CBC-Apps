@@ -320,62 +320,62 @@ export default {
                 <div class="p-6">
                     <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
                         <div>
-                            <dt class="text-xs font-medium uppercase tracking-wider text-slate-500">Location</dt>
+                            <dt class="uppercasetext-slate-500 text-xs font-medium">Location</dt>
                             <dd class="mt-1 text-sm font-semibold text-slate-900">
                                 {{ experiment.geographic_location || "—" }}
                             </dd>
                         </div>
                         <div>
-                            <dt class="text-xs font-medium uppercase tracking-wider text-slate-500">Season</dt>
+                            <dt class="uppercasetext-slate-500 text-xs font-medium">Season</dt>
                             <dd class="mt-1 text-sm font-semibold text-slate-900">
                                 {{ experiment.season || "—" }}
                             </dd>
                         </div>
                         <div>
-                            <dt class="text-xs font-medium uppercase tracking-wider text-slate-500">Commodity</dt>
+                            <dt class="uppercasetext-slate-500 text-xs font-medium">Commodity</dt>
                             <dd class="mt-1 text-sm font-semibold text-slate-900">
                                 {{ experiment.commodity || "—" }}
                             </dd>
                         </div>
                         <div>
-                            <dt class="text-xs font-medium uppercase tracking-wider text-slate-500">Sample Type</dt>
+                            <dt class="uppercasetext-slate-500 text-xs font-medium">Sample Type</dt>
                             <dd class="mt-1 text-sm font-semibold text-slate-900">
                                 {{ experiment.sample_type || "—" }}
                             </dd>
                         </div>
                         <div>
-                            <dt class="text-xs font-medium uppercase tracking-wider text-slate-500">Generation</dt>
+                            <dt class="uppercasetext-slate-500 text-xs font-medium">Generation</dt>
                             <dd class="mt-1 text-sm font-semibold text-slate-900">
                                 {{ experiment.generation || experiment.filial_generation || "—" }}
                             </dd>
                         </div>
                         <div>
-                            <dt class="text-xs font-medium uppercase tracking-wider text-slate-500">Plot/Field</dt>
+                            <dt class="uppercasetext-slate-500 text-xs font-medium">Plot/Field</dt>
                             <dd class="mt-1 text-sm font-semibold text-slate-900">
                                 {{ experiment.plot_number || "—" }} /
                                 {{ experiment.field_number || "—" }}
                             </dd>
                         </div>
                         <div>
-                            <dt class="text-xs font-medium uppercase tracking-wider text-slate-500">Replications</dt>
+                            <dt class="uppercasetext-slate-500 text-xs font-medium">Replications</dt>
                             <dd class="mt-1 text-sm font-semibold text-slate-900">
                                 {{ experiment.replication_number || "—" }}
                             </dd>
                         </div>
                         <div>
-                            <dt class="text-xs font-medium uppercase tracking-wider text-slate-500">Planned Plants</dt>
+                            <dt class="uppercasetext-slate-500 text-xs font-medium">Planned Plants</dt>
                             <dd class="mt-1 text-sm font-semibold text-slate-900">
                                 {{ experiment.planned_plant_count || "—" }}
                             </dd>
                         </div>
                         <div class="md:col-span-2">
-                            <dt class="text-xs font-medium uppercase tracking-wider text-slate-500">Cross Combination</dt>
+                            <dt class="uppercasetext-slate-500 text-xs font-medium">Cross Combination</dt>
                             <dd class="mt-1 rounded bg-slate-50 px-3 py-2 font-mono text-sm text-slate-700">
                                 {{ experiment.cross_combination || "Not recorded" }}
                             </dd>
                         </div>
                         <div class="md:col-span-2">
-                            <dt class="text-xs font-medium uppercase tracking-wider text-slate-500">Parental Background</dt>
+                            <dt class="uppercasetext-slate-500 text-xs font-medium">Parental Background</dt>
                             <dd class="mt-1 text-sm text-slate-700">
                                 {{ experiment.parental_background || "Not recorded" }}
                             </dd>

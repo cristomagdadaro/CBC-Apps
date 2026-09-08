@@ -184,7 +184,7 @@ export default {
                 </div>
 
                 <div class="flex w-full flex-col items-start gap-1">
-                    <h3 class="w-full truncate text-base font-bold tracking-tight text-slate-900 dark:text-white">
+                    <h3 class="w-full truncate text-base font-bold text-slate-900 dark:text-white">
                         {{ requesterDisplayName }}
                     </h3>
 
@@ -251,7 +251,7 @@ export default {
                         <FileText class="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
                     </div>
                     <div>
-                        <h3 class="text-xl font-black leading-none tracking-tight text-slate-900 dark:text-white">Request Details</h3>
+                        <h3 class="text-xl font-black leading-none text-slate-900 dark:text-white">Request Details</h3>
                         <p class="mt-1.5 text-xs font-bold uppercase text-slate-400">
                             {{ formsData.id }}
                         </p>
@@ -386,10 +386,10 @@ export default {
                         </h4>
                         <div class="space-y-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-800">
                             <div>
-                                <p class="text-base font-black tracking-tight text-slate-900 dark:text-white">
+                                <p class="text-base font-black text-slate-900 dark:text-white">
                                     {{ requesterDisplayName }}
                                 </p>
-                                <p class="mt-1 text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                                <p class="uppercasetext-slate-500 mt-1 text-xs font-bold dark:text-slate-400">
                                     {{ displayText(formsData.requester?.position) }}
                                 </p>
                             </div>
@@ -399,7 +399,7 @@ export default {
                                 </p>
                                 <p
                                     v-if="formsData.requester?.philrice_id"
-                                    class="mt-1.5 text-xs font-bold uppercase tracking-wide text-indigo-600 dark:text-indigo-400">
+                                    class="mt-1.5 text-xs font-bold uppercase text-indigo-600 dark:text-indigo-400">
                                     ID: {{ formsData.requester.philrice_id }}
                                 </p>
                             </div>

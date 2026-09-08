@@ -70,7 +70,7 @@ export default {
         <div class="flex min-w-0 max-w-full flex-col leading-tight">
             <div
                 v-if="normalizedBreadcrumbs.length"
-                class="mb-1.5 flex flex-wrap items-center gap-2 text-[0.65rem] font-semibold uppercase tracking-wider text-slate-500 sm:text-xs dark:text-slate-400">
+                class="uppercasetext-slate-500 mb-1.5 flex flex-wrap items-center gap-2 text-[0.65rem] font-semibold sm:text-xs dark:text-slate-400">
                 <template
                     v-for="(breadcrumb, index) in normalizedBreadcrumbs"
                     :key="`${breadcrumb.label}-${index}`">
@@ -95,12 +95,12 @@ export default {
             <Link
                 v-if="resolvedRouteLink"
                 :href="resolvedRouteLink"
-                class="truncate text-lg font-black tracking-tight text-slate-900 transition-colors hover:text-indigo-600 sm:text-xl dark:text-white dark:hover:text-indigo-400">
+                class="text-normal truncate font-bold text-slate-900 transition-colors hover:text-indigo-600 sm:text-lg dark:text-white dark:hover:text-indigo-400">
                 {{ title }}
             </Link>
             <h1
                 v-else
-                class="truncate text-lg font-black tracking-tight text-slate-900 sm:text-xl dark:text-white">
+                class="text-normal truncate font-bold text-slate-900 sm:text-lg dark:text-white">
                 {{ title }}
             </h1>
             <p

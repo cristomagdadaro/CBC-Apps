@@ -377,7 +377,7 @@ export default {
                 <div class="space-y-0.5">
                     <div class="flex items-center gap-2">
                         <TrendingUp class="h-5 w-5 text-lime-600 dark:text-lime-400" />
-                        <h2 class="text-lg font-bold tracking-tight sm:text-xl">Stock Analytics & Movement</h2>
+                        <h2 class="text-lg font-bold sm:text-xl">Stock Analytics & Movement</h2>
                     </div>
                     <p class="text-xs text-slate-500 sm:text-sm dark:text-slate-400">
                         Viewing inventory transaction metrics
@@ -428,13 +428,13 @@ export default {
                 <!-- Total Transactions Card -->
                 <div class="shadow-xs group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 transition-all duration-200 hover:border-lime-500/50 sm:p-5 dark:border-slate-800 dark:bg-slate-900">
                     <div class="flex items-center justify-between">
-                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Total Movements</span>
+                        <span class="uppercasetext-slate-500 text-xs font-semibold dark:text-slate-400">Total Movements</span>
                         <div class="rounded-xl bg-lime-500/10 p-2.5 text-lime-600 dark:text-lime-400">
                             <ArrowUpDown class="h-5 w-5" />
                         </div>
                     </div>
                     <div class="mt-3">
-                        <p class="text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl dark:text-slate-100">
+                        <p class="text-2xl font-extrabold text-slate-900 sm:text-3xl dark:text-slate-100">
                             {{ dashboard.totals.total_transactions || dashboard.totals.incoming + dashboard.totals.outgoing }}
                         </p>
                         <p class="mt-1 flex items-center gap-1 text-[0.7rem] text-slate-500 sm:text-xs dark:text-slate-400">
@@ -446,14 +446,14 @@ export default {
                 <!-- Stock In Card -->
                 <div class="shadow-xs group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 transition-all duration-200 hover:border-emerald-500/50 sm:p-5 dark:border-slate-800 dark:bg-slate-900">
                     <div class="flex items-center justify-between">
-                        <span class="text-xs font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Stock In (Restock)</span>
+                        <span class="uppercasetext-emerald-600 text-xs font-semibold dark:text-emerald-400">Stock In (Restock)</span>
                         <div class="rounded-xl bg-emerald-500/10 p-2.5 text-emerald-600 dark:text-emerald-400">
                             <ArrowDownLeft class="h-5 w-5" />
                         </div>
                     </div>
                     <div class="mt-3">
                         <div class="flex items-baseline gap-2">
-                            <p class="text-2xl font-extrabold tracking-tight text-emerald-600 sm:text-3xl dark:text-emerald-400">
+                            <p class="text-2xl font-extrabold text-emerald-600 sm:text-3xl dark:text-emerald-400">
                                 {{ dashboard.totals.incoming }}
                             </p>
                             <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">transactions</span>
@@ -470,14 +470,14 @@ export default {
                 <!-- Stock Out Card -->
                 <div class="shadow-xs group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 transition-all duration-200 hover:border-rose-500/50 sm:p-5 dark:border-slate-800 dark:bg-slate-900">
                     <div class="flex items-center justify-between">
-                        <span class="text-xs font-semibold uppercase tracking-wider text-rose-600 dark:text-rose-400">Stock Out (Issued)</span>
+                        <span class="uppercasetext-rose-600 text-xs font-semibold dark:text-rose-400">Stock Out (Issued)</span>
                         <div class="rounded-xl bg-rose-500/10 p-2.5 text-rose-600 dark:text-rose-400">
                             <ArrowUpRight class="h-5 w-5" />
                         </div>
                     </div>
                     <div class="mt-3">
                         <div class="flex items-baseline gap-2">
-                            <p class="text-2xl font-extrabold tracking-tight text-rose-600 sm:text-3xl dark:text-rose-400">
+                            <p class="text-2xl font-extrabold text-rose-600 sm:text-3xl dark:text-rose-400">
                                 {{ dashboard.totals.outgoing }}
                             </p>
                             <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">transactions</span>
@@ -494,14 +494,14 @@ export default {
                 <!-- Low & Empty Reorder Warning Card -->
                 <div class="shadow-xs group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-4 transition-all duration-200 hover:border-amber-500/50 sm:p-5 dark:border-slate-800 dark:bg-slate-900">
                     <div class="flex items-center justify-between">
-                        <span class="text-xs font-semibold uppercase tracking-wider text-amber-600 dark:text-amber-400">Low / Empty Items</span>
+                        <span class="uppercasetext-amber-600 text-xs font-semibold dark:text-amber-400">Low / Empty Items</span>
                         <div class="rounded-xl bg-amber-500/10 p-2.5 text-amber-600 dark:text-amber-400">
                             <AlertTriangle class="h-5 w-5" />
                         </div>
                     </div>
                     <div class="mt-3">
                         <div class="flex items-baseline gap-2">
-                            <p class="text-2xl font-extrabold tracking-tight text-amber-600 sm:text-3xl dark:text-amber-400">
+                            <p class="text-2xl font-extrabold text-amber-600 sm:text-3xl dark:text-amber-400">
                                 {{ (dashboard.stock_buckets.empty || 0) + (dashboard.stock_buckets.low || 0) }}
                             </p>
                             <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">items</span>
@@ -527,7 +527,7 @@ export default {
                     <div class="mb-4 flex items-center justify-between">
                         <div class="flex items-center gap-2">
                             <PackageCheck class="w-4.5 h-4.5 text-lime-600 dark:text-lime-400" />
-                            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-800 sm:text-sm dark:text-slate-200">Stock Level Health Matrix</h3>
+                            <h3 class="uppercasetext-slate-800 text-xs font-bold sm:text-sm dark:text-slate-200">Stock Level Health Matrix</h3>
                         </div>
                         <span class="text-xs font-medium text-slate-500 dark:text-slate-400">Inventory Distribution</span>
                     </div>
@@ -562,7 +562,7 @@ export default {
                     <div class="mb-4 flex items-center justify-between">
                         <div class="flex items-center gap-2">
                             <Box class="w-4.5 h-4.5 text-rose-500" />
-                            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-800 sm:text-sm dark:text-slate-200">Top Issued Stock Items</h3>
+                            <h3 class="uppercasetext-slate-800 text-xs font-bold sm:text-sm dark:text-slate-200">Top Issued Stock Items</h3>
                         </div>
                         <span class="text-xs font-medium text-slate-500 dark:text-slate-400">Highest Outgoing Volume</span>
                     </div>
@@ -607,7 +607,7 @@ export default {
                     <div class="mb-4 flex items-center justify-between">
                         <div class="flex items-center gap-2">
                             <Users class="w-4.5 h-4.5 text-blue-500" />
-                            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-800 sm:text-sm dark:text-slate-200">Leading Stock Movers</h3>
+                            <h3 class="uppercasetext-slate-800 text-xs font-bold sm:text-sm dark:text-slate-200">Leading Stock Movers</h3>
                         </div>
 
                         <div class="flex items-center gap-1.5 sm:gap-2">
@@ -694,7 +694,7 @@ export default {
                 <div class="shadow-xs rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 dark:border-slate-800 dark:bg-slate-900">
                     <div class="mb-4 flex items-center gap-2">
                         <Layers class="h-4 w-4 text-indigo-500" />
-                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-800 sm:text-sm dark:text-slate-200">Category Allocation</h3>
+                        <h3 class="uppercasetext-slate-800 text-xs font-bold sm:text-sm dark:text-slate-200">Category Allocation</h3>
                     </div>
                     <div
                         v-if="dashboard.items_per_category && dashboard.items_per_category.length"
@@ -729,7 +729,7 @@ export default {
                 <div class="shadow-xs rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 dark:border-slate-800 dark:bg-slate-900">
                     <div class="mb-4 flex items-center gap-2">
                         <MapPin class="h-4 w-4 text-emerald-500" />
-                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-800 sm:text-sm dark:text-slate-200">Storage Locations</h3>
+                        <h3 class="uppercasetext-slate-800 text-xs font-bold sm:text-sm dark:text-slate-200">Storage Locations</h3>
                     </div>
                     <div
                         v-if="dashboard.items_per_location && dashboard.items_per_location.length"
@@ -764,7 +764,7 @@ export default {
                 <div class="shadow-xs rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 dark:border-slate-800 dark:bg-slate-900">
                     <div class="mb-4 flex items-center gap-2">
                         <FolderGit2 class="h-4 w-4 text-amber-500" />
-                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-800 sm:text-sm dark:text-slate-200">Project Codes</h3>
+                        <h3 class="uppercasetext-slate-800 text-xs font-bold sm:text-sm dark:text-slate-200">Project Codes</h3>
                     </div>
                     <div
                         v-if="dashboard.items_per_project_code && dashboard.items_per_project_code.length"
@@ -797,7 +797,7 @@ export default {
             <!-- Recent Movement Log Table -->
             <div class="shadow-xs rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 dark:border-slate-800 dark:bg-slate-900">
                 <div class="mb-4 flex items-center justify-between">
-                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-800 sm:text-sm dark:text-slate-200">Recent Movement Log Feed</h3>
+                    <h3 class="uppercasetext-slate-800 text-xs font-bold sm:text-sm dark:text-slate-200">Recent Movement Log Feed</h3>
                     <span class="text-xs font-medium text-slate-500 dark:text-slate-400">Last 10 Records</span>
                 </div>
 
@@ -833,7 +833,7 @@ export default {
                                 </td>
                                 <td class="whitespace-nowrap p-3">
                                     <span
-                                        class="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[0.65rem] font-extrabold uppercase tracking-wider"
+                                        class="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[0.65rem] font-extrabold uppercase"
                                         :class="row.transac_type === 'incoming' ? 'border border-emerald-300 bg-emerald-100 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300' : 'border border-rose-300 bg-rose-100 text-rose-700 dark:border-rose-800 dark:bg-rose-950/60 dark:text-rose-300'">
                                         <component
                                             :is="row.transac_type === 'incoming' ? 'ArrowDownLeft' : 'ArrowUpRight'"

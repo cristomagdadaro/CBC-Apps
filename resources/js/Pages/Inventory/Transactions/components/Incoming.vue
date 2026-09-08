@@ -140,68 +140,67 @@ export default {
                         </div>
                     </div>
                 </transition-container>
-
-                <!-- Floating Storage Reference -->
-                <transition-container type="pop-in">
-                    <div
-                        v-if="showStorageReference"
-                        class="fixed bottom-20 right-4 z-30 flex w-[calc(100vw-2rem)] max-w-md flex-col overflow-hidden rounded-2xl border border-slate-200/60 bg-white/95 shadow-2xl backdrop-blur-xl sm:w-96 lg:absolute lg:bottom-auto lg:right-0 lg:top-0 dark:border-slate-800 dark:bg-slate-900/95">
-                        <!-- Header -->
-                        <div class="flex items-center justify-between border-b border-slate-100 bg-slate-50/80 px-5 py-4 dark:border-slate-800 dark:bg-slate-800/40">
-                            <div class="flex items-center gap-2.5">
-                                <Warehouse class="h-4 w-4 text-indigo-500 dark:text-indigo-400" />
-                                <h3 class="text-xs font-semibold uppercase text-slate-700 dark:text-slate-300">Storage Locations</h3>
-                            </div>
-                            <button
-                                @click="toggleStorageReference"
-                                class="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-200 hover:text-slate-600 dark:hover:bg-slate-700">
-                                <X class="h-4 w-4" />
-                            </button>
-                        </div>
-
-                        <!-- Table -->
-                        <div class="custom-scrollbar max-h-[50vh] overflow-y-auto">
-                            <table class="w-full text-sm">
-                                <thead class="sticky top-0 border-b border-slate-200 bg-slate-50 backdrop-blur-md dark:border-slate-700 dark:bg-slate-800/80">
-                                    <tr>
-                                        <th class="w-24 px-5 py-3 text-left text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">Room Code</th>
-                                        <th class="px-5 py-3 text-left text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">Storage Facility</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-slate-100 bg-white dark:divide-slate-800/60 dark:bg-slate-900/50">
-                                    <tr
-                                        v-for="location in storage_locations"
-                                        :key="location.name"
-                                        class="transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/40">
-                                        <td class="px-5 py-3 font-mono text-xs font-semibold text-indigo-600 dark:text-indigo-400">
-                                            {{ location.name }}
-                                        </td>
-                                        <td class="px-5 py-3 font-medium text-slate-700 dark:text-slate-300">
-                                            {{ location.label }}
-                                        </td>
-                                    </tr>
-                                    <tr v-if="!storage_locations.length">
-                                        <td
-                                            colspan="2"
-                                            class="px-5 py-8 text-center text-sm font-medium text-slate-400 dark:text-slate-500">
-                                            No storage locations registered.
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <!-- Footer -->
-                        <div class="border-t border-slate-100 bg-slate-50 px-5 py-3 text-center text-[0.65rem] font-semibold uppercase text-slate-500 dark:border-slate-800 dark:bg-slate-800/30 dark:text-slate-400">{{ storage_locations.length }} Locations Registered</div>
-                    </div>
-                </transition-container>
             </div>
 
+            <!-- Floating Storage Reference -->
+            <transition-container type="pop-in">
+                <div
+                    v-if="showStorageReference"
+                    class="fixed bottom-24 right-5 z-30 flex w-[calc(100vw-2rem)] max-w-md flex-col overflow-hidden rounded-2xl border border-slate-200/60 bg-white/95 shadow-2xl backdrop-blur-xl sm:w-96 dark:border-slate-800 dark:bg-slate-900/95">
+                    <!-- Header -->
+                    <div class="flex items-center justify-between border-b border-slate-100 bg-slate-50/80 px-5 py-4 dark:border-slate-800 dark:bg-slate-800/40">
+                        <div class="flex items-center gap-2.5">
+                            <Warehouse class="h-4 w-4 text-indigo-500 dark:text-indigo-400" />
+                            <h3 class="text-xs font-semibold uppercase text-slate-700 dark:text-slate-300">Storage Locations</h3>
+                        </div>
+                        <button
+                            @click="toggleStorageReference"
+                            class="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-200 hover:text-slate-600 dark:hover:bg-slate-700">
+                            <X class="h-4 w-4" />
+                        </button>
+                    </div>
+
+                    <!-- Table -->
+                    <div class="custom-scrollbar max-h-[50vh] overflow-y-auto">
+                        <table class="w-full text-sm">
+                            <thead class="sticky top-0 border-b border-slate-200 bg-slate-50 backdrop-blur-md dark:border-slate-700 dark:bg-slate-800/80">
+                                <tr>
+                                    <th class="w-24 px-5 py-3 text-left text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">Room Code</th>
+                                    <th class="px-5 py-3 text-left text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">Storage Facility</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 bg-white dark:divide-slate-800/60 dark:bg-slate-900/50">
+                                <tr
+                                    v-for="location in storage_locations"
+                                    :key="location.name"
+                                    class="transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                                    <td class="px-5 py-3 font-mono text-xs font-semibold text-indigo-600 dark:text-indigo-400">
+                                        {{ location.name }}
+                                    </td>
+                                    <td class="px-5 py-3 font-medium text-slate-700 dark:text-slate-300">
+                                        {{ location.label }}
+                                    </td>
+                                </tr>
+                                <tr v-if="!storage_locations.length">
+                                    <td
+                                        colspan="2"
+                                        class="px-5 py-8 text-center text-sm font-medium text-slate-400 dark:text-slate-500">
+                                        No storage locations registered.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="border-t border-slate-100 bg-slate-50 px-5 py-3 text-center text-[0.65rem] font-semibold uppercase text-slate-500 dark:border-slate-800 dark:bg-slate-800/30 dark:text-slate-400">{{ storage_locations.length }} Locations Registered</div>
+                </div>
+            </transition-container>
             <!-- Floating Action Button: Storage Reference -->
             <button
                 type="button"
                 @click="toggleStorageReference"
-                :class="['fixed bottom-5 right-5 z-40', 'flex items-center gap-2 rounded-full border px-4 py-3 shadow-lg backdrop-blur-md transition-all duration-300 active:scale-95', showStorageReference ? 'border-slate-700 bg-slate-800/90 text-slate-200 shadow-xl hover:bg-slate-700 dark:bg-slate-800/90' : 'border-indigo-500/50 bg-indigo-600/95 font-medium text-white shadow-indigo-600/20 hover:-translate-y-0.5 hover:bg-indigo-700 hover:shadow-xl']">
+                :class="['fixed bottom-6 right-24 z-40', 'flex items-center gap-2 rounded-full border px-4 py-3 shadow-lg backdrop-blur-md transition-all duration-300 active:scale-95', showStorageReference ? 'border-slate-700 bg-slate-800/90 text-slate-200 shadow-xl hover:bg-slate-700 dark:bg-slate-800/90' : 'border-indigo-500/50 bg-indigo-600/95 font-medium text-white shadow-indigo-600/20 hover:-translate-y-0.5 hover:bg-indigo-700 hover:shadow-xl']">
                 <MapPin class="h-4 w-4" />
                 <span class="whitespace-nowrap text-sm font-semibold">Storage Reference</span>
                 <component

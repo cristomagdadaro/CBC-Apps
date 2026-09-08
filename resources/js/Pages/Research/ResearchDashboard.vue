@@ -91,7 +91,7 @@ export default {
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-sm font-medium text-slate-500">{{ card.label }}</p>
-                            <p class="mt-2 text-3xl font-semibold tracking-tight text-slate-900">
+                            <p class="mt-2 text-3xl font-semibold text-slate-900">
                                 {{ card.value }}
                             </p>
                         </div>

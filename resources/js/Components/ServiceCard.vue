@@ -64,8 +64,8 @@ function slugify(title) {
         </span>
 
         <!-- Content -->
-        <div class="relative z-10 flex h-full flex-col">
-            <div class="mb-2 flex items-center gap-3 sm:mb-3">
+        <div class="relative z-10 flex h-full flex-col gap-2">
+            <div class="flex items-center gap-3">
                 <!-- Icon container -->
                 <div
                     :class="`${colorClasses[color]}`"
@@ -82,18 +82,18 @@ function slugify(title) {
                 </div>
 
                 <!-- Title -->
-                <h3 class="min-w-0 text-sm font-bold leading-tight text-slate-900 transition-colors duration-300 group-hover:text-lime-600 sm:text-base dark:text-slate-100 dark:group-hover:text-lime-400">
+                <h3 class="min-w-0 text-sm font-bold leading-snug text-slate-900 transition-colors duration-300 group-hover:text-lime-600 sm:text-base dark:text-slate-100 dark:group-hover:text-lime-400">
                     {{ title }}
                 </h3>
             </div>
 
             <!-- Description -->
-            <p class="mb-2 flex-grow text-xs leading-snug text-slate-600 transition-colors duration-300 group-hover:text-slate-800 sm:mb-3 sm:text-sm sm:leading-relaxed dark:text-slate-300 dark:group-hover:text-slate-200">
+            <p class="text-xs font-medium leading-snug text-slate-600 transition-colors duration-300 group-hover:text-slate-800 sm:text-sm dark:text-slate-300 dark:group-hover:text-slate-200">
                 {{ description }}
             </p>
 
             <!-- Action Link Indicator -->
-            <div class="mt-auto flex items-center pt-1 text-[0.7rem] font-bold uppercase tracking-wider text-lime-600 transition-all duration-300 group-hover:opacity-100 sm:text-xs sm:opacity-80 dark:text-lime-400">
+            <div class="uppercasetext-lime-600 mt-auto flex items-center pt-1 text-[0.7rem] font-bold transition-all duration-300 group-hover:opacity-100 sm:text-xs sm:opacity-80 dark:text-lime-400">
                 <span>Explore</span>
                 <svg
                     class="ml-1.5 h-3.5 w-3.5 transform transition-transform duration-300 group-hover:translate-x-1"

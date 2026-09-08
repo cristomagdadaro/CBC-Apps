@@ -335,13 +335,13 @@ export default {
 
                         <dl class="mt-4 grid grid-cols-2 gap-3 text-xs sm:text-sm">
                             <div class="rounded-xl border border-slate-100 bg-slate-50 p-3 dark:border-slate-800/80 dark:bg-slate-800/60">
-                                <dt class="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Personnel Type</dt>
+                                <dt class="uppercasetext-slate-400 text-[10px] font-bold dark:text-slate-500">Personnel Type</dt>
                                 <dd class="mt-0.5 font-semibold text-slate-900 dark:text-slate-100">
                                     {{ registrationTypeLabel(registration) }}
                                 </dd>
                             </div>
                             <div class="rounded-xl border border-slate-100 bg-slate-50 p-3 dark:border-slate-800/80 dark:bg-slate-800/60">
-                                <dt class="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Employee ID</dt>
+                                <dt class="uppercasetext-slate-400 text-[10px] font-bold dark:text-slate-500">Employee ID</dt>
                                 <dd class="mt-0.5 font-mono font-semibold text-slate-900 dark:text-slate-100">
                                     {{ registration.employee_id || "Assigned on approval" }}
                                 </dd>
@@ -349,19 +349,19 @@ export default {
                             <div
                                 v-if="registration.requires_cbc_id_card"
                                 class="rounded-xl border border-slate-100 bg-slate-50 p-3 dark:border-slate-800/80 dark:bg-slate-800/60">
-                                <dt class="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Course / Program</dt>
+                                <dt class="uppercasetext-slate-400 text-[10px] font-bold dark:text-slate-500">Course / Program</dt>
                                 <dd class="mt-0.5 font-semibold text-slate-900 dark:text-slate-100">
                                     {{ registration.course_program || "Not supplied" }}
                                 </dd>
                             </div>
                             <div class="rounded-xl border border-slate-100 bg-slate-50 p-3 dark:border-slate-800/80 dark:bg-slate-800/60">
-                                <dt class="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Phone</dt>
+                                <dt class="uppercasetext-slate-400 text-[10px] font-bold dark:text-slate-500">Phone</dt>
                                 <dd class="mt-0.5 font-semibold text-slate-900 dark:text-slate-100">
                                     {{ registration.phone || "Not supplied" }}
                                 </dd>
                             </div>
                             <div class="rounded-xl border border-slate-100 bg-slate-50 p-3 dark:border-slate-800/80 dark:bg-slate-800/60">
-                                <dt class="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Submitted</dt>
+                                <dt class="uppercasetext-slate-400 text-[10px] font-bold dark:text-slate-500">Submitted</dt>
                                 <dd class="mt-0.5 font-semibold text-slate-900 dark:text-slate-100">
                                     {{ registration.created_at ? registration.created_at : "N/A" }}
                                 </dd>

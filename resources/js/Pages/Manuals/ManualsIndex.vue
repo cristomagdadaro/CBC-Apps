@@ -243,7 +243,7 @@ export default {
                                         class="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
                                 </div>
                                 <div>
-                                    <h1 class="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
+                                    <h1 class="text-xl font-bold text-slate-900 dark:text-white">
                                         {{ visibleSections[activeSection]?.title }}
                                     </h1>
                                 </div>

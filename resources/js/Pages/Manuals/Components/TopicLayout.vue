@@ -31,7 +31,7 @@ const iconComponent = computed(() => {
                             class="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
                     </div>
                     <div>
-                        <h2 class="text-base font-semibold tracking-tight text-slate-900 dark:text-white">
+                        <h2 class="text-base font-semibold text-slate-900 dark:text-white">
                             {{ title }}
                         </h2>
                         <p

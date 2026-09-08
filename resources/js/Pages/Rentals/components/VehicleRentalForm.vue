@@ -293,7 +293,7 @@ export default {
                 </div>
                 <div>
                     <p class="mb-0.5 text-[0.65rem] font-bold uppercase text-indigo-600 dark:text-indigo-400">Booking</p>
-                    <h2 class="text-lg font-bold tracking-tight text-slate-900 dark:text-white">Vehicle Request</h2>
+                    <h2 class="text-lg font-bold text-slate-900 dark:text-white">Vehicle Request</h2>
                 </div>
             </div>
 
@@ -304,7 +304,7 @@ export default {
                         <AlertTriangle class="mt-0.5 h-5 w-5 shrink-0 text-amber-600 dark:text-amber-500" />
                         <div>
                             <p class="text-xs font-medium leading-relaxed text-amber-800 dark:text-amber-400">
-                                <span class="mb-1 block font-bold uppercase tracking-wider">Internal Use Only:</span>
+                                <span class="mb-1 block font-bold uppercase">Internal Use Only:</span>
                                 This form is exclusively for CBC internal use. Please note that submission does not replace the official PhilRice Travel Filing Protocols, which must still be followed.
                             </p>
                         </div>
@@ -312,7 +312,7 @@ export default {
                 </div>
 
                 <div class="shadow-xs rounded-xl border border-indigo-200 bg-indigo-50/80 p-4 dark:border-indigo-500/30 dark:bg-indigo-500/10">
-                    <h2 class="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-indigo-900 dark:text-indigo-300">
+                    <h2 class="uppercasetext-indigo-900 mb-2 flex items-center gap-2 text-xs font-bold dark:text-indigo-300">
                         <Info class="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
                         Important Reminders
                     </h2>
@@ -507,7 +507,7 @@ export default {
                         <label class="text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">Members of the Party (MOP)</label>
                         <button
                             type="button"
-                            class="inline-flex items-center gap-1 rounded-lg border border-dashed border-indigo-300 px-3 py-1.5 text-[0.65rem] font-bold uppercase tracking-wider text-indigo-600 transition-colors hover:bg-indigo-50 dark:border-indigo-500/50 dark:text-indigo-400 dark:hover:bg-indigo-500/10"
+                            class="uppercasetext-indigo-600 inline-flex items-center gap-1 rounded-lg border border-dashed border-indigo-300 px-3 py-1.5 text-[0.65rem] font-bold transition-colors hover:bg-indigo-50 dark:border-indigo-500/50 dark:text-indigo-400 dark:hover:bg-indigo-500/10"
                             @click="addMemberOfPartyRow">
                             + Add Member
                         </button>
@@ -596,7 +596,7 @@ export default {
                     <CalendarDays class="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
                 </div>
                 <div>
-                    <h3 class="text-base font-bold tracking-tight text-slate-900 dark:text-white">Vehicle Availability Calendar</h3>
+                    <h3 class="text-base font-bold text-slate-900 dark:text-white">Vehicle Availability Calendar</h3>
                     <p class="text-xs font-medium text-slate-500 dark:text-slate-400">Review current request schedules and workflow states before submitting.</p>
                 </div>
             </div>

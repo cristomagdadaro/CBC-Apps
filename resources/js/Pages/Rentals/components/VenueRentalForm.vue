@@ -288,7 +288,7 @@ export default {
                 </div>
                 <div>
                     <p class="mb-0.5 text-[0.65rem] font-bold uppercase text-indigo-600 dark:text-indigo-400">Booking</p>
-                    <h2 class="text-lg font-bold tracking-tight text-slate-900 dark:text-white">Venue Request</h2>
+                    <h2 class="text-lg font-bold text-slate-900 dark:text-white">Venue Request</h2>
                 </div>
             </div>
 
@@ -319,7 +319,7 @@ export default {
                             class="h-4 w-4 text-rose-600 dark:text-rose-400" />
 
                         <span
-                            class="text-[0.65rem] font-bold uppercase tracking-wider"
+                            class="text-[0.65rem] font-bold uppercase"
                             :class="isAvailable ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-700 dark:text-rose-400'">
                             {{ availabilityMessage || "Checking availability..." }}
                         </span>
@@ -352,7 +352,7 @@ export default {
                             v-if="venueRates && venueRates.length > 0"
                             type="button"
                             @click="showRatesModal = true"
-                            class="inline-flex items-center gap-1 text-[0.65rem] font-bold uppercase tracking-wider text-indigo-600 transition-colors hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300">
+                            class="uppercasetext-indigo-600 inline-flex items-center gap-1 text-[0.65rem] font-bold transition-colors hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300">
                             <Info class="h-3.5 w-3.5" />
                             View Rates
                         </button>
@@ -482,7 +482,7 @@ export default {
                     <CalendarDays class="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
                 </div>
                 <div>
-                    <h3 class="text-base font-bold tracking-tight text-slate-900 dark:text-white">Venue Availability Calendar</h3>
+                    <h3 class="text-base font-bold text-slate-900 dark:text-white">Venue Availability Calendar</h3>
                     <p class="text-xs font-medium text-slate-500 dark:text-slate-400">Check current venue workflow states before submitting.</p>
                 </div>
             </div>
@@ -522,7 +522,7 @@ export default {
                         <Building2 class="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                     </div>
                     <div>
-                        <h2 class="text-base font-bold tracking-tight text-slate-900 dark:text-white">DA-CBC Venue Rental Rates</h2>
+                        <h2 class="text-base font-bold text-slate-900 dark:text-white">DA-CBC Venue Rental Rates</h2>
                         <p class="text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">Disclaimer: These rates aren't updated in real-time, kindly call 451 for confirmation. Thank you!</p>
                     </div>
                 </div>
@@ -539,11 +539,11 @@ export default {
                     <table class="w-full border-collapse whitespace-nowrap text-left">
                         <thead class="bg-slate-50 dark:bg-slate-800/80">
                             <tr>
-                                <th class="w-1/4 border-b border-slate-200/60 px-5 py-4 text-[0.65rem] font-bold uppercase tracking-wider text-slate-500 dark:border-slate-700/60 dark:text-slate-400">Venue</th>
-                                <th class="w-24 border-b border-slate-200/60 px-5 py-4 text-center text-[0.65rem] font-bold uppercase tracking-wider text-slate-500 dark:border-slate-700/60 dark:text-slate-400">Maximum Capacity</th>
-                                <th class="border-b border-slate-200/60 px-5 py-4 text-[0.65rem] font-bold uppercase tracking-wider text-slate-500 dark:border-slate-700/60 dark:text-slate-400">Outsider/Guest</th>
-                                <th class="border-b border-slate-200/60 px-5 py-4 text-[0.65rem] font-bold uppercase tracking-wider text-slate-500 dark:border-slate-700/60 dark:text-slate-400">Core Funds(20% only)</th>
-                                <th class="border-b border-slate-200/60 px-5 py-4 text-[0.65rem] font-bold uppercase tracking-wider text-slate-500 dark:border-slate-700/60 dark:text-slate-400">External/Trust Funds (50% only)</th>
+                                <th class="uppercasetext-slate-500 w-1/4 border-b border-slate-200/60 px-5 py-4 text-[0.65rem] font-bold dark:border-slate-700/60 dark:text-slate-400">Venue</th>
+                                <th class="uppercasetext-slate-500 w-24 border-b border-slate-200/60 px-5 py-4 text-center text-[0.65rem] font-bold dark:border-slate-700/60 dark:text-slate-400">Maximum Capacity</th>
+                                <th class="uppercasetext-slate-500 border-b border-slate-200/60 px-5 py-4 text-[0.65rem] font-bold dark:border-slate-700/60 dark:text-slate-400">Outsider/Guest</th>
+                                <th class="uppercasetext-slate-500 border-b border-slate-200/60 px-5 py-4 text-[0.65rem] font-bold dark:border-slate-700/60 dark:text-slate-400">Core Funds(20% only)</th>
+                                <th class="uppercasetext-slate-500 border-b border-slate-200/60 px-5 py-4 text-[0.65rem] font-bold dark:border-slate-700/60 dark:text-slate-400">External/Trust Funds (50% only)</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100 dark:divide-slate-700/60">
@@ -740,7 +740,7 @@ export default {
                 <button
                     type="button"
                     @click="showRatesModal = false"
-                    class="rounded-xl bg-slate-900 px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-white shadow-sm transition-all hover:bg-slate-800 dark:bg-slate-700 dark:hover:bg-slate-600">
+                    class="uppercasetext-white rounded-xl bg-slate-900 px-6 py-2.5 text-xs font-bold shadow-sm transition-all hover:bg-slate-800 dark:bg-slate-700 dark:hover:bg-slate-600">
                     Close
                 </button>
             </div>

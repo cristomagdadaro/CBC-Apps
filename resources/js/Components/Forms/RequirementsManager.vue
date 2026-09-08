@@ -448,7 +448,7 @@ export default {
                                 @change="toggleEnabled(index)"
                                 class="h-3.5 w-3.5 rounded border-slate-300 bg-slate-100 text-indigo-600 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800" />
                             <span
-                                class="text-[0.65rem] font-bold uppercase tracking-widest"
+                                class="text-[0.65rem] font-bold uppercase"
                                 :class="req.is_enabled !== false ? 'text-slate-700 dark:text-slate-300' : 'text-slate-400 dark:text-slate-500'">
                                 {{ req.is_enabled !== false ? "Enabled" : "Disabled" }}
                             </span>
@@ -464,7 +464,7 @@ export default {
                                 :disabled="!req?.is_enabled"
                                 class="h-3.5 w-3.5 rounded border-slate-300 bg-slate-100 text-indigo-600 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800" />
                             <span
-                                class="text-[0.65rem] font-bold uppercase tracking-widest"
+                                class="text-[0.65rem] font-bold uppercase"
                                 :class="req.is_required ? 'text-slate-700 dark:text-slate-300' : 'text-slate-400 dark:text-slate-500'">
                                 {{ req.is_required ? "Required" : "Optional" }}
                             </span>
@@ -621,7 +621,7 @@ export default {
                         <div class="col-span-2 sm:col-span-1">
                             <label class="mb-1.5 block text-[0.65rem] font-bold uppercase text-slate-500 dark:text-slate-400">
                                 Max Slots
-                                <span class="font-medium normal-case tracking-normal opacity-70">(opt)</span>
+                                <span class="font-medium normal-case opacity-70">(opt)</span>
                             </label>
                             <input
                                 type="number"

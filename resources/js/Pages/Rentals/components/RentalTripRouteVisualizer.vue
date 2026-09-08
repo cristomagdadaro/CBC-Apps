@@ -52,7 +52,7 @@ const getStepClass = (kind) => STEP_STYLES[kind] || STEP_STYLES.transfer;
         <!-- Header Section -->
         <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
-                <div class="flex items-center gap-2.5 text-sm font-bold uppercase tracking-wide text-gray-900 dark:text-slate-100">
+                <div class="flex items-center gap-2.5 text-sm font-bold uppercase text-gray-900 dark:text-slate-100">
                     <LuShield class="h-4 w-4 text-blue-600 dark:text-blue-400" />
                     <span>{{ tripMeta.label }}</span>
                 </div>

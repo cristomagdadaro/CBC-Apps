@@ -40,7 +40,36 @@ class AuditLog extends BaseModel
         'old_values' => 'array',
         'new_values' => 'array',
         'id' => 'string',
+        'created_at' => 'datetime:Y-m-d\TH:i:sP',
+        'updated_at' => 'datetime:Y-m-d\TH:i:sP',
     ];
+
+    protected $appends = [
+        'actor_name',
+        'change_summary',
+    ];
+
+    /**
+     * Get the resolved actor name for this audit log.
+     */
+    public function getActorNameAttribute(): string
+    {
+        if ($this->user) {
+            return $this->user->name;
+        }
+
+        if ($this->model_type === \App\Models\Transaction::class) {
+            $personnelId = $this->new_values['personnel_id'] ?? $this->old_values['personnel_id'] ?? null;
+            if ($personnelId) {
+                $personnel = \App\Models\Personnel::find($personnelId);
+                if ($personnel) {
+                    return app(\App\Support\TransactionActorNameResolver::class)->resolve($personnel, null) ?? 'Unknown';
+                }
+            }
+        }
+
+        return 'Unknown';
+    }
 
     /**
      * Get the user who made the change.
@@ -88,28 +117,71 @@ class AuditLog extends BaseModel
     public function getChangeSummary(): string
     {
         if ($this->action === 'created') {
-            return "Created by " . ($this->user?->name ?? 'Unknown');
+            return "Created";
         }
 
         if ($this->action === 'deleted') {
-            return "Deleted by " . ($this->user?->name ?? 'Unknown');
+            return "Deleted";
         }
 
         if ($this->action === 'force_deleted') {
-            return "Permanently deleted by " . ($this->user?->name ?? 'Unknown');
+            return "Permanently deleted";
         }
 
         $changes = [];
+        $ignoredFields = ['id', 'created_at', 'updated_at', 'deleted_at', 'user_id', 'personnel_id', 'employee_id'];
+        
+        $fieldLabels = [
+            'item_id' => 'Item ID',
+            'project_code' => 'Project Code',
+            'quantity' => 'Quantity',
+            'remarks' => 'Remarks',
+            'unit' => 'Unit',
+            'barcode' => 'Barcode',
+            'storage_location' => 'Storage Location',
+            'condition' => 'Condition',
+            'par_no' => 'PAR No',
+            'barcode_prri' => 'PRRI Barcode',
+            'status' => 'Status',
+        ];
+
         if ($this->old_values && $this->new_values) {
             foreach ($this->new_values as $key => $newValue) {
-                if (isset($this->old_values[$key]) && $this->old_values[$key] !== $newValue) {
-                    $changes[] = "$key: {$this->old_values[$key]} → $newValue";
+                if (in_array($key, $ignoredFields)) {
+                    continue;
+                }
+                
+                // Use loose comparison for numbers/strings
+                if (isset($this->old_values[$key]) && $this->old_values[$key] != $newValue) {
+                    $label = $fieldLabels[$key] ?? ucfirst(str_replace('_', ' ', $key));
+                    $oldVal = $this->old_values[$key];
+                    
+                    if (is_string($oldVal) && strlen($oldVal) > 30) $oldVal = substr($oldVal, 0, 27) . '...';
+                    if (is_string($newValue) && strlen($newValue) > 30) $newValue = substr($newValue, 0, 27) . '...';
+                    if (is_array($oldVal)) $oldVal = 'Array';
+                    if (is_array($newValue)) $newValue = 'Array';
+                    if (is_bool($oldVal)) $oldVal = $oldVal ? 'Yes' : 'No';
+                    if (is_bool($newValue)) $newValue = $newValue ? 'Yes' : 'No';
+                    if ($oldVal === null || $oldVal === '') $oldVal = 'None';
+                    if ($newValue === null || $newValue === '') $newValue = 'None';
+
+                    $changes[] = "$label: $oldVal → $newValue";
                 }
             }
         }
 
         return count($changes) > 0
             ? "Updated " . implode(", ", array_slice($changes, 0, 3)) . (count($changes) > 3 ? ", +more" : "")
-            : "Updated by " . ($this->user?->name ?? 'Unknown');
+            : "Updated";
+    }
+
+    protected function serializeDate(\DateTimeInterface $date): string
+    {
+        return $date->format('Y-m-d\TH:i:sP');
+    }
+
+    public function getChangeSummaryAttribute(): string
+    {
+        return $this->getChangeSummary();
     }
 }

@@ -707,7 +707,7 @@ export default {
                     <!-- Header -->
                     <div class="flex items-start justify-between">
                         <div>
-                            <h2 class="text-xl font-bold tracking-tight text-gray-900">Selected Sample</h2>
+                            <h2 class="text-xl font-bold text-gray-900">Selected Sample</h2>
                             <div class="mt-1 flex items-center gap-2 text-sm text-gray-500">
                                 <span class="rounded bg-gray-100 px-2 py-0.5 font-mono text-xs text-gray-700">
                                     {{ selectedSample.uid }}
@@ -729,7 +729,7 @@ export default {
                     <div class="mt-6 grid gap-5 lg:grid-cols-3">
                         <!-- Barcode -->
                         <div class="rounded-xl border border-gray-100 bg-gray-50/50 p-5">
-                            <label class="text-xs font-semibold uppercase tracking-wider text-gray-400">Barcode</label>
+                            <label class="uppercasetext-gray-400 text-xs font-semibold">Barcode</label>
                             <div class="mt-4 flex justify-center">
                                 <QrBarCode
                                     mode="barcode"
@@ -744,7 +744,7 @@ export default {
 
                         <!-- QR Code -->
                         <div class="rounded-xl border border-gray-100 bg-gray-50/50 p-5">
-                            <label class="text-xs font-semibold uppercase tracking-wider text-gray-400">Retrieval Payload</label>
+                            <label class="uppercasetext-gray-400 text-xs font-semibold">Retrieval Payload</label>
                             <div class="mt-4 flex flex-col items-center">
                                 <QrBarCode
                                     mode="qr"
@@ -759,13 +759,13 @@ export default {
 
                         <!-- Details -->
                         <div class="rounded-xl border border-gray-100 bg-gray-50/50 p-5">
-                            <label class="text-xs font-semibold uppercase tracking-wider text-gray-400">Experiment Context</label>
+                            <label class="uppercasetext-gray-400 text-xs font-semibold">Experiment Context</label>
                             <div class="mt-4 space-y-3">
                                 <div class="group">
                                     <a
                                         :href="route('research.samples.show', selectedSample.uid)"
                                         class="-mx-2 block rounded-lg p-2 transition-all hover:bg-white hover:shadow-sm">
-                                        <span class="block text-xs uppercase tracking-wider text-gray-400">Project</span>
+                                        <span class="uppercasetext-gray-400 block text-xs">Project</span>
                                         <span class="text-sm font-semibold text-gray-900 transition-colors group-hover:text-blue-700">
                                             {{ selectedSample.experiment?.study?.project?.title || "N/A" }}
                                         </span>
@@ -773,14 +773,14 @@ export default {
                                 </div>
 
                                 <div>
-                                    <span class="block text-xs uppercase tracking-wider text-gray-400">Study</span>
+                                    <span class="uppercasetext-gray-400 block text-xs">Study</span>
                                     <span class="text-sm font-medium text-gray-700">
                                         {{ selectedSample.experiment?.study?.title || "N/A" }}
                                     </span>
                                 </div>
 
                                 <div>
-                                    <span class="block text-xs uppercase tracking-wider text-gray-400">Experiment</span>
+                                    <span class="uppercasetext-gray-400 block text-xs">Experiment</span>
                                     <span class="text-sm font-medium text-gray-700">
                                         {{ selectedSample.experiment?.title || "N/A" }}
                                     </span>
@@ -788,13 +788,13 @@ export default {
 
                                 <div class="grid grid-cols-2 gap-3 border-t border-gray-200/60 pt-3">
                                     <div>
-                                        <span class="block text-xs uppercase tracking-wider text-gray-400">Location</span>
+                                        <span class="uppercasetext-gray-400 block text-xs">Location</span>
                                         <span class="text-sm font-medium text-gray-700">
                                             {{ selectedSample.current_location || selectedSample.storage_location || "N/A" }}
                                         </span>
                                     </div>
                                     <div v-if="selectedSample.commodity">
-                                        <span class="block text-xs uppercase tracking-wider text-gray-400">Commodity</span>
+                                        <span class="uppercasetext-gray-400 block text-xs">Commodity</span>
                                         <span class="text-sm font-medium text-gray-700">
                                             {{ selectedSample.commodity }}
                                         </span>

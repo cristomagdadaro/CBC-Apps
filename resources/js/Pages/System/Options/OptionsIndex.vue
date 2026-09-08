@@ -223,7 +223,7 @@ export default {
                                             <LayoutGrid class="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
                                         </div>
                                         <div>
-                                            <h3 class="text-base font-semibold tracking-tight text-slate-900 dark:text-white">Form Workflow Toggles</h3>
+                                            <h3 class="text-base font-semibold text-slate-900 dark:text-white">Form Workflow Toggles</h3>
                                             <p class="mt-0.5 text-xs font-medium leading-relaxed text-slate-500 dark:text-slate-400">Enable or disable event, participant, and verification workflows across the system.</p>
                                         </div>
                                     </div>
@@ -270,7 +270,7 @@ export default {
                                                     class="h-5 w-5" />
                                             </div>
                                             <div>
-                                                <span class="block text-sm font-bold tracking-tight text-slate-900 dark:text-white">Event Workflow</span>
+                                                <span class="block text-sm font-bold text-slate-900 dark:text-white">Event Workflow</span>
                                                 <span class="mt-0.5 block text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">Manage Processing</span>
                                             </div>
                                         </div>
@@ -296,7 +296,7 @@ export default {
                                                     class="h-5 w-5" />
                                             </div>
                                             <div>
-                                                <span class="block text-sm font-bold tracking-tight text-slate-900 dark:text-white">Participant Workflow</span>
+                                                <span class="block text-sm font-bold text-slate-900 dark:text-white">Participant Workflow</span>
                                                 <span class="mt-0.5 block text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">Handle Logic</span>
                                             </div>
                                         </div>
@@ -322,7 +322,7 @@ export default {
                                                     class="h-5 w-5" />
                                             </div>
                                             <div>
-                                                <span class="block text-sm font-bold tracking-tight text-slate-900 dark:text-white">Verification</span>
+                                                <span class="block text-sm font-bold text-slate-900 dark:text-white">Verification</span>
                                                 <span class="mt-0.5 block text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">Enable Steps</span>
                                             </div>
                                         </div>
@@ -342,7 +342,7 @@ export default {
                                             <ShieldCheck class="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                                         </div>
                                         <div>
-                                            <h3 class="text-base font-semibold tracking-tight text-slate-900 dark:text-white">Module Access Controls</h3>
+                                            <h3 class="text-base font-semibold text-slate-900 dark:text-white">Module Access Controls</h3>
                                             <p class="mt-0.5 max-w-xl text-xs font-medium leading-relaxed text-slate-500 dark:text-slate-400">Configure deployment visibility and runtime mode for each module. Deployment access applies to the module's web pages and APIs together.</p>
                                             <div class="mt-3 flex flex-wrap gap-2 font-mono text-[0.65rem] font-semibold">
                                                 <span class="flex items-center gap-1.5 rounded-md border border-slate-200 bg-slate-100 px-2.5 py-1 text-slate-600 shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
@@ -403,7 +403,7 @@ export default {
                                                     <!-- Module Header -->
                                                     <div class="flex-1">
                                                         <div class="mb-1.5 flex flex-wrap items-center gap-2">
-                                                            <h5 class="text-sm font-bold tracking-tight text-slate-900 dark:text-white">
+                                                            <h5 class="text-sm font-bold text-slate-900 dark:text-white">
                                                                 {{ item.label }}
                                                             </h5>
                                                             <span

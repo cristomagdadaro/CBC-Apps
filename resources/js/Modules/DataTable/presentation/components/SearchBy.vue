@@ -1,7 +1,7 @@
 <template>
     <div class="space-y-1.5">
         <div class="flex items-center justify-between">
-            <label class="text-xs font-medium uppercase tracking-wide text-gray-700 dark:text-gray-300">Filter By</label>
+            <label class="text-xs font-medium uppercase text-gray-700 dark:text-gray-300">Filter By</label>
             <label class="group inline-flex cursor-pointer items-center gap-1.5">
                 <input
                     type="checkbox"

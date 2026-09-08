@@ -298,15 +298,15 @@ export default {
                     </h4>
                     <ul class="space-y-3.5 text-xs font-medium text-slate-600 dark:text-slate-400">
                         <li>
-                            <span class="mb-1 block text-[0.6rem] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">Item Management UI</span>
+                            <span class="uppercasetext-slate-400 mb-1 block text-[0.6rem] font-semibold dark:text-slate-500">Item Management UI</span>
                             <code class="block break-all rounded-md border border-slate-200 bg-white px-2 py-1.5 font-mono text-[0.65rem] font-semibold text-purple-600 shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-purple-400">resources/js/Pages/Inventory/Items</code>
                         </li>
                         <li>
-                            <span class="mb-1 block text-[0.6rem] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">Transaction UI</span>
+                            <span class="uppercasetext-slate-400 mb-1 block text-[0.6rem] font-semibold dark:text-slate-500">Transaction UI</span>
                             <code class="block break-all rounded-md border border-slate-200 bg-white px-2 py-1.5 font-mono text-[0.65rem] font-semibold text-purple-600 shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-purple-400">resources/js/Pages/Inventory/Transactions</code>
                         </li>
                         <li>
-                            <span class="mb-1 block text-[0.6rem] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">Supplier Management UI</span>
+                            <span class="uppercasetext-slate-400 mb-1 block text-[0.6rem] font-semibold dark:text-slate-500">Supplier Management UI</span>
                             <code class="block break-all rounded-md border border-slate-200 bg-white px-2 py-1.5 font-mono text-[0.65rem] font-semibold text-purple-600 shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-purple-400">resources/js/Pages/Inventory/Supplier</code>
                         </li>
                     </ul>

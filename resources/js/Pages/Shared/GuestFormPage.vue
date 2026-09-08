@@ -78,7 +78,7 @@ export default {
                             </Link>
 
                             <div class="flex min-w-0 flex-1 flex-col justify-start">
-                                <h1 class="text-base font-extrabold uppercase leading-tight tracking-wide text-slate-800 sm:text-lg lg:text-xl dark:text-slate-100">
+                                <h1 class="text-base font-extrabold uppercase leading-tight text-slate-800 sm:text-lg lg:text-xl dark:text-slate-100">
                                     {{ title }}
                                 </h1>
                                 <p

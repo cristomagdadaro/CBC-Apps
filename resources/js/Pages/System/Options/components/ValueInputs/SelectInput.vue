@@ -18,7 +18,7 @@
                 class="h-3.5 w-3.5 shrink-0 text-slate-400 dark:text-slate-500" />
 
             <p
-                class="text-[0.65rem] font-semibold uppercase tracking-widest"
+                class="text-[0.65rem] font-semibold uppercase"
                 :class="normalizedOptions.length ? 'text-slate-500 dark:text-slate-400' : 'text-amber-600 dark:text-amber-400'">
                 {{ normalizedOptions.length ? "Pick the stored value that this option should use by default." : "Define at least one select choice below before choosing a default value." }}
             </p>

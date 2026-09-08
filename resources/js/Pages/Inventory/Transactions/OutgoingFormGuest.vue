@@ -330,12 +330,12 @@ export default {
                         v-if="outgoingFromApi"
                         class="flex w-full flex-col items-center gap-3">
                         <div class="flex w-full items-center justify-between px-1 pt-1">
-                            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">Inventory Results</h3>
+                            <h3 class="uppercasetext-slate-700 text-xs font-bold dark:text-slate-300">Inventory Results</h3>
                             <span class="rounded-full border border-slate-200 bg-slate-100 px-3 py-1 text-xs font-bold text-lime-600 dark:border-slate-700 dark:bg-slate-800 dark:text-lime-400">{{ outgoingFromApi?.data?.length || 0 }} Items Available</span>
                         </div>
                         <div
                             data-guide="supplies-results"
-                            class="max-h-[60vh] w-full overflow-y-auto overflow-x-hidden border-y p-3 drop-shadow sm:p-5">
+                            class="max-h-[60vh] w-full overflow-y-auto overflow-x-hidden border-y p-3 sm:p-5">
                             <div
                                 v-show="processing"
                                 class="rounded-2xl border border-slate-200 bg-slate-50 py-6 text-center text-xs font-semibold text-slate-500 dark:border-slate-800 dark:bg-slate-800/40">

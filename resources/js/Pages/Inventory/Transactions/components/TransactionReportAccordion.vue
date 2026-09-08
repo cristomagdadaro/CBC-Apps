@@ -81,13 +81,14 @@ export default {
         <header class="flex items-center justify-between border-b border-slate-200 bg-slate-50 px-4 py-3 dark:border-slate-800 dark:bg-slate-800/80">
             <div class="flex items-center gap-2">
                 <FileText class="h-4 w-4 text-slate-500 dark:text-slate-400" />
-                <span class="text-xs font-bold uppercase tracking-wider text-slate-800 sm:text-sm dark:text-slate-200">
+                <span class="uppercasetext-slate-800 text-xs font-bold sm:text-sm dark:text-slate-200">
                     {{ title }}
                 </span>
             </div>
             <div class="flex items-center gap-2">
                 <span class="text-xs font-semibold text-slate-500 dark:text-slate-400">{{ reports.length }} linked</span>
                 <button
+                    v-if="hasReports"
                     class="inline-flex h-7 w-7 items-center justify-center rounded-lg border border-slate-300 bg-white text-slate-600 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
                     type="button"
                     @click="togglePanel(openIndex === null ? 0 : null)"
@@ -100,12 +101,7 @@ export default {
         </header>
 
         <div
-            v-if="!hasReports"
-            class="p-4 text-center text-xs text-slate-500 dark:text-slate-400">
-            No reports linked to this transaction yet.
-        </div>
-        <div
-            v-else
+            v-if="hasReports"
             class="space-y-2 p-3">
             <div
                 v-for="(report, index) in reports"
@@ -137,7 +133,7 @@ export default {
                                 v-for="meta in metadataRows(report)"
                                 :key="meta.label + meta.value"
                                 class="rounded-xl border border-slate-200 bg-slate-50 p-2 dark:border-slate-800 dark:bg-slate-800/60">
-                                <p class="text-[0.65rem] font-semibold uppercase tracking-wider text-slate-400">
+                                <p class="uppercasetext-slate-400 text-[0.65rem] font-semibold">
                                     {{ meta.label }}
                                 </p>
                                 <p class="mt-0.5 text-xs font-bold text-slate-800 dark:text-slate-200">
@@ -161,7 +157,7 @@ export default {
                             </p>
                         </div>
                         <div>
-                            <p class="mb-1.5 text-[0.7rem] font-bold uppercase tracking-wider text-slate-400">Template Fields</p>
+                            <p class="uppercasetext-slate-400 mb-1.5 text-[0.7rem] font-bold">Template Fields</p>
                             <dl class="grid gap-1.5 text-xs">
                                 <div
                                     v-for="([entryKey, entryValue], idx) in fieldEntries(report)"

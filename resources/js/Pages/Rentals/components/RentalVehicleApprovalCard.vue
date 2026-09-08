@@ -233,7 +233,7 @@ export default {
                             </span>
                             <span class="text-xs font-medium text-gray-500 dark:text-slate-400">Updated {{ formatDate(formState.updated_at) }}</span>
                         </div>
-                        <h2 class="text-xl font-extrabold tracking-tight text-gray-900 dark:text-slate-100">Vehicle Rental Request</h2>
+                        <h2 class="text-xl font-extrabold text-gray-900 dark:text-slate-100">Vehicle Rental Request</h2>
                         <p class="mt-0.5 text-sm font-medium text-gray-600 dark:text-slate-400">
                             {{ tripTypeMeta.label }}
                         </p>
@@ -255,7 +255,7 @@ export default {
                         <LuUser class="h-6 w-6 text-blue-600 dark:text-blue-400" />
                     </div>
                     <div class="flex-1">
-                        <p class="mb-0.5 text-xs font-bold uppercase tracking-wider text-gray-400 dark:text-slate-500">Requested By</p>
+                        <p class="uppercasetext-gray-400 mb-0.5 text-xs font-bold dark:text-slate-500">Requested By</p>
                         <p class="text-lg font-bold leading-tight text-gray-900 dark:text-slate-100">
                             {{ formState.requested_by || "N/A" }}
                         </p>
@@ -276,7 +276,7 @@ export default {
                 <div class="rounded-xl border border-gray-200 bg-gray-50/50 p-5 dark:border-slate-700 dark:bg-slate-800/50">
                     <div class="grid gap-6 sm:grid-cols-2">
                         <div>
-                            <div class="mb-1.5 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-slate-400">
+                            <div class="uppercasetext-gray-500 mb-1.5 flex items-center gap-2 text-xs font-bold dark:text-slate-400">
                                 <LuCalendar class="h-4 w-4" />
                                 Date Range
                             </div>
@@ -287,7 +287,7 @@ export default {
                             </p>
                         </div>
                         <div>
-                            <div class="mb-1.5 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-slate-400">
+                            <div class="uppercasetext-gray-500 mb-1.5 flex items-center gap-2 text-xs font-bold dark:text-slate-400">
                                 <LuClock class="h-4 w-4" />
                                 Time
                             </div>
@@ -305,7 +305,7 @@ export default {
                     <div
                         v-if="formState.purpose"
                         class="rounded-xl border border-gray-100 bg-white p-4 dark:border-slate-700/50 dark:bg-slate-800">
-                        <div class="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-slate-400">
+                        <div class="uppercasetext-gray-500 mb-2 flex items-center gap-2 text-xs font-bold dark:text-slate-400">
                             <LuFileText class="h-4 w-4" />
                             Purpose
                         </div>
@@ -317,7 +317,7 @@ export default {
                     <div
                         v-if="formState.contact_number"
                         class="rounded-xl border border-gray-100 bg-white p-4 dark:border-slate-700/50 dark:bg-slate-800">
-                        <div class="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-slate-400">
+                        <div class="uppercasetext-gray-500 mb-2 flex items-center gap-2 text-xs font-bold dark:text-slate-400">
                             <LuUser class="h-4 w-4" />
                             Contact
                         </div>
@@ -331,7 +331,7 @@ export default {
                 <div
                     v-if="formState.members_of_party?.length"
                     class="rounded-xl border border-gray-100 bg-white p-4 dark:border-slate-700/50 dark:bg-slate-800">
-                    <div class="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-slate-400">
+                    <div class="uppercasetext-gray-500 mb-3 flex items-center gap-2 text-xs font-bold dark:text-slate-400">
                         <LuUsers class="h-4 w-4" />
                         Members of Party ({{ formState.members_of_party.length }})
                     </div>
@@ -383,7 +383,7 @@ export default {
                 <div
                     v-else-if="formState.notes"
                     class="border-b border-gray-100 bg-amber-50/50 p-6 dark:border-slate-800/50 dark:bg-amber-900/10">
-                    <p class="mb-1.5 text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-500">Reviewer Notes</p>
+                    <p class="uppercasetext-amber-600 mb-1.5 text-xs font-bold dark:text-amber-500">Reviewer Notes</p>
                     <p class="text-sm font-medium text-gray-800 dark:text-slate-300">
                         {{ formState.notes }}
                     </p>
@@ -432,7 +432,7 @@ export default {
                 <div
                     v-else
                     class="flex items-center justify-center border-t border-gray-200 bg-gray-50 px-6 py-4 dark:border-slate-700 dark:bg-slate-800/50">
-                    <p class="text-xs font-bold uppercase tracking-wide text-gray-500 dark:text-slate-400">You don't have permission to modify this request</p>
+                    <p class="text-xs font-bold uppercase text-gray-500 dark:text-slate-400">You don't have permission to modify this request</p>
                 </div>
             </div>
         </template>

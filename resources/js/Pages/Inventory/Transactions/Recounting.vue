@@ -186,7 +186,7 @@ export default {
                             <History class="h-6 w-6 text-lime-600 dark:text-lime-400" />
                         </div>
                         <div class="flex flex-col items-start gap-3 md:flex-row md:items-center md:gap-4">
-                            <h2 class="shrink-0 text-sm font-bold uppercase tracking-wider text-slate-900 sm:text-base dark:text-slate-100">Recounting Workflow</h2>
+                            <h2 class="uppercasetext-slate-900 shrink-0 text-sm font-bold sm:text-base dark:text-slate-100">Recounting Workflow</h2>
                             <div class="flex flex-wrap items-center gap-2">
                                 <span class="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
                                     <ScanLine class="h-3.5 w-3.5 text-lime-600 dark:text-lime-400" />
@@ -278,7 +278,7 @@ export default {
                         <div
                             v-if="hasLookupResult"
                             class="shadow-xs rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 dark:border-slate-800 dark:bg-slate-900">
-                            <h4 class="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-900 sm:text-sm dark:text-slate-100">
+                            <h4 class="uppercasetext-slate-900 mb-3 flex items-center gap-2 text-xs font-bold sm:text-sm dark:text-slate-100">
                                 <Package class="h-4 w-4 text-slate-400" />
                                 Item Summary
                             </h4>
@@ -309,7 +309,7 @@ export default {
                                         <Calculator class="h-5 w-5 text-lime-600 dark:text-lime-400" />
                                     </div>
                                     <div>
-                                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-900 sm:text-sm dark:text-slate-100">Recount & Adjust</h3>
+                                        <h3 class="uppercasetext-slate-900 text-xs font-bold sm:text-sm dark:text-slate-100">Recount & Adjust</h3>
                                         <p class="text-xs text-slate-500 dark:text-slate-400">Verify physical count and apply adjustments</p>
                                     </div>
                                 </div>
@@ -326,7 +326,7 @@ export default {
                                                     <Package class="h-5 w-5 text-lime-600 dark:text-lime-400" />
                                                 </div>
                                                 <div class="min-w-0 flex-1">
-                                                    <p class="text-[0.65rem] font-bold uppercase tracking-wider text-slate-400">Item Name</p>
+                                                    <p class="uppercasetext-slate-400 text-[0.65rem] font-bold">Item Name</p>
                                                     <p class="truncate text-sm font-bold text-slate-900 dark:text-slate-100">
                                                         {{ lookupResult.name }}
                                                     </p>
@@ -342,7 +342,7 @@ export default {
                                                     <Warehouse class="h-5 w-5 text-lime-600 dark:text-lime-400" />
                                                 </div>
                                                 <div class="min-w-0 flex-1">
-                                                    <p class="text-[0.65rem] font-bold uppercase tracking-wider text-slate-400">System Quantity</p>
+                                                    <p class="uppercasetext-slate-400 text-[0.65rem] font-bold">System Quantity</p>
                                                     <p class="text-xl font-bold text-slate-900 sm:text-2xl dark:text-slate-100">
                                                         {{ systemCount }}
                                                     </p>
@@ -356,7 +356,7 @@ export default {
                                     <!-- Input Section -->
                                     <div class="grid grid-cols-1 gap-3 md:grid-cols-3">
                                         <div class="space-y-1.5">
-                                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                                            <label class="uppercasetext-slate-700 block text-xs font-bold dark:text-slate-300">
                                                 <Calculator class="mr-1 inline h-4 w-4 text-slate-400" />
                                                 Physical Count
                                             </label>
@@ -374,7 +374,7 @@ export default {
                                             </div>
                                         </div>
                                         <div class="space-y-1.5">
-                                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                                            <label class="uppercasetext-slate-700 block text-xs font-bold dark:text-slate-300">
                                                 <MapPin class="mr-1 inline h-4 w-4 text-slate-400" />
                                                 Update Location
                                                 <span class="ml-1 text-[0.65rem] font-semibold text-slate-400">(optional)</span>
@@ -410,7 +410,7 @@ export default {
                                                 <Minus
                                                     v-else
                                                     class="h-4 w-4" />
-                                                <span class="text-[0.65rem] font-bold uppercase tracking-wider">Adjustment</span>
+                                                <span class="text-[0.65rem] font-bold uppercase">Adjustment</span>
                                             </div>
                                             <p class="text-xl font-extrabold">
                                                 <template v-if="adjustment === null">—</template>

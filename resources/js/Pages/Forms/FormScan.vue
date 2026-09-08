@@ -332,7 +332,7 @@ export default {
                                     class="mt-1 h-8 w-8 shrink-0 opacity-90" />
                                 <div>
                                     <p class="mb-1 text-[0.65rem] font-bold uppercase opacity-70">Current Status</p>
-                                    <p class="text-xl font-black leading-tight tracking-tight">
+                                    <p class="text-xl font-black leading-tight">
                                         {{ statusMessage }}
                                     </p>
                                     <p

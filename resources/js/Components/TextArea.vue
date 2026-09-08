@@ -89,7 +89,7 @@ export default {
             <template #header-actions>
                 <span
                     v-if="maxLength"
-                    class="text-[0.65rem] font-semibold tracking-wider"
+                    class="text-[0.65rem] font-semibold"
                     :class="{
                         'text-slate-400 dark:text-slate-500': !isNearLimit && !isOverLimit,
                         'text-amber-500': isNearLimit,

@@ -600,7 +600,7 @@ export default {
             v-if="workflowTabs.length > 1"
             class="sticky top-0 z-40 flex items-center justify-between border-b border-slate-200/80 bg-white/90 px-4 py-3 shadow-sm backdrop-blur-md md:hidden dark:border-slate-800 dark:bg-slate-900/90">
             <div class="flex min-w-0 items-center gap-2">
-                <span class="inline-flex shrink-0 items-center gap-1 rounded-full bg-indigo-50 px-2 py-0.5 font-mono text-xs font-medium tracking-wide text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-400">
+                <span class="inline-flex shrink-0 items-center gap-1 rounded-full bg-indigo-50 px-2 py-0.5 font-mono text-xs font-medium text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-400">
                     <Hash
                         :size="12"
                         :stroke-width="2" />
@@ -635,7 +635,7 @@ export default {
                     class="absolute right-0 top-0 flex h-full w-64 transform flex-col gap-4 bg-white p-5 shadow-2xl transition-transform dark:bg-slate-900"
                     @click.stop>
                     <div class="mb-2 flex items-center justify-between border-b border-slate-100 pb-3 dark:border-slate-800">
-                        <span class="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">Form Steps</span>
+                        <span class="text-xs font-medium uppercase text-slate-500 dark:text-slate-400">Form Steps</span>
                         <button
                             @click="showMobileMenu = false"
                             class="rounded-md p-1 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
@@ -676,7 +676,7 @@ export default {
                 :style="{ ...styleFor('form-header-box') }">
                 <div class="relative z-10 flex flex-col gap-2.5">
                     <div
-                        class="inline-flex w-fit items-center gap-1.5 rounded-full bg-black/5 px-2.5 py-1 font-mono text-xs font-medium uppercase tracking-wide backdrop-blur-md dark:bg-white/5"
+                        class="inline-flex w-fit items-center gap-1.5 rounded-full bg-black/5 px-2.5 py-1 font-mono text-xs font-medium uppercase backdrop-blur-md dark:bg-white/5"
                         :style="{
                             color: resolvedStyleTokens?.['form-header-box-text-color']?.value,
                         }">
@@ -686,7 +686,7 @@ export default {
                         {{ data.event_id }}
                     </div>
                     <h2
-                        class="text-xl font-semibold leading-tight tracking-tight sm:text-2xl"
+                        class="text-xl font-semibold leading-tight sm:text-2xl"
                         :style="{
                             color: resolvedStyleTokens?.['form-header-box-text-color']?.value,
                         }">
@@ -706,7 +706,7 @@ export default {
             <div class="flex flex-col justify-between gap-3 border-b border-slate-100 bg-slate-50/80 px-5 py-3.5 sm:flex-row sm:items-center sm:px-6 dark:border-slate-800 dark:bg-slate-800/40">
                 <div class="flex items-center">
                     <span
-                        class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium uppercase tracking-wide"
+                        class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium uppercase"
                         :class="eventState === 'ongoing' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400' : eventState === 'upcoming' ? 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400' : 'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400'">
                         <span
                             v-if="eventState === 'ongoing'"
@@ -766,7 +766,7 @@ export default {
                 <div
                     class="p-4 text-center sm:p-5"
                     :style="styleFor('form-time-from')">
-                    <div class="mb-1.5 flex items-center justify-center gap-1.5 text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                    <div class="mb-1.5 flex items-center justify-center gap-1.5 text-xs font-medium uppercase text-slate-500 dark:text-slate-400">
                         <CalendarDays
                             :size="14"
                             :stroke-width="1.5"
@@ -791,7 +791,7 @@ export default {
                 <div
                     class="p-4 text-center sm:p-5"
                     :style="styleFor('form-time-to')">
-                    <div class="mb-1.5 flex items-center justify-center gap-1.5 text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                    <div class="mb-1.5 flex items-center justify-center gap-1.5 text-xs font-medium uppercase text-slate-500 dark:text-slate-400">
                         <CalendarDays
                             :size="14"
                             :stroke-width="1.5"
@@ -885,7 +885,7 @@ export default {
         <div
             v-if="participantHashes?.length && !data.is_suspended && !isExpired"
             class="flex flex-col gap-3 rounded-2xl border border-slate-200/60 bg-white/80 p-5 shadow-sm backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/80">
-            <label class="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">Continue as</label>
+            <label class="text-xs font-medium uppercase text-slate-500 dark:text-slate-400">Continue as</label>
             <div class="flex items-center gap-3">
                 <custom-dropdown
                     @selectedChange="onParticipantHashChange"
@@ -919,7 +919,7 @@ export default {
                 <Shield
                     :size="18"
                     :stroke-width="1.5" />
-                <span class="text-sm font-medium uppercase tracking-wide text-slate-900 dark:text-white">Verify Registration</span>
+                <span class="text-sm font-medium uppercase text-slate-900 dark:text-white">Verify Registration</span>
             </div>
             <p class="text-sm leading-relaxed text-slate-500 dark:text-slate-400">This step requires a registered profile. Have you used this form before?</p>
 
@@ -951,7 +951,7 @@ export default {
             <div
                 v-if="participantFlowChoice === 'yes'"
                 class="flex flex-col gap-3">
-                <p class="text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">Enter your registered email:</p>
+                <p class="text-xs font-medium uppercase text-slate-500 dark:text-slate-400">Enter your registered email:</p>
                 <div class="flex gap-2.5">
                     <div class="relative flex-1">
                         <Mail
@@ -1024,7 +1024,7 @@ export default {
                 :size="24"
                 :stroke-width="1.5"
                 class="animate-spin" />
-            <span class="text-sm font-medium uppercase tracking-wide opacity-80">Loading forms...</span>
+            <span class="text-sm font-medium uppercase opacity-80">Loading forms...</span>
         </div>
 
         <!-- ERROR STATE -->
@@ -1076,7 +1076,7 @@ export default {
             <div
                 v-if="getStepCountdownMeta(getStep(activeTab))"
                 class="flex items-center justify-between rounded-2xl border border-slate-200/60 bg-white/80 p-4 shadow-sm backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/80">
-                <div class="flex items-center gap-2.5 text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                <div class="flex items-center gap-2.5 text-xs font-medium uppercase text-slate-500 dark:text-slate-400">
                     <Hourglass
                         :size="14"
                         :stroke-width="1.5" />
@@ -1092,7 +1092,7 @@ export default {
             <!-- Form Shell -->
             <div class="mt-2 flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
                 <div class="border-b border-slate-100 bg-slate-50/50 px-6 py-4 dark:border-slate-800 dark:bg-slate-800/20">
-                    <h3 class="text-base font-semibold tracking-tight text-slate-900 dark:text-white">
+                    <h3 class="text-base font-semibold text-slate-900 dark:text-white">
                         {{ getStepTitle(activeTab) }}
                     </h3>
                     <p
@@ -1160,7 +1160,7 @@ export default {
                                 :size="28"
                                 :stroke-width="1.5" />
                         </div>
-                        <h3 class="text-base font-semibold tracking-wide text-slate-900 dark:text-white">
+                        <h3 class="text-base font-semibold text-slate-900 dark:text-white">
                             {{ getStepMessage(getStep(activeTab)) }}
                         </h3>
                         <p

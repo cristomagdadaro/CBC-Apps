@@ -238,7 +238,7 @@ export default {
                     @click.stop>
                     <div class="mb-4 flex items-center justify-between">
                         <div>
-                            <p class="text-xs uppercase tracking-[0.4em] text-gray-400">Events</p>
+                            <p class="text-xs uppercase text-gray-400">Events</p>
                             <p class="text-lg font-semibold text-AB">{{ todayEvents.length }} scheduled</p>
                         </div>
                         <button
@@ -266,7 +266,7 @@ export default {
                             <p class="text-base font-semibold leading-snug text-AB">
                                 {{ event.title || "Untitled Event" }}
                             </p>
-                            <p class="text-xs uppercase tracking-[0.3em] text-gray-500">
+                            <p class="text-xs uppercase text-gray-500">
                                 {{ event.event_id }}
                             </p>
                             <p class="mt-1 text-sm text-gray-600">{{ formatEventDates(event) }}</p>
@@ -307,7 +307,7 @@ export default {
                     <p class="text-sm font-semibold leading-tight text-AB">
                         {{ event.title || "Untitled Event" }}
                     </p>
-                    <p class="text-[0.65rem] uppercase tracking-[0.2em] text-gray-500">
+                    <p class="text-[0.65rem] uppercase text-gray-500">
                         {{ event.event_id }}
                     </p>
                     <p class="mt-1 text-xs text-gray-600">{{ formatEventDates(event) }}</p>
@@ -542,7 +542,7 @@ export default {
                         viewBox="0 0 16 16">
                         <path d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 1 1 .908-.417 6 6 0 1 1-5.454-3.485.5.5 0 0 1 0 1Z" />
                     </svg>
-                    <div class="text-sm font-semibold tracking-wide">Fetching event details…</div>
+                    <div class="text-sm font-semibold">Fetching event details…</div>
                 </div>
             </div>
         </transition>

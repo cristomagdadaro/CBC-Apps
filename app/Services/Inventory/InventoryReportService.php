@@ -7,6 +7,7 @@ use App\Models\Transaction;
 use App\Repositories\OptionRepo;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -31,6 +32,18 @@ class InventoryReportService
         $this->applyRemainingStocksSorting($query, $parameters);
 
         return $this->executeRemainingStocksQuery($query, $parameters);
+    }
+
+    public function getRemainingStockSummary(int|string $itemId, ?string $barcode = null): ?Model
+    {
+        $query = $this->buildRemainingStocksBaseQuery()
+            ->where('transactions.item_id', $itemId);
+
+        if ($barcode) {
+            $query->where('transactions.barcode', $barcode);
+        }
+
+        return $query->first();
     }
 
     private function buildRemainingStocksBaseQuery(): Builder

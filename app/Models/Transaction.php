@@ -16,6 +16,13 @@ class Transaction extends BaseModel
 {
     use HasFactory, SoftDeletes, HasUuids, Auditable;
 
+    protected $casts = [
+        'created_at' => 'datetime:Y-m-d\TH:i:sP',
+        'updated_at' => 'datetime:Y-m-d\TH:i:sP',
+        'id' => 'string',
+        'expiration' => 'date:Y-m-d'
+    ];
+
     public const OPTION_KEY_EQUIPMENT_LOGGER_MODES = 'equipment_logger_modes';
     public const EQUIPMENT_LOGGER_MODE_EXCLUDED = 'excluded';
     public const EQUIPMENT_LOGGER_MODE_TRACKED_ONLY = 'tracked_only';
@@ -34,10 +41,7 @@ class Transaction extends BaseModel
 
     protected $table = 'transactions';
     protected $keyType = 'string';
-    protected $casts = [
-        'id' => 'string',
-        'expiration' => 'date:Y-m-d'
-    ];
+
     protected $appends = [
         'actor_display_name',
     ];
@@ -94,7 +98,7 @@ class Transaction extends BaseModel
     {
         return $date->format('g:i a M j, Y');
     }
-
+    
     public function item()
     {
         return $this->belongsTo(Item::class, 'item_id', 'id');

@@ -1061,7 +1061,7 @@ export default {
                     <LuUsers class="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
                 </div>
                 <h3 class="mb-1 text-[0.65rem] font-bold uppercase text-slate-500 dark:text-slate-400">Total Responses</h3>
-                <p class="text-6xl font-black tracking-tighter text-slate-900 dark:text-white">
+                <p class="text-6xl font-black text-slate-900 dark:text-white">
                     {{ stats.responses_total }}
                 </p>
                 <p class="mt-2 text-xs font-semibold text-slate-400 dark:text-slate-500">Across all form types</p>
@@ -1095,7 +1095,7 @@ export default {
             <div class="mb-6 flex flex-col gap-2 border-b border-slate-100 pb-5 dark:border-slate-800">
                 <div class="flex items-center gap-2.5">
                     <LuLineChart class="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
-                    <h3 class="text-sm font-black uppercase tracking-wide text-slate-900 dark:text-white">Custom Charts</h3>
+                    <h3 class="text-sm font-black uppercase text-slate-900 dark:text-white">Custom Charts</h3>
                 </div>
                 <p class="ml-7.5 text-sm font-medium text-slate-500 dark:text-slate-400">Build visual reports from specific subform data columns.</p>
             </div>
@@ -1164,7 +1164,7 @@ export default {
                 class="ml-2 mt-3 flex items-center gap-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400">
                 <LuInfo class="h-3.5 w-3.5" />
                 Detected data format:
-                <span class="uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
+                <span class="uppercasetext-indigo-600 dark:text-indigo-400">
                     {{ selectedColumnDataType }}
                 </span>
             </p>
@@ -1217,7 +1217,7 @@ export default {
         <div class="rounded-2xl bg-white/80 p-6 shadow-sm ring-1 ring-slate-900/5 backdrop-blur-xl dark:bg-slate-900/80 dark:ring-white/5">
             <div class="mb-5 flex items-center gap-2.5 border-b border-slate-100 pb-4 dark:border-slate-800">
                 <LuMap class="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
-                <h3 class="text-sm font-black uppercase tracking-wide text-slate-900 dark:text-white">Geographic Coverage</h3>
+                <h3 class="text-sm font-black uppercase text-slate-900 dark:text-white">Geographic Coverage</h3>
             </div>
 
             <transition

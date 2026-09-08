@@ -189,7 +189,7 @@ export default {
                     </div>
                     <div>
                         <p class="mb-1 text-[0.65rem] font-bold uppercase text-indigo-600 dark:text-indigo-400">Access Control</p>
-                        <h2 class="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
+                        <h2 class="text-xl font-bold text-slate-900 dark:text-white">
                             {{ formTitle }}
                         </h2>
                         <p class="mt-1.5 max-w-2xl text-sm font-medium leading-relaxed text-slate-500 dark:text-slate-400">
@@ -333,7 +333,7 @@ export default {
                                 :key="group.key"
                                 class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900/50">
                                 <div class="mb-3.5 flex items-center justify-between gap-3 border-b border-slate-100 pb-3 dark:border-slate-800/60">
-                                    <h4 class="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white">
+                                    <h4 class="uppercasetext-slate-900 text-xs font-bold dark:text-white">
                                         {{ group.label }}
                                     </h4>
                                     <span class="rounded-md bg-slate-100 px-2 py-0.5 text-[0.6rem] font-bold uppercase text-slate-400 dark:bg-slate-800 dark:text-slate-500">{{ group.permissions.length }} perm{{ group.permissions.length === 1 ? "" : "s" }}</span>

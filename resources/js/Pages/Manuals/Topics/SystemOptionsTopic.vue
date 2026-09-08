@@ -91,56 +91,56 @@ export default {
                 <div class="flex flex-col gap-1.5 rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-colors hover:border-blue-300 dark:border-slate-700 dark:bg-slate-800/50 dark:hover:border-blue-600">
                     <div class="flex items-center gap-2 text-blue-600 dark:text-blue-400">
                         <LuMonitorSmartphone class="h-4 w-4" />
-                        <span class="text-xs font-semibold uppercase tracking-wide">System</span>
+                        <span class="text-xs font-semibold uppercase">System</span>
                     </div>
                     <p class="text-[0.65rem] font-medium leading-relaxed text-slate-500 dark:text-slate-400">Application name, version, approving officers, center chief[cite: 7].</p>
                 </div>
                 <div class="flex flex-col gap-1.5 rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-colors hover:border-emerald-300 dark:border-slate-700 dark:bg-slate-800/50 dark:hover:border-emerald-600">
                     <div class="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
                         <LuMail class="h-4 w-4" />
-                        <span class="text-xs font-semibold uppercase tracking-wide">Email</span>
+                        <span class="text-xs font-semibold uppercase">Email</span>
                     </div>
                     <p class="text-[0.65rem] font-medium leading-relaxed text-slate-500 dark:text-slate-400">Email settings, sender information, notification emails[cite: 7].</p>
                 </div>
                 <div class="flex flex-col gap-1.5 rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-colors hover:border-purple-300 dark:border-slate-700 dark:bg-slate-800/50 dark:hover:border-purple-600">
                     <div class="flex items-center gap-2 text-purple-600 dark:text-purple-400">
                         <LuPackage class="h-4 w-4" />
-                        <span class="text-xs font-semibold uppercase tracking-wide">Inventory</span>
+                        <span class="text-xs font-semibold uppercase">Inventory</span>
                     </div>
                     <p class="text-[0.65rem] font-medium leading-relaxed text-slate-500 dark:text-slate-400">Stock levels, storage locations, equipment logger mode choices[cite: 7].</p>
                 </div>
                 <div class="flex flex-col gap-1.5 rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-colors hover:border-amber-300 dark:border-slate-700 dark:bg-slate-800/50 dark:hover:border-amber-600">
                     <div class="flex items-center gap-2 text-amber-600 dark:text-amber-400">
                         <LuFileText class="h-4 w-4" />
-                        <span class="text-xs font-semibold uppercase tracking-wide">Forms</span>
+                        <span class="text-xs font-semibold uppercase">Forms</span>
                     </div>
                     <p class="text-[0.65rem] font-medium leading-relaxed text-slate-500 dark:text-slate-400">Form submission deadlines, maximum slots[cite: 7].</p>
                 </div>
                 <div class="flex flex-col gap-1.5 rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-colors hover:border-rose-300 dark:border-slate-700 dark:bg-slate-800/50 dark:hover:border-rose-600">
                     <div class="flex items-center gap-2 text-rose-600 dark:text-rose-400">
                         <LuKey class="h-4 w-4" />
-                        <span class="text-xs font-semibold uppercase tracking-wide">Rental</span>
+                        <span class="text-xs font-semibold uppercase">Rental</span>
                     </div>
                     <p class="text-[0.65rem] font-medium leading-relaxed text-slate-500 dark:text-slate-400">Vehicles, event halls, cancellation policies[cite: 7].</p>
                 </div>
                 <div class="flex flex-col gap-1.5 rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-colors hover:border-indigo-300 dark:border-slate-700 dark:bg-slate-800/50 dark:hover:border-indigo-600">
                     <div class="flex items-center gap-2 text-indigo-600 dark:text-indigo-400">
                         <LuLayoutList class="h-4 w-4" />
-                        <span class="text-xs font-semibold uppercase tracking-wide">Requests</span>
+                        <span class="text-xs font-semibold uppercase">Requests</span>
                     </div>
                     <p class="text-[0.65rem] font-medium leading-relaxed text-slate-500 dark:text-slate-400">Supply types, equipment types, materials, space types[cite: 7].</p>
                 </div>
                 <div class="flex flex-col gap-1.5 rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-colors hover:border-pink-300 dark:border-slate-700 dark:bg-slate-800/50 dark:hover:border-pink-600">
                     <div class="flex items-center gap-2 text-pink-600 dark:text-pink-400">
                         <LuMapPin class="h-4 w-4" />
-                        <span class="text-xs font-semibold uppercase tracking-wide">Locations</span>
+                        <span class="text-xs font-semibold uppercase">Locations</span>
                     </div>
                     <p class="text-[0.65rem] font-medium leading-relaxed text-slate-500 dark:text-slate-400">Office spaces, screenhouses, laboratories[cite: 7].</p>
                 </div>
                 <div class="flex flex-col gap-1.5 rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-colors hover:border-cyan-300 dark:border-slate-700 dark:bg-slate-800/50 dark:hover:border-cyan-600">
                     <div class="flex items-center gap-2 text-cyan-600 dark:text-cyan-400">
                         <LuBarChart3 class="h-4 w-4" />
-                        <span class="text-xs font-semibold uppercase tracking-wide">Reports</span>
+                        <span class="text-xs font-semibold uppercase">Reports</span>
                     </div>
                     <p class="text-[0.65rem] font-medium leading-relaxed text-slate-500 dark:text-slate-400">Report templates with field definitions[cite: 7].</p>
                 </div>
@@ -298,7 +298,7 @@ export default {
                         <div class="h-2.5 w-2.5 rounded-full bg-[#ffbd2e]"></div>
                         <div class="h-2.5 w-2.5 rounded-full bg-[#27c93f]"></div>
                     </div>
-                    <div class="ml-4 font-mono text-[0.65rem] font-medium tracking-wide text-[#858585]">OptionsExample.php</div>
+                    <div class="ml-4 font-mono text-[0.65rem] font-medium text-[#858585]">OptionsExample.php</div>
                 </div>
                 <pre class="vscode-scrollbar overflow-x-auto p-4 font-mono text-[0.75rem] leading-loose text-[#d4d4d4]"><code class="!bg-transparent !p-0 !border-0 !shadow-none !text-inherit"><span class="text-[#6a9955]">// Get a single option:[cite: 7]</span>
 <span class="text-[#9cdcfe]">$appName</span> = <span class="text-[#4ec9b0]">Option</span>::<span class="text-[#dcdcaa]">getByKey</span>(<span class="text-[#ce9178]">'app_name'</span>);

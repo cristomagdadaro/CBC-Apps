@@ -833,7 +833,7 @@ export default {
                 v-if="showColumnPanel && enableColumnToggle"
                 class="border-b border-slate-200 bg-slate-100 px-4 py-3 dark:border-slate-700 dark:bg-slate-800/80">
                 <div class="flex flex-wrap items-center gap-2">
-                    <span class="mr-2 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Visible:</span>
+                    <span class="uppercasetext-slate-500 mr-2 text-xs font-semibold dark:text-slate-400">Visible:</span>
                     <label
                         v-for="column in allColumns"
                         :key="column.key"
@@ -870,7 +870,7 @@ export default {
 
             <DtTable :class="['w-full border-collapse text-left', compact ? 'text-sm' : 'text-sm']">
                 <DtThead>
-                    <DtRowHead :class="['bg-slate-100 text-xs font-semibold uppercase tracking-wider text-slate-700 dark:bg-slate-800/90 dark:text-slate-300', stickyHeader ? 'sticky top-0 z-10 shadow-sm' : '']">
+                    <DtRowHead :class="['uppercasetext-slate-700 bg-slate-100 text-xs font-semibold dark:bg-slate-800/90 dark:text-slate-300', stickyHeader ? 'sticky top-0 z-10 shadow-sm' : '']">
                         <DtHead class="w-12 border-b border-slate-200 px-4 py-3 text-center dark:border-slate-700">#</DtHead>
 
                         <DtHead

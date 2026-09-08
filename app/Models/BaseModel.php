@@ -17,7 +17,6 @@ class BaseModel extends Model
     protected function serializeDate(DateTimeInterface $date): string
     {
         return $date->format('Y-m-d');
-        //return $date->format('F j, Y'); //January 1, 2023
     }
 
 

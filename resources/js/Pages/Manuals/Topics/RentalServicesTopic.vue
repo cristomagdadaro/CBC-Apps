@@ -600,7 +600,7 @@ export default {
                                 <div class="h-2.5 w-2.5 rounded-full bg-[#ffbd2e]"></div>
                                 <div class="h-2.5 w-2.5 rounded-full bg-[#27c93f]"></div>
                             </div>
-                            <div class="ml-4 font-mono text-[0.65rem] font-medium tracking-wide text-[#858585]">payload.json</div>
+                            <div class="ml-4 font-mono text-[0.65rem] font-medium text-[#858585]">payload.json</div>
                         </div>
                         <pre class="vscode-scrollbar overflow-x-auto p-4 font-mono text-[0.75rem] leading-loose text-[#d4d4d4]"><code class="!bg-transparent !p-0 !border-0 !shadow-none !text-inherit">{
   <span class="text-[#9cdcfe]">"vehicle_type"</span>: <span class="text-[#ce9178]">"innova"</span>,
@@ -625,7 +625,7 @@ export default {
                                 <div class="h-2.5 w-2.5 rounded-full bg-[#ffbd2e]"></div>
                                 <div class="h-2.5 w-2.5 rounded-full bg-[#27c93f]"></div>
                             </div>
-                            <div class="ml-4 font-mono text-[0.65rem] font-medium tracking-wide text-[#858585]">payload.json</div>
+                            <div class="ml-4 font-mono text-[0.65rem] font-medium text-[#858585]">payload.json</div>
                         </div>
                         <pre class="vscode-scrollbar overflow-x-auto p-4 font-mono text-[0.75rem] leading-loose text-[#d4d4d4]"><code class="!bg-transparent !p-0 !border-0 !shadow-none !text-inherit">{
   <span class="text-[#9cdcfe]">"venue_type"</span>: <span class="text-[#ce9178]">"plenary"</span>,
@@ -651,7 +651,7 @@ export default {
                                 <div class="h-2.5 w-2.5 rounded-full bg-[#ffbd2e]"></div>
                                 <div class="h-2.5 w-2.5 rounded-full bg-[#27c93f]"></div>
                             </div>
-                            <div class="ml-4 font-mono text-[0.65rem] font-medium tracking-wide text-[#858585]">response.json</div>
+                            <div class="ml-4 font-mono text-[0.65rem] font-medium text-[#858585]">response.json</div>
                         </div>
                         <pre class="vscode-scrollbar overflow-x-auto p-4 font-mono text-[0.75rem] leading-loose text-[#d4d4d4]"><code class="!bg-transparent !p-0 !border-0 !shadow-none !text-inherit">{
   <span class="text-[#9cdcfe]">"available"</span>: <span class="text-[#569cd6]">true</span>,
@@ -671,7 +671,7 @@ export default {
                                 <div class="h-2.5 w-2.5 rounded-full bg-[#ffbd2e]"></div>
                                 <div class="h-2.5 w-2.5 rounded-full bg-[#27c93f]"></div>
                             </div>
-                            <div class="ml-4 font-mono text-[0.65rem] font-medium tracking-wide text-[#858585]">response.json</div>
+                            <div class="ml-4 font-mono text-[0.65rem] font-medium text-[#858585]">response.json</div>
                         </div>
                         <pre class="vscode-scrollbar overflow-x-auto p-4 font-mono text-[0.75rem] leading-loose text-[#d4d4d4]"><code class="!bg-transparent !p-0 !border-0 !shadow-none !text-inherit">{
   <span class="text-[#9cdcfe]">"message"</span>: <span class="text-[#ce9178]">"The selected vehicle is not available for the requested dates and time."</span>,

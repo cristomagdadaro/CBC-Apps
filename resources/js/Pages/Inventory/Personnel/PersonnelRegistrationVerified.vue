@@ -22,7 +22,7 @@ export default {
             <div class="flex w-full flex-col items-center text-center">
                 <span class="inline-flex items-center rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 ring-1 ring-inset ring-emerald-600/10">Verification Complete</span>
 
-                <h1 class="mt-4 text-xl font-bold tracking-tight text-slate-900">Welcome, {{ registration.full_name }}</h1>
+                <h1 class="mt-4 text-xl font-bold text-slate-900">Welcome, {{ registration.full_name }}</h1>
 
                 <p class="mt-2 text-sm leading-relaxed text-slate-600">
                     Your email (

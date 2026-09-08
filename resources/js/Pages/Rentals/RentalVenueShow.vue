@@ -193,7 +193,7 @@ export default {
                             <h2 class="text-sm font-bold sm:text-lg">
                                 {{ rental.event_name || "Venue booking" }}
                             </h2>
-                            <p class="mt-0.5 text-xs uppercase tracking-wider opacity-80 sm:text-sm">
+                            <p class="uppercaseopacity-80 mt-0.5 text-xs sm:text-sm">
                                 {{ rental.venue_type_label || rental.venue_type || "Venue" }}
                                 <span
                                     v-if="formatDuration"
@@ -209,7 +209,7 @@ export default {
                             class="h-5 w-5 sm:h-6 sm:w-6" />
                         <div class="hidden leading-tight sm:block">
                             <p class="text-base font-bold sm:text-lg">{{ statusConfig.label }}</p>
-                            <p class="text-xs font-semibold uppercase tracking-wider opacity-80">Booking Status</p>
+                            <p class="uppercaseopacity-80 text-xs font-semibold">Booking Status</p>
                         </div>
                     </div>
                 </div>
@@ -230,7 +230,7 @@ export default {
                                     <LuCalendar class="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
                                 </div>
                                 <div class="relative">
-                                    <p class="mb-1 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Start Date & Time</p>
+                                    <p class="uppercasetext-slate-500 mb-1 text-xs font-semibold dark:text-slate-400">Start Date & Time</p>
                                     <p class="text-sm font-bold text-slate-900 dark:text-white">
                                         {{ formatDateTime(rental.date_from, rental.time_from) }}
                                     </p>
@@ -242,7 +242,7 @@ export default {
                                     <LuClock class="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
                                 </div>
                                 <div class="relative">
-                                    <p class="mb-1 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">End Date & Time</p>
+                                    <p class="uppercasetext-slate-500 mb-1 text-xs font-semibold dark:text-slate-400">End Date & Time</p>
                                     <p class="text-sm font-bold text-slate-900 dark:text-white">
                                         {{ formatDateTime(rental.date_to, rental.time_to) }}
                                     </p>
@@ -261,7 +261,7 @@ export default {
                             <div class="rounded-xl border border-indigo-100/50 bg-indigo-50/50 p-4 dark:border-indigo-900/30 dark:bg-indigo-900/20">
                                 <div class="flex items-center justify-between">
                                     <div>
-                                        <p class="text-xs font-medium uppercase tracking-wider text-indigo-600 dark:text-indigo-400">Booking Reference</p>
+                                        <p class="uppercasetext-indigo-600 text-xs font-medium dark:text-indigo-400">Booking Reference</p>
                                         <p class="mt-1 font-mono text-sm font-bold text-indigo-900 sm:text-base dark:text-indigo-200">
                                             {{ rental.booking_id || "NULL" }}
                                         </p>
@@ -314,7 +314,7 @@ export default {
                         <div class="flex items-start gap-3">
                             <LuAlertCircle class="mt-0.5 h-5 w-5 shrink-0 text-indigo-600 dark:text-indigo-400" />
                             <div>
-                                <p class="text-xs font-bold uppercase tracking-wider text-indigo-800 dark:text-indigo-300">Privacy Notice</p>
+                                <p class="uppercasetext-indigo-800 text-xs font-bold dark:text-indigo-300">Privacy Notice</p>
                                 <p class="mt-1 text-sm leading-relaxed text-indigo-900 dark:text-indigo-300/80">This public page only shows non-sensitive booking details. Contact the rentals team if you need the full internal request record.</p>
                             </div>
                         </div>

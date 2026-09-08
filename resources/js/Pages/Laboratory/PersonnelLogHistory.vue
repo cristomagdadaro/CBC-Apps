@@ -70,7 +70,7 @@ export default {
                     <div class="flex-1 space-y-6">
                         <div>
                             <p class="mb-1 text-[0.65rem] font-semibold uppercase text-indigo-600 dark:text-indigo-400">Personnel History</p>
-                            <h1 class="text-2xl font-black tracking-tight text-slate-900 sm:text-3xl dark:text-white">
+                            <h1 class="text-2xl font-black text-slate-900 sm:text-3xl dark:text-white">
                                 {{ personnelSummary.full_name }}
                             </h1>
                             <p class="mt-1 text-sm font-medium text-slate-500 dark:text-slate-400">
@@ -158,7 +158,7 @@ export default {
             <!-- Datatable Section -->
             <section class="overflow-hidden rounded-2xl border border-slate-200/60 bg-white/80 shadow-sm backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/80">
                 <div class="border-b border-slate-100 bg-slate-50/50 px-6 py-5 dark:border-slate-800/60 dark:bg-slate-800/20">
-                    <h2 class="text-lg font-black tracking-tight text-slate-900 dark:text-white">Logging History</h2>
+                    <h2 class="text-lg font-black text-slate-900 dark:text-white">Logging History</h2>
                     <p class="mt-1 text-xs font-medium text-slate-500 dark:text-slate-400">Each row links to the source incoming transaction record.</p>
                 </div>
 
@@ -205,7 +205,7 @@ export default {
 
                         <template #cell-status="{ value }">
                             <span
-                                class="inline-flex items-center rounded-md border px-2.5 py-1 text-[0.65rem] font-bold uppercase tracking-widest"
+                                class="inline-flex items-center rounded-md border px-2.5 py-1 text-[0.65rem] font-bold uppercase"
                                 :class="{
                                     'border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-400': value === 'overdue',
                                     'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-400': value === 'active',

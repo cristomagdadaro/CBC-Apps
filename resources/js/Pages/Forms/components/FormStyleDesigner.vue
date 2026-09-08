@@ -119,7 +119,7 @@ export default {
                             :class="isActive(field.key) ? 'bg-indigo-500 shadow-[0_0_8px_rgba(79,70,229,0.5)]' : 'bg-slate-200 dark:bg-slate-700'" />
 
                         <div class="text-left">
-                            <p class="text-sm font-bold tracking-wide text-slate-800 dark:text-slate-200">
+                            <p class="text-sm font-bold text-slate-800 dark:text-slate-200">
                                 {{ field.label }}
                             </p>
                             <p class="mt-0.5 text-xs font-medium text-slate-500 dark:text-slate-400">
@@ -132,7 +132,7 @@ export default {
                         <!-- Active Mode Badge -->
                         <span
                             v-if="localTokens[field.key]?.mode"
-                            class="inline-flex items-center rounded-md border px-2.5 py-0.5 text-[0.65rem] font-bold uppercase tracking-widest"
+                            class="inline-flex items-center rounded-md border px-2.5 py-0.5 text-[0.65rem] font-bold uppercase"
                             :class="localTokens[field.key]?.mode === 'color' ? 'border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-500/30 dark:bg-blue-500/10 dark:text-blue-400' : 'border-purple-200 bg-purple-50 text-purple-700 dark:border-purple-500/30 dark:bg-purple-500/10 dark:text-purple-400'">
                             {{ localTokens[field.key]?.mode }}
                         </span>

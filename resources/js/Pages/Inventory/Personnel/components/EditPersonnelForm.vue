@@ -50,7 +50,7 @@ export default {
             class="mx-auto max-w-3xl px-4 py-6 sm:py-10">
             <div class="shadow-xs flex w-full flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-4 text-slate-900 sm:p-6 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100">
                 <div class="flex flex-col border-b border-slate-200 pb-3 dark:border-slate-800">
-                    <h2 class="text-xs font-bold uppercase tracking-wider text-slate-900 sm:text-sm dark:text-slate-100">Personnel Update Form</h2>
+                    <h2 class="uppercasetext-slate-900 text-xs font-bold sm:text-sm dark:text-slate-100">Personnel Update Form</h2>
                     <p class="mt-0.5 text-xs text-slate-500 sm:text-sm dark:text-slate-400">Use this form to update personnel information.</p>
                 </div>
                 <div class="flex flex-col gap-2 sm:flex-row">

@@ -120,25 +120,25 @@ export default {
                 <div class="p-6">
                     <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
                         <div>
-                            <dt class="text-xs font-medium uppercase tracking-wider text-slate-500">Commodity</dt>
+                            <dt class="uppercasetext-slate-500 text-xs font-medium">Commodity</dt>
                             <dd class="mt-1 text-sm font-semibold text-slate-900">
                                 {{ project.commodity || "Not specified" }}
                             </dd>
                         </div>
                         <div>
-                            <dt class="text-xs font-medium uppercase tracking-wider text-slate-500">Budget</dt>
+                            <dt class="uppercasetext-slate-500 text-xs font-medium">Budget</dt>
                             <dd class="mt-1 text-sm font-semibold text-slate-900">
                                 {{ formatCurrency(project.overall_budget) }}
                             </dd>
                         </div>
                         <div>
-                            <dt class="text-xs font-medium uppercase tracking-wider text-slate-500">Duration</dt>
+                            <dt class="uppercasetext-slate-500 text-xs font-medium">Duration</dt>
                             <dd class="mt-1 text-sm font-semibold text-slate-900">
                                 {{ formatDateRange() }}
                             </dd>
                         </div>
                         <div>
-                            <dt class="text-xs font-medium uppercase tracking-wider text-slate-500">Project Leader</dt>
+                            <dt class="uppercasetext-slate-500 text-xs font-medium">Project Leader</dt>
                             <dd class="mt-1 text-sm font-semibold text-slate-900">
                                 {{ project.project_leader?.name || "Unassigned" }}
                                 <span
@@ -149,19 +149,19 @@ export default {
                             </dd>
                         </div>
                         <div>
-                            <dt class="text-xs font-medium uppercase tracking-wider text-slate-500">Funding Agency</dt>
+                            <dt class="uppercasetext-slate-500 text-xs font-medium">Funding Agency</dt>
                             <dd class="mt-1 text-sm font-semibold text-slate-900">
                                 {{ project.funding_agency || "—" }}
                             </dd>
                         </div>
                         <div>
-                            <dt class="text-xs font-medium uppercase tracking-wider text-slate-500">Grant Code</dt>
+                            <dt class="uppercasetext-slate-500 text-xs font-medium">Grant Code</dt>
                             <dd class="mt-1 text-sm font-semibold text-slate-900">
                                 {{ project.funding_code || "—" }}
                             </dd>
                         </div>
                         <div class="md:col-span-2">
-                            <dt class="text-xs font-medium uppercase tracking-wider text-slate-500">Objective</dt>
+                            <dt class="uppercasetext-slate-500 text-xs font-medium">Objective</dt>
                             <dd class="mt-1 text-sm leading-relaxed text-slate-700">
                                 {{ project.objective || "No objective recorded." }}
                             </dd>

@@ -339,7 +339,7 @@ export default {
                         <div class="shrink-0 rounded-lg bg-indigo-50 p-1.5 dark:bg-indigo-500/10">
                             <Package class="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
                         </div>
-                        <h2 class="text-lg font-black uppercase leading-none tracking-tight text-slate-900 dark:text-white">
+                        <h2 class="text-lg font-black uppercase leading-none text-slate-900 dark:text-white">
                             {{ isUpdate ? "Update Transaction" : "Incoming Transaction" }}
                         </h2>
                     </div>
@@ -614,7 +614,7 @@ export default {
 
             <audit-info-card
                 v-if="isUpdate"
-                class="rounded-none rounded-b-2xl border-t-0"
+                class="rounded-none rounded-b-2xl border-t-0 p-6"
                 :audit-logs="$page.props.auditLogs"
                 :created-at="data?.created_at"
                 :updated-at="data?.updated_at" />
@@ -627,13 +627,15 @@ export default {
             <div class="space-y-6 rounded-2xl border border-slate-200/60 bg-white/90 p-5 shadow-sm ring-1 ring-slate-900/5 backdrop-blur-xl sm:p-6 dark:border-slate-800 dark:bg-slate-900/90 dark:ring-white/5">
                 <!-- Workflow Info -->
                 <div class="rounded-xl border border-indigo-100 bg-indigo-50/80 p-4 shadow-sm dark:border-indigo-500/30 dark:bg-indigo-500/10">
-                    <div class="flex items-start gap-3">
-                        <div class="shrink-0 rounded-lg border border-indigo-100 bg-white p-2 shadow-sm dark:border-slate-700 dark:bg-slate-800">
-                            <GitBranch class="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                    <div class="flex flex-col items-start gap-1">
+                        <div class="flex items-center gap-3">
+                            <div class="shrink-0 rounded-lg border border-indigo-100 bg-white p-2 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+                                <GitBranch class="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                            </div>
+                            <h3 class="text-xs font-bold uppercase text-indigo-900 dark:text-indigo-300">Sub-Component Workflow</h3>
                         </div>
                         <div class="min-w-0 flex-1 pt-0.5">
-                            <h3 class="mb-1.5 text-xs font-bold uppercase text-indigo-900 dark:text-indigo-300">Sub-Component Workflow</h3>
-                            <p class="text-xs font-medium leading-relaxed text-indigo-700 dark:text-indigo-400/80">Save each equipment part as its own incoming transaction, then use the parent CBC or PRRI barcode above to link it back to the main equipment record.</p>
+                            <p class="text-xs font-medium leading-relaxed text-indigo-700 dark:text-indigo-400/80">Save each item/equipment components as its own incoming transaction, then use the parent CBC or PRRI barcode above to link it back to the main equipment record.</p>
                         </div>
                     </div>
                 </div>

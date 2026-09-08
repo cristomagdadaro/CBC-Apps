@@ -255,17 +255,17 @@ export default {
                         <span class="text-xl font-bold text-slate-900 dark:text-slate-100">
                             {{ formatNumber(displayData.remaining_quantity) }}
                         </span>
-                        <span class="mt-1 text-[0.68rem] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">REMAINING</span>
+                        <span class="uppercasetext-slate-500 mt-1 text-[0.68rem] font-bold dark:text-slate-400">REMAINING</span>
                     </div>
                     <div class="flex flex-col justify-center p-1 text-center">
                         <span class="text-xl font-bold text-slate-900 dark:text-slate-100">
                             {{ formatNumber(displayData.total_outgoing) }}
                         </span>
-                        <span class="mt-1 text-[0.68rem] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">CONSUMED</span>
+                        <span class="uppercasetext-slate-500 mt-1 text-[0.68rem] font-bold dark:text-slate-400">CONSUMED</span>
                     </div>
                     <div class="flex flex-col justify-center p-1 text-center">
                         <span class="text-xl font-bold text-lime-600 dark:text-lime-400">{{ utilizationPercentage }}%</span>
-                        <span class="mt-1 text-[0.68rem] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">UTILIZATION</span>
+                        <span class="uppercasetext-slate-500 mt-1 text-[0.68rem] font-bold dark:text-slate-400">UTILIZATION</span>
                     </div>
                 </div>
             </div>
@@ -274,7 +274,7 @@ export default {
                     v-if="isUpdate"
                     class="mb-3 w-full"
                     :reports="reportsList" />
-                <h1 class="text-sm font-bold uppercase tracking-wider text-slate-800 sm:text-base dark:text-slate-200">
+                <h1 class="uppercasetext-slate-800 text-sm font-bold sm:text-base dark:text-slate-200">
                     {{ isUpdate ? "Update Outgoing Transaction" : "Checkout Form" }}
                 </h1>
                 <form
@@ -332,22 +332,7 @@ export default {
                         v-model="form.remarks"
                         :error="form.errors.remarks" />
 
-                    <div
-                        v-if="isUpdate"
-                        class="grid grid-cols-1 gap-2 sm:grid-cols-3">
-                        <text-input
-                            label="PRRI Barcode"
-                            v-model="form.barcode_prri"
-                            :error="form.errors.barcode_prri" />
-                        <text-input
-                            label="PAR No"
-                            v-model="form.par_no"
-                            :error="form.errors.par_no" />
-                        <text-input
-                            label="Condition"
-                            v-model="form.condition"
-                            :error="form.errors.condition" />
-                    </div>
+
 
                     <div class="flex justify-between gap-2 pt-2">
                         <div class="flex items-center gap-3">
@@ -382,12 +367,12 @@ export default {
         <div class="shadow-xs h-fit rounded-b-2xl border-slate-200 bg-white sm:col-span-2 md:rounded-2xl dark:border dark:border-slate-800 dark:bg-slate-900">
             <!-- Header with Mobile Toggle -->
             <div
-                class="flex cursor-pointer items-center justify-between p-4 sm:cursor-default sm:p-5 sm:!pl-0"
+                class="flex cursor-pointer items-center justify-between p-4 sm:cursor-default sm:p-5"
                 @click="isTransactionsCollapsed = !isTransactionsCollapsed">
                 <!-- Wrapped heading with an icon -->
                 <div class="flex items-center gap-2">
                     <LuHistory class="h-4 w-4 text-slate-400 dark:text-slate-500" />
-                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-800 sm:text-sm dark:text-slate-200">Recent Transactions</h3>
+                    <h3 class="uppercasetext-slate-800 text-xs font-bold sm:text-sm dark:text-slate-200">Recent Transactions</h3>
                 </div>
 
                 <button
@@ -402,7 +387,7 @@ export default {
             <!-- Content Wrapper (Hidden on mobile if collapsed) -->
             <div
                 :class="isTransactionsCollapsed ? 'hidden sm:block' : 'block'"
-                class="px-4 pb-4 sm:p-0 sm:pb-5 sm:pr-5">
+                class="px-4 pb-4">
                 <div class="flex w-full flex-col gap-2 text-xs">
                     <div
                         v-if="processing"

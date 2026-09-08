@@ -193,7 +193,7 @@ export default {
                             class="h-5 w-5 sm:h-6 sm:w-6" />
                         <div class="hidden leading-tight sm:block">
                             <p class="text-base font-bold sm:text-lg">{{ statusConfig.label }}</p>
-                            <p class="text-xs font-semibold uppercase tracking-wider opacity-80">Current Status</p>
+                            <p class="uppercaseopacity-80 text-xs font-semibold">Current Status</p>
                         </div>
                     </div>
                 </div>
@@ -207,7 +207,7 @@ export default {
                         <div class="rounded-xl border border-slate-100 bg-slate-50 p-4 dark:border-slate-800/50 dark:bg-slate-800/50">
                             <div class="mb-2 flex items-center space-x-2 text-slate-500 dark:text-slate-400">
                                 <LuCalendar class="h-4 w-4" />
-                                <span class="text-xs font-semibold uppercase tracking-wider">Pickup</span>
+                                <span class="text-xs font-semibold uppercase">Pickup</span>
                             </div>
                             <p class="text-sm font-semibold text-slate-900 dark:text-white">
                                 {{ formatDateTime(rental.date_from, rental.time_from) }}
@@ -216,7 +216,7 @@ export default {
                         <div class="rounded-xl border border-slate-100 bg-slate-50 p-4 dark:border-slate-800/50 dark:bg-slate-800/50">
                             <div class="mb-2 flex items-center space-x-2 text-slate-500 dark:text-slate-400">
                                 <LuClock class="h-4 w-4" />
-                                <span class="text-xs font-semibold uppercase tracking-wider">Return</span>
+                                <span class="text-xs font-semibold uppercase">Return</span>
                             </div>
                             <p class="text-sm font-semibold text-slate-900 dark:text-white">
                                 {{ formatDateTime(rental.date_to, rental.time_to) }}
@@ -294,7 +294,7 @@ export default {
                         <div class="flex items-start space-x-3">
                             <LuAlertCircle class="mt-0.5 h-5 w-5 text-blue-600 dark:text-blue-400" />
                             <div>
-                                <p class="text-xs font-semibold uppercase tracking-wider text-blue-900 dark:text-blue-300">Privacy Notice</p>
+                                <p class="uppercasetext-blue-900 text-xs font-semibold dark:text-blue-300">Privacy Notice</p>
                                 <p class="mt-1 text-sm text-blue-900 dark:text-blue-300/80">This public page only shows non-sensitive booking details. Contact the rentals team if you need the full internal request record.</p>
                             </div>
                         </div>

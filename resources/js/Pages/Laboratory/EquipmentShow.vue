@@ -971,7 +971,7 @@ export default {
                                                 {{ equipment?.barcode || "—" }}
                                             </p>
                                             <div class="flex items-center gap-2">
-                                                <label class="flex items-center gap-1.5 text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                                                <label class="flex items-center gap-1.5 text-xs uppercase text-gray-500 dark:text-gray-400">
                                                     <LuMapPin class="h-3.5 w-3.5 text-gray-800 dark:text-gray-200" />
                                                     <p
                                                         :class="{
@@ -1173,7 +1173,7 @@ export default {
                                         </div>
                                         <div
                                             v-if="log.personnel?.position || log.personnel?.affiliation || log.personnel?.course_program"
-                                            class="mt-0.5 flex flex-wrap items-center gap-1.5 text-[0.65rem] uppercase tracking-wider text-gray-500 dark:text-gray-400">
+                                            class="uppercasetext-gray-500 mt-0.5 flex flex-wrap items-center gap-1.5 text-[0.65rem] dark:text-gray-400">
                                             <span v-if="log.personnel?.position">
                                                 {{ log.personnel.position }}
                                             </span>
@@ -1517,7 +1517,7 @@ export default {
                                         </p>
                                     </div>
                                 </div>
-                                <span class="rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">Current User</span>
+                                <span class="rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-semibold uppercase text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">Current User</span>
                             </div>
                             <button
                                 @click="filterActiveByPersonnel = !filterActiveByPersonnel"

@@ -45,20 +45,20 @@ export default {
 
         <div class="mx-auto max-w-6xl space-y-6 px-4 py-6">
             <section class="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
-                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">Parent Project</p>
+                <p class="text-xs font-semibold uppercase text-emerald-700">Parent Project</p>
                 <div class="mt-3 grid gap-4 md:grid-cols-3">
                     <div>
-                        <p class="text-xs uppercase tracking-wide text-gray-500">Code</p>
+                        <p class="text-xs uppercase text-gray-500">Code</p>
                         <p class="mt-1 text-sm font-medium text-gray-900">{{ project.code }}</p>
                     </div>
                     <div>
-                        <p class="text-xs uppercase tracking-wide text-gray-500">Commodity</p>
+                        <p class="text-xs uppercase text-gray-500">Commodity</p>
                         <p class="mt-1 text-sm font-medium text-gray-900">
                             {{ project.commodity || "Not set" }}
                         </p>
                     </div>
                     <div>
-                        <p class="text-xs uppercase tracking-wide text-gray-500">Funding</p>
+                        <p class="text-xs uppercase text-gray-500">Funding</p>
                         <p class="mt-1 text-sm font-medium text-gray-900">
                             {{ project.funding_agency || "Not set" }}
                         </p>

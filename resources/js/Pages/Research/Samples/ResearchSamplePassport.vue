@@ -125,7 +125,7 @@ export default {
                         <!-- Main Info -->
                         <div class="space-y-4 lg:col-span-2">
                             <div>
-                                <h1 class="text-2xl font-bold tracking-tight text-gray-900">
+                                <h1 class="text-2xl font-bold text-gray-900">
                                     {{ sample.accession_name || "Unnamed Sample" }}
                                 </h1>
                                 <p class="mt-1 font-mono text-sm text-gray-500">{{ sample.uid }}</p>
@@ -134,19 +134,19 @@ export default {
                             <div class="grid gap-4 sm:grid-cols-2">
                                 <div class="space-y-3">
                                     <div class="group">
-                                        <label class="text-xs font-medium uppercase tracking-wider text-gray-400">Sample Type</label>
+                                        <label class="uppercasetext-gray-400 text-xs font-medium">Sample Type</label>
                                         <p class="mt-0.5 text-sm font-medium text-gray-900">
                                             {{ sample.sample_type || "-" }}
                                         </p>
                                     </div>
                                     <div class="group">
-                                        <label class="text-xs font-medium uppercase tracking-wider text-gray-400">Commodity</label>
+                                        <label class="uppercasetext-gray-400 text-xs font-medium">Commodity</label>
                                         <p class="mt-0.5 text-sm font-medium text-gray-900">
                                             {{ sample.commodity || "-" }}
                                         </p>
                                     </div>
                                     <div class="group">
-                                        <label class="text-xs font-medium uppercase tracking-wider text-gray-400">Current Location</label>
+                                        <label class="uppercasetext-gray-400 text-xs font-medium">Current Location</label>
                                         <p class="mt-0.5 text-sm font-medium text-gray-900">
                                             {{ sample.current_location || "-" }}
                                         </p>
@@ -154,19 +154,19 @@ export default {
                                 </div>
                                 <div class="space-y-3">
                                     <div class="group">
-                                        <label class="text-xs font-medium uppercase tracking-wider text-gray-400">Storage Location</label>
+                                        <label class="uppercasetext-gray-400 text-xs font-medium">Storage Location</label>
                                         <p class="mt-0.5 text-sm font-medium text-gray-900">
                                             {{ sample.storage_location || "-" }}
                                         </p>
                                     </div>
                                     <div class="group">
-                                        <label class="text-xs font-medium uppercase tracking-wider text-gray-400">Legacy Reference</label>
+                                        <label class="uppercasetext-gray-400 text-xs font-medium">Legacy Reference</label>
                                         <p class="mt-0.5 text-sm font-medium text-gray-900">
                                             {{ sample.legacy_reference || "-" }}
                                         </p>
                                     </div>
                                     <div class="group">
-                                        <label class="text-xs font-medium uppercase tracking-wider text-gray-400">Priority</label>
+                                        <label class="uppercasetext-gray-400 text-xs font-medium">Priority</label>
                                         <p class="mt-0.5 text-sm font-medium text-gray-900">
                                             <span
                                                 v-if="sample.is_priority"
@@ -275,37 +275,37 @@ export default {
 
                     <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                         <div class="rounded-lg border border-gray-100 bg-gray-50/30 p-4">
-                            <label class="text-xs font-medium uppercase tracking-wider text-gray-400">Project</label>
+                            <label class="uppercasetext-gray-400 text-xs font-medium">Project</label>
                             <p class="mt-1 text-sm font-semibold text-gray-900">
                                 {{ sample.experiment?.study?.project?.title || "-" }}
                             </p>
                         </div>
                         <div class="rounded-lg border border-gray-100 bg-gray-50/30 p-4">
-                            <label class="text-xs font-medium uppercase tracking-wider text-gray-400">Study</label>
+                            <label class="uppercasetext-gray-400 text-xs font-medium">Study</label>
                             <p class="mt-1 text-sm font-semibold text-gray-900">
                                 {{ sample.experiment?.study?.title || "-" }}
                             </p>
                         </div>
                         <div class="rounded-lg border border-gray-100 bg-gray-50/30 p-4">
-                            <label class="text-xs font-medium uppercase tracking-wider text-gray-400">Experiment</label>
+                            <label class="uppercasetext-gray-400 text-xs font-medium">Experiment</label>
                             <p class="mt-1 text-sm font-semibold text-gray-900">
                                 {{ sample.experiment?.title || "-" }}
                             </p>
                         </div>
                         <div class="rounded-lg border border-gray-100 bg-gray-50/30 p-4">
-                            <label class="text-xs font-medium uppercase tracking-wider text-gray-400">Generation</label>
+                            <label class="uppercasetext-gray-400 text-xs font-medium">Generation</label>
                             <p class="mt-1 text-sm font-semibold text-gray-900">
                                 {{ sample.generation || "-" }}
                             </p>
                         </div>
                         <div class="rounded-lg border border-gray-100 bg-gray-50/30 p-4">
-                            <label class="text-xs font-medium uppercase tracking-wider text-gray-400">PR Code</label>
+                            <label class="uppercasetext-gray-400 text-xs font-medium">PR Code</label>
                             <p class="mt-1 font-mono text-sm text-gray-900">
                                 {{ sample.pr_code || "-" }}
                             </p>
                         </div>
                         <div class="rounded-lg border border-gray-100 bg-gray-50/30 p-4">
-                            <label class="text-xs font-medium uppercase tracking-wider text-gray-400">Line Label</label>
+                            <label class="uppercasetext-gray-400 text-xs font-medium">Line Label</label>
                             <p class="mt-1 text-sm font-semibold text-gray-900">
                                 {{ sample.line_label || "-" }}
                             </p>
@@ -460,10 +460,10 @@ export default {
                     <table class="w-full text-sm">
                         <thead>
                             <tr class="border-b border-gray-100 bg-gray-50/30">
-                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Date</th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Stage</th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Recorder</th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Notes</th>
+                                <th class="uppercasetext-gray-500 px-6 py-3 text-left text-xs font-semibold">Date</th>
+                                <th class="uppercasetext-gray-500 px-6 py-3 text-left text-xs font-semibold">Stage</th>
+                                <th class="uppercasetext-gray-500 px-6 py-3 text-left text-xs font-semibold">Recorder</th>
+                                <th class="uppercasetext-gray-500 px-6 py-3 text-left text-xs font-semibold">Notes</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-50">
@@ -527,10 +527,10 @@ export default {
                     <table class="w-full text-sm">
                         <thead>
                             <tr class="border-b border-gray-100 bg-gray-50/30">
-                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Date</th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Action</th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">User</th>
-                                <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">Payload</th>
+                                <th class="uppercasetext-gray-500 px-6 py-3 text-left text-xs font-semibold">Date</th>
+                                <th class="uppercasetext-gray-500 px-6 py-3 text-left text-xs font-semibold">Action</th>
+                                <th class="uppercasetext-gray-500 px-6 py-3 text-left text-xs font-semibold">User</th>
+                                <th class="uppercasetext-gray-500 px-6 py-3 text-left text-xs font-semibold">Payload</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-50">
@@ -596,7 +596,7 @@ export default {
                             v-for="entry in metadataEntries"
                             :key="entry[0]"
                             class="group rounded-xl border border-gray-200 bg-gray-50/30 p-4 transition-all hover:border-gray-300 hover:shadow-sm">
-                            <label class="text-xs font-medium uppercase tracking-wider text-gray-400">
+                            <label class="uppercasetext-gray-400 text-xs font-medium">
                                 {{ entry[0] }}
                             </label>
                             <p class="mt-1 break-all text-sm font-medium text-gray-900">

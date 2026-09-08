@@ -13,7 +13,7 @@ export default {
 
 <template>
     <th
-        class="select-none font-semibold tracking-wide"
+        class="select-none font-semibold"
         :class="isFiltered ? 'bg-blue-600 text-white' : ''">
         <slot />
     </th>

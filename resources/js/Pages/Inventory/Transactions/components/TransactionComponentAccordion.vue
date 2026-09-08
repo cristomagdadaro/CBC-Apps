@@ -46,7 +46,7 @@ export default {
         <div class="flex items-center justify-between border-b border-slate-200 bg-slate-50 px-4 py-3 dark:border-slate-800 dark:bg-slate-800/80">
             <div class="flex items-center gap-2">
                 <Box class="h-4 w-4 text-slate-500 dark:text-slate-400" />
-                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-800 sm:text-sm dark:text-slate-200">
+                <h3 class="uppercasetext-slate-800 text-xs font-bold sm:text-sm dark:text-slate-200">
                     {{ title }}
                 </h3>
             </div>

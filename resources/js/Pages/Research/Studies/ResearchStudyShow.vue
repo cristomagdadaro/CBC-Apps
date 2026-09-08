@@ -111,7 +111,7 @@ export default {
                 <div class="p-6">
                     <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
                         <div>
-                            <dt class="text-xs font-medium uppercase tracking-wider text-slate-500">Study Leader</dt>
+                            <dt class="uppercasetext-slate-500 text-xs font-medium">Study Leader</dt>
                             <dd class="mt-1 text-sm font-semibold text-slate-900">
                                 {{ study.study_leader?.name || "Unassigned" }}
                                 <span
@@ -122,7 +122,7 @@ export default {
                             </dd>
                         </div>
                         <div>
-                            <dt class="text-xs font-medium uppercase tracking-wider text-slate-500">Supervisor</dt>
+                            <dt class="uppercasetext-slate-500 text-xs font-medium">Supervisor</dt>
                             <dd class="mt-1 text-sm font-semibold text-slate-900">
                                 {{ study.supervisor?.name || "Unassigned" }}
                                 <span
@@ -133,13 +133,13 @@ export default {
                             </dd>
                         </div>
                         <div>
-                            <dt class="text-xs font-medium uppercase tracking-wider text-slate-500">Budget</dt>
+                            <dt class="uppercasetext-slate-500 text-xs font-medium">Budget</dt>
                             <dd class="mt-1 text-sm font-semibold text-slate-900">
                                 {{ formatCurrency(study.budget) }}
                             </dd>
                         </div>
                         <div>
-                            <dt class="text-xs font-medium uppercase tracking-wider text-slate-500">Project</dt>
+                            <dt class="uppercasetext-slate-500 text-xs font-medium">Project</dt>
                             <dd class="mt-1 text-sm font-semibold text-slate-900">
                                 <Link
                                     :href="route('research.projects.show', projectRouteIdentifier)"
@@ -149,13 +149,13 @@ export default {
                             </dd>
                         </div>
                         <div class="md:col-span-2">
-                            <dt class="text-xs font-medium uppercase tracking-wider text-slate-500">Objective</dt>
+                            <dt class="uppercasetext-slate-500 text-xs font-medium">Objective</dt>
                             <dd class="mt-1 text-sm leading-relaxed text-slate-700">
                                 {{ study.objective || "No objective recorded." }}
                             </dd>
                         </div>
                         <div class="md:col-span-2">
-                            <dt class="text-xs font-medium uppercase tracking-wider text-slate-500">Study Staff</dt>
+                            <dt class="uppercasetext-slate-500 text-xs font-medium">Study Staff</dt>
                             <dd class="mt-1 flex flex-wrap gap-2">
                                 <span
                                     v-if="!staffMembers.length"

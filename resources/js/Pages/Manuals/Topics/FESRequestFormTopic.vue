@@ -135,19 +135,19 @@ export default {
                 </h4>
                 <div class="grid grid-cols-1 gap-4 text-xs font-medium text-slate-600 md:grid-cols-2 dark:text-slate-400">
                     <div>
-                        <span class="mb-1.5 block text-[0.6rem] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">Database Model</span>
+                        <span class="uppercasetext-slate-400 mb-1.5 block text-[0.6rem] font-semibold dark:text-slate-500">Database Model</span>
                         <code class="rounded-md border border-slate-200 bg-white px-1.5 py-0.5 font-mono text-[0.65rem] text-indigo-600 shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-indigo-400">App\Models\RequestFormPivot</code>
                     </div>
                     <div>
-                        <span class="mb-1.5 block text-[0.6rem] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">Validation Request</span>
+                        <span class="uppercasetext-slate-400 mb-1.5 block text-[0.6rem] font-semibold dark:text-slate-500">Validation Request</span>
                         <code class="rounded-md border border-slate-200 bg-white px-1.5 py-0.5 font-mono text-[0.65rem] text-indigo-600 shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-indigo-400">App\Http\Requests\CreateLabRequest</code>
                     </div>
                     <div>
-                        <span class="mb-1.5 block text-[0.6rem] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">Frontend Component</span>
+                        <span class="uppercasetext-slate-400 mb-1.5 block text-[0.6rem] font-semibold dark:text-slate-500">Frontend Component</span>
                         <code class="break-all rounded-md border border-slate-200 bg-white px-1.5 py-0.5 font-mono text-[0.65rem] text-indigo-600 shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-indigo-400">resources/js/Pages/LabRequest/components/RequesterGuestCard.vue</code>
                     </div>
                     <div>
-                        <span class="mb-1.5 block text-[0.6rem] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">Data Transfer Objects</span>
+                        <span class="uppercasetext-slate-400 mb-1.5 block text-[0.6rem] font-semibold dark:text-slate-500">Data Transfer Objects</span>
                         <div class="flex gap-2">
                             <code class="rounded-md border border-slate-200 bg-white px-1.5 py-0.5 font-mono text-[0.65rem] text-indigo-600 shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-indigo-400">RequestFormPivot.ts</code>
                             <code class="rounded-md border border-slate-200 bg-white px-1.5 py-0.5 font-mono text-[0.65rem] text-indigo-600 shadow-sm dark:border-slate-700 dark:bg-slate-800 dark:text-indigo-400">DtoRequestForm.ts</code>

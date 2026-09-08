@@ -235,7 +235,7 @@
                             <th
                                 v-for="column in dt.model.getColumns()"
                                 :key="column.key + column.title"
-                                class="cursor-pointer select-none whitespace-nowrap p-3 text-xs font-semibold uppercase tracking-wider transition-colors"
+                                class="uppercasetransition-colors cursor-pointer select-none whitespace-nowrap p-3 text-xs font-semibold"
                                 :class="[column.sortable ? 'hover:bg-black/5 dark:hover:bg-white/5' : '', column.visible !== false ? '' : 'hidden', getSortClasses(column)]"
                                 @click="onColumnSort(column)">
                                 <div
@@ -259,7 +259,7 @@
                             </th>
                             <th
                                 v-if="showActionBtns"
-                                class="p-3 text-right text-xs uppercase tracking-wider">
+                                class="p-3 text-right text-xs uppercase">
                                 Actions
                             </th>
                         </thead-row>

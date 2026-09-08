@@ -819,7 +819,7 @@ export default {
                 <div class="space-y-0.5">
                     <div class="flex items-center gap-2">
                         <Activity class="h-5 w-5 text-lime-600 dark:text-lime-400" />
-                        <h2 class="text-lg font-bold tracking-tight sm:text-xl">Equipment Analytics</h2>
+                        <h2 class="text-lg font-bold sm:text-xl">Equipment Analytics</h2>
                     </div>
                     <p class="text-xs text-slate-500 sm:text-sm dark:text-slate-400">
                         Viewing equipment logs
@@ -866,6 +866,7 @@ export default {
             </div>
 
             <TabNavigation
+                class="mx-5"
                 v-model="activeTab"
                 :tabs="tabs" />
 

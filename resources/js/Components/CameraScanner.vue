@@ -598,7 +598,7 @@ export default {
                 <!-- Last Scanned Badge -->
                 <div
                     v-if="lastDecoded"
-                    class="absolute bottom-3 left-3 right-3 rounded-xl border border-slate-700 bg-slate-900/90 px-3 py-1.5 text-center font-mono text-xs font-bold tracking-wider text-lime-400">
+                    class="font-boldtext-lime-400 absolute bottom-3 left-3 right-3 rounded-xl border border-slate-700 bg-slate-900/90 px-3 py-1.5 text-center font-mono text-xs">
                     Scanned: {{ lastDecoded }}
                 </div>
                 <!-- Device Selection -->

@@ -662,7 +662,7 @@ export default {
                             class="shadow-xs overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800">
                             <div class="overflow-x-auto">
                                 <table class="w-full text-xs sm:text-sm">
-                                    <thead class="border-b border-slate-200 bg-slate-50 text-xs font-bold uppercase tracking-wider text-slate-500 dark:border-slate-800 dark:bg-slate-800/80 dark:text-slate-400">
+                                    <thead class="uppercasetext-slate-500 border-b border-slate-200 bg-slate-50 text-xs font-bold dark:border-slate-800 dark:bg-slate-800/80 dark:text-slate-400">
                                         <tr>
                                             <th class="w-10 px-4 py-3"></th>
                                             <th class="px-4 py-3 text-left">Item</th>
@@ -859,7 +859,7 @@ export default {
 
                         <!-- Advanced Settings -->
                         <div class="border-t border-slate-200 pt-6 dark:border-slate-800">
-                            <h4 class="mb-4 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-900 sm:text-sm dark:text-slate-100">
+                            <h4 class="uppercasetext-slate-900 mb-4 flex items-center gap-2 text-xs font-bold sm:text-sm dark:text-slate-100">
                                 <LuSlidersHorizontal class="h-4 w-4 text-slate-400" />
                                 Advanced Settings
                             </h4>

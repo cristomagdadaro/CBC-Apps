@@ -171,41 +171,18 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
                             'attachedReports' => $attachedReports,
                             'attachedComponents' => $attachedComponents,
                             'parentTransaction' => $parentTransaction,
+                            'auditLogs' => $transaction->auditLogs()->with('user:id,name')->get(),
                         ]);
                     }
 
                     return Inertia::render('Inventory/Transactions/components/Outgoing', [
                         'data' => Transaction::select('*')->where('transactions.id', request()->route('id'))->first(),
-                        'summary' => Transaction::selectRaw('
-                                    items.id as item_id,
-                                    items.name,
-                                    items.brand,
-                                    items.description,
-                                    transactions.unit,
-                                    transactions.barcode,
-                                    transactions.barcode_prri,
-
-                                    SUM(CASE WHEN transactions.transac_type = "incoming"
-                                        THEN transactions.quantity ELSE 0 END) AS total_ingoing,
-
-                                    SUM(CASE WHEN transactions.transac_type = "outgoing"
-                                        THEN ABS(transactions.quantity) ELSE 0 END) AS total_outgoing,
-
-                                    (
-                                        SUM(CASE WHEN transactions.transac_type = "incoming"
-                                            THEN transactions.quantity ELSE 0 END)
-                                        -
-                                        SUM(CASE WHEN transactions.transac_type = "outgoing"
-                                            THEN ABS(transactions.quantity) ELSE 0 END)
-                                    ) AS remaining_quantity')
-                            ->join('items', 'transactions.item_id', '=', 'items.id')
-                            ->where('transactions.item_id', $transaction->item_id)
-                            ->groupBy('items.id', 'items.name', 'items.brand', 'transactions.unit', 'transactions.barcode', 'transactions.barcode_prri')
-                            ->first(),
+                        'summary' => app(\App\Services\Inventory\InventoryReportService::class)->getRemainingStockSummary($transaction->item_id, $transaction->barcode),
                         'mode' => 'update',
                         'fromUrl' => route('transactions.index'),
                         'personnels' => Personnel::selectRaw('id, employee_id, fname, mname, lname, suffix')->whereNotIn('id', [1])->get(),
                         'attachedReports' => $attachedReports,
+                        'auditLogs' => $transaction->auditLogs()->with('user:id,name')->get(),
                     ]);
                 })->name('transactions.show');
             });

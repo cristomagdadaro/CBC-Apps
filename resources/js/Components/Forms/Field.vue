@@ -65,7 +65,7 @@ const isValid = computed(() => props.hasValue && !props.error);
                 <transition name="fade">
                     <div
                         v-if="error"
-                        class="flex items-center gap-1 text-[0.65rem] font-semibold uppercase tracking-wider text-rose-500">
+                        class="uppercasetext-rose-500 flex items-center gap-1 text-[0.65rem] font-semibold">
                         <LuAlertCircle class="h-3.5 w-3.5" />
                         <span class="max-w-[150px] truncate">{{ error }}</span>
                     </div>

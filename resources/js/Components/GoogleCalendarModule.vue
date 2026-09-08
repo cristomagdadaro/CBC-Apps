@@ -408,7 +408,7 @@ export default {
                         <div class="shrink-0 rounded-xl border border-indigo-100 bg-indigo-50 p-2.5 shadow-sm dark:border-indigo-500/20 dark:bg-indigo-500/10">
                             <CalendarDays class="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
                         </div>
-                        <h2 class="text-2xl font-black tracking-tight text-slate-900 dark:text-white">
+                        <h2 class="text-2xl font-black text-slate-900 dark:text-white">
                             {{ title }}
                         </h2>
                     </div>
@@ -472,7 +472,7 @@ export default {
                                 class="mt-0.5 h-5 w-5 shrink-0"
                                 :class="syncStatusConfig.iconTone" />
                             <div>
-                                <p class="mb-1 text-sm font-bold tracking-tight">
+                                <p class="mb-1 text-sm font-bold">
                                     {{ syncStatusConfig.title }}
                                 </p>
                                 <p class="text-xs font-medium leading-relaxed opacity-90">
@@ -559,7 +559,7 @@ export default {
 
                                     <div class="mt-1.5 flex items-center gap-1.5">
                                         <Clock class="h-3 w-3 shrink-0 text-slate-400" />
-                                        <p class="text-[0.65rem] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                                        <p class="uppercasetext-slate-500 text-[0.65rem] font-semibold dark:text-slate-400">
                                             {{ event.date_from }}
                                             <span
                                                 v-if="event.date_to && event.date_to !== event.date_from"
@@ -638,7 +638,7 @@ export default {
 
                             <div class="mt-2 flex items-center gap-1.5">
                                 <Clock class="h-3 w-3 shrink-0 text-slate-400" />
-                                <p class="text-[0.65rem] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                                <p class="uppercasetext-slate-500 text-[0.65rem] font-semibold dark:text-slate-400">
                                     {{ event.date_from }}
                                     <span
                                         v-if="event.date_to && event.date_to !== event.date_from"

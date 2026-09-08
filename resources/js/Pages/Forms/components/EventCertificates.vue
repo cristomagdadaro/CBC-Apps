@@ -549,7 +549,7 @@ export default {
                         <LuFileText class="h-6 w-6 text-white" />
                     </div>
                     <div>
-                        <h3 class="text-xl font-black leading-none tracking-tight text-white drop-shadow-md">Bulk Certificate Generator</h3>
+                        <h3 class="text-xl font-black leading-none text-white drop-shadow-md">Bulk Certificate Generator</h3>
                         <p class="mt-1 text-sm font-semibold text-blue-100 drop-shadow-sm">Generate and email certificates automatically</p>
                     </div>
                 </div>
@@ -796,7 +796,7 @@ export default {
                                     <template #cell-status="{ row: recipient }">
                                         <div class="flex w-fit flex-col gap-1">
                                             <span
-                                                class="inline-flex w-fit items-center rounded-full border px-2.5 py-0.5 text-[0.65rem] font-bold uppercase tracking-wider"
+                                                class="inline-flex w-fit items-center rounded-full border px-2.5 py-0.5 text-[0.65rem] font-bold uppercase"
                                                 :class="recipientCertificateStatusConfig(recipient).badge">
                                                 {{ recipientCertificateStatusConfig(recipient).label }}
                                             </span>
@@ -918,7 +918,7 @@ export default {
                 <div
                     v-if="uploading"
                     class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-                    <div class="mb-2 flex justify-between text-xs font-bold uppercase tracking-wider">
+                    <div class="mb-2 flex justify-between text-xs font-bold uppercase">
                         <span class="flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
                             <LuUploadCloud class="h-4 w-4" />
                             Uploading files...
@@ -953,7 +953,7 @@ export default {
                     </div>
                     <div class="min-w-0 flex-1">
                         <p
-                            class="text-sm font-bold tracking-wide"
+                            class="text-sm font-bold"
                             :class="`text-${statusConfig.color}-900 dark:text-${statusConfig.color}-200`">
                             {{ statusConfig.text }}
                         </p>
@@ -1011,7 +1011,7 @@ export default {
                 <!-- Action Buttons -->
                 <div class="flex flex-col gap-4 border-t border-slate-100 pt-4 sm:flex-row dark:border-slate-800">
                     <button
-                        class="inline-flex flex-1 items-center justify-center gap-2.5 rounded-xl bg-indigo-600 px-6 py-3.5 text-sm font-black tracking-wide text-white shadow-md shadow-indigo-600/20 transition-all duration-200 hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-600/30 active:scale-95 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
+                        class="inline-flex flex-1 items-center justify-center gap-2.5 rounded-xl bg-indigo-600 px-6 py-3.5 text-sm font-black text-white shadow-md shadow-indigo-600/20 transition-all duration-200 hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-600/30 active:scale-95 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
                         :disabled="uploading || processingOnServer || !isReadyToProcess"
                         @click="submitForProcessing">
                         <LuLoader2
@@ -1024,7 +1024,7 @@ export default {
                     </button>
 
                     <button
-                        class="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-slate-200 bg-white px-6 py-3.5 text-sm font-black tracking-wide text-slate-700 transition-all duration-200 hover:border-slate-300 hover:bg-slate-50 active:scale-95 disabled:pointer-events-none disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:border-slate-600 dark:hover:bg-slate-700/80"
+                        class="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-slate-200 bg-white px-6 py-3.5 text-sm font-black text-slate-700 transition-all duration-200 hover:border-slate-300 hover:bg-slate-50 active:scale-95 disabled:pointer-events-none disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:border-slate-600 dark:hover:bg-slate-700/80"
                         :disabled="serverStatus !== 'completed'"
                         @click="downloadZip">
                         <LuDownload class="h-5 w-5" />

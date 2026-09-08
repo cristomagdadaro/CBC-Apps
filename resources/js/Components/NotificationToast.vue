@@ -70,7 +70,7 @@ export default {
                     class="mt-1 h-2.5 w-2.5 rounded-full"
                     :class="typeStyles[item.type].badge"></span>
                 <div class="min-w-0 flex-1">
-                    <p class="text-xs font-semibold uppercase tracking-wide">
+                    <p class="text-xs font-semibold uppercase">
                         {{ typeStyles[item.type].title }}
                     </p>
                     <p class="break-words text-sm leading-tight">{{ item.message }}</p>

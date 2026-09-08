@@ -752,7 +752,7 @@ export default {
                             </component>
 
                             <div v-else>
-                                <div class="px-3 py-2 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                                <div class="uppercasetext-slate-400 px-3 py-2 text-xs font-bold dark:text-slate-500">
                                     {{ service.label }}
                                 </div>
                                 <div class="ml-2 space-y-1">
@@ -820,7 +820,7 @@ export default {
                                     :href="route('dashboard')"
                                     class="flex flex-shrink-0 items-center gap-2">
                                     <ApplicationMark class="h-8 w-auto text-indigo-600 md:h-10 lg:h-12 dark:text-indigo-500" />
-                                    <span class="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
+                                    <span class="text-xl font-bold text-slate-900 dark:text-white">
                                         {{ $appName }}
                                     </span>
                                 </Link>
@@ -976,7 +976,7 @@ export default {
                                     <div
                                         v-else
                                         class="space-y-1">
-                                        <div class="px-3 py-2 text-xs font-bold uppercase tracking-wider text-slate-400">
+                                        <div class="uppercasetext-slate-400 px-3 py-2 text-xs font-bold">
                                             {{ service.label }}
                                         </div>
                                         <Link

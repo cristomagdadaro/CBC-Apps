@@ -55,14 +55,21 @@ export default {
                 ...(this.$page.props.dashboardAccess ?? {}),
             };
         },
-        hasSummaryCards() {
-            return this.dashboardAccess.events || this.dashboardAccess.fes || this.dashboardAccess.inventory || this.dashboardAccess.rentals || this.dashboardAccess.laboratory;
+        moduleModes() {
+            const modules = this.$page.props.deployment_access?.modules ?? {};
+            return {
+                events: modules.forms?.mode ?? "active",
+                fes: modules.fes?.mode ?? "active",
+                inventory: modules.inventory?.mode ?? "active",
+                rentals: modules.rentals?.mode ?? "active",
+                laboratory: modules.laboratory_dashboard?.mode ?? "active",
+            };
         },
-        hasQuickActions() {
-            return this.dashboardAccess.events || this.dashboardAccess.rentals || this.dashboardAccess.laboratory;
+        hasSummaryCards() {
+            return (this.dashboardAccess.events && this.moduleModes.events !== "deactivated") || (this.dashboardAccess.fes && this.moduleModes.fes !== "deactivated") || (this.dashboardAccess.inventory && this.moduleModes.inventory !== "deactivated") || (this.dashboardAccess.rentals && this.moduleModes.rentals !== "deactivated") || (this.dashboardAccess.laboratory && this.moduleModes.laboratory !== "deactivated");
         },
         hasDashboardContent() {
-            return this.hasSummaryCards || this.dashboardAccess.inventory || this.dashboardAccess.laboratory || this.hasQuickActions;
+            return this.hasSummaryCards || (this.dashboardAccess.inventory && this.moduleModes.inventory !== "deactivated") || (this.dashboardAccess.laboratory && this.moduleModes.laboratory !== "deactivated");
         },
         pulseKpis() {
             const p = this.systemPulse;
@@ -562,7 +569,7 @@ export default {
                                         }" />
                                 </div>
                             </div>
-                            <p class="mt-3 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl dark:text-white">
+                            <p class="mt-3 text-2xl font-extrabold text-slate-900 sm:text-3xl dark:text-white">
                                 {{ kpi.value.toLocaleString() }}
                             </p>
                             <p class="mt-0.5 text-[0.7rem] font-medium text-slate-500 sm:text-xs dark:text-slate-400">
@@ -590,6 +597,374 @@ export default {
                     <div class="p-3 sm:p-5">
                         <div class="h-48 sm:h-64">
                             <canvas ref="trendChartCanvas"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ═══════ SUMMARY STATS GRID (existing cards, preserved) ═══════ -->
+                <div
+                    v-if="hasSummaryCards"
+                    class="sm:gap-4.5 grid grid-cols-1 gap-3.5 md:grid-cols-2 lg:grid-cols-3">
+                    <!-- Event Forms Card -->
+                    <div
+                        v-if="dashboardAccess.events && moduleModes.events !== 'deactivated'"
+                        class="flex flex-col justify-between overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900"
+                        :class="{ 'opacity-60 grayscale': moduleModes.events === 'maintenance' }">
+                        <div class="p-4 sm:p-5">
+                            <div class="flex items-start justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div class="rounded-xl border border-green-500/20 bg-green-500/10 p-2.5 dark:bg-green-400/15">
+                                        <LuCalendar class="h-5 w-5 text-green-600 dark:text-green-400" />
+                                    </div>
+                                    <div>
+                                        <p class="text-xs font-semibold text-slate-500 sm:text-sm dark:text-slate-400">Event Forms</p>
+                                        <p class="mt-0.5 text-2xl font-extrabold text-slate-900 sm:text-3xl dark:text-white">
+                                            {{ stats.events.total }}
+                                        </p>
+                                    </div>
+                                </div>
+                                <Link
+                                    :href="route('forms.index')"
+                                    class="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-blue-600 dark:hover:bg-slate-800 dark:hover:text-blue-400">
+                                    <LuArrowRight class="h-5 w-5" />
+                                </Link>
+                            </div>
+                            <div class="mt-3.5 flex items-center justify-between text-[0.7rem] font-medium sm:mt-4 sm:text-xs">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="h-2 w-2 rounded-full bg-green-500"></span>
+                                    <span class="text-slate-600 dark:text-slate-300">{{ stats.events.active }} Active</span>
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <span class="h-2 w-2 rounded-full bg-blue-500"></span>
+                                    <span class="text-slate-600 dark:text-slate-300">{{ stats.events.upcoming }} Upcoming</span>
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <span class="h-2 w-2 rounded-full bg-amber-500"></span>
+                                    <span class="text-slate-600 dark:text-slate-300">{{ stats.events.suspended }} Suspended</span>
+                                </div>
+                            </div>
+                            <div class="mt-3 h-24 sm:mt-4 sm:h-28">
+                                <canvas ref="eventsChartCanvas"></canvas>
+                            </div>
+                        </div>
+                        <div class="border-t border-gray-100 bg-slate-50 px-4 py-2.5 sm:px-5 sm:py-3 dark:border-slate-800 dark:bg-slate-800/50">
+                            <Link
+                                :href="route('forms.index')"
+                                class="flex items-center gap-1.5 text-xs font-semibold text-blue-600 transition-colors hover:text-blue-700 sm:text-sm dark:text-blue-400 dark:hover:text-blue-300">
+                                View all events
+                                <LuChevronRight class="h-4 w-4" />
+                            </Link>
+                        </div>
+                    </div>
+
+                    <!-- FES Requests Card -->
+                    <div
+                        v-if="dashboardAccess.fes && moduleModes.fes !== 'deactivated'"
+                        class="flex flex-col justify-between overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900"
+                        :class="{ 'opacity-60 grayscale': moduleModes.fes === 'maintenance' }">
+                        <div class="p-4 sm:p-5">
+                            <div class="flex items-start justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div class="rounded-xl border border-amber-500/20 bg-amber-500/10 p-2.5 dark:bg-amber-400/15">
+                                        <LuShield class="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                                    </div>
+                                    <div>
+                                        <p class="text-xs font-semibold text-slate-500 sm:text-sm dark:text-slate-400">FES Requests</p>
+                                        <p class="mt-0.5 text-2xl font-extrabold text-slate-900 sm:text-3xl dark:text-white">
+                                            {{ stats.access_requests.total }}
+                                        </p>
+                                    </div>
+                                </div>
+                                <Link
+                                    :href="route('accessUseRequest.index')"
+                                    class="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-blue-600 dark:hover:bg-slate-800 dark:hover:text-blue-400">
+                                    <LuArrowRight class="h-5 w-5" />
+                                </Link>
+                            </div>
+                            <div class="mt-3.5 flex items-center justify-between text-[0.7rem] font-medium sm:mt-4 sm:text-xs">
+                                <div class="flex items-center gap-1">
+                                    <LuClock class="h-3.5 w-3.5 shrink-0 text-amber-500" />
+                                    <span class="text-slate-600 dark:text-slate-300">{{ stats.access_requests.pending }} Pending</span>
+                                </div>
+                                <div class="flex items-center gap-1">
+                                    <LuCheckCircle class="h-3.5 w-3.5 shrink-0 text-emerald-500" />
+                                    <span class="text-slate-600 dark:text-slate-300">{{ stats.access_requests.approved }} Approved</span>
+                                </div>
+                                <div class="flex items-center gap-1">
+                                    <LuXCircle class="h-3.5 w-3.5 shrink-0 text-rose-500" />
+                                    <span class="text-slate-600 dark:text-slate-300">{{ stats.access_requests.rejected }} Rejected</span>
+                                </div>
+                            </div>
+                            <div class="mt-3 h-24 sm:mt-4 sm:h-28">
+                                <canvas ref="accessChartCanvas"></canvas>
+                            </div>
+                        </div>
+                        <div class="border-t border-gray-100 bg-slate-50 px-4 py-2.5 sm:px-5 sm:py-3 dark:border-slate-800 dark:bg-slate-800/50">
+                            <Link
+                                :href="route('accessUseRequest.index')"
+                                class="flex items-center gap-1.5 text-xs font-semibold text-blue-600 transition-colors hover:text-blue-700 sm:text-sm dark:text-blue-400 dark:hover:text-blue-300">
+                                Review requests
+                                <LuChevronRight class="h-4 w-4" />
+                            </Link>
+                        </div>
+                    </div>
+
+                    <!-- Inventory Card -->
+                    <div
+                        v-if="dashboardAccess.inventory && moduleModes.inventory !== 'deactivated'"
+                        class="flex flex-col justify-between overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900"
+                        :class="{ 'opacity-60 grayscale': moduleModes.inventory === 'maintenance' }">
+                        <div class="p-4 sm:p-5">
+                            <div class="flex items-start justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div class="rounded-xl border border-blue-500/20 bg-blue-500/10 p-2.5 dark:bg-blue-400/15">
+                                        <LuPackage class="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                                    </div>
+                                    <div>
+                                        <p class="text-xs font-semibold text-slate-500 sm:text-sm dark:text-slate-400">Inventory Items</p>
+                                        <p class="mt-0.5 text-2xl font-extrabold text-slate-900 sm:text-3xl dark:text-white">
+                                            {{ stats.inventory.items }}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="flex gap-1">
+                                    <Link
+                                        :href="route('items.index')"
+                                        class="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-blue-600 dark:hover:bg-slate-800 dark:hover:text-blue-400">
+                                        <LuArrowRight class="h-5 w-5" />
+                                    </Link>
+                                </div>
+                            </div>
+                            <div class="mt-3.5 grid grid-cols-2 gap-1.5 text-[0.7rem] font-medium sm:mt-4 sm:text-xs">
+                                <div class="flex items-center gap-1.5 rounded-md bg-slate-100 px-2 py-1 dark:bg-slate-800/60">
+                                    <span class="h-1.5 w-1.5 rounded-full bg-slate-400"></span>
+                                    <span class="text-slate-600 dark:text-slate-300">{{ stats.inventory.stock_buckets?.empty ?? 0 }} Empty</span>
+                                </div>
+                                <div class="flex items-center gap-1.5 rounded-md bg-orange-50 px-2 py-1 dark:bg-orange-950/40">
+                                    <span class="h-1.5 w-1.5 rounded-full bg-orange-500"></span>
+                                    <span class="text-orange-700 dark:text-orange-300">{{ stats.inventory.stock_buckets?.low ?? 0 }} Low</span>
+                                </div>
+                                <div class="flex items-center gap-1.5 rounded-md bg-blue-50 px-2 py-1 dark:bg-blue-950/40">
+                                    <span class="h-1.5 w-1.5 rounded-full bg-blue-500"></span>
+                                    <span class="text-blue-700 dark:text-blue-300">{{ stats.inventory.stock_buckets?.mid ?? 0 }} Mid</span>
+                                </div>
+                                <div class="flex items-center gap-1.5 rounded-md bg-emerald-50 px-2 py-1 dark:bg-emerald-950/40">
+                                    <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                                    <span class="text-emerald-700 dark:text-emerald-300">{{ stats.inventory.stock_buckets?.high ?? 0 }} High</span>
+                                </div>
+                            </div>
+                            <div class="mt-3 h-24 sm:mt-4 sm:h-28">
+                                <canvas ref="inventoryChartCanvas"></canvas>
+                            </div>
+                        </div>
+                        <div class="flex justify-between border-t border-gray-100 bg-slate-50 px-4 py-2.5 sm:px-5 sm:py-3 dark:border-slate-800 dark:bg-slate-800/50">
+                            <Link
+                                :href="route('items.index')"
+                                class="flex items-center gap-1.5 text-xs font-semibold text-blue-600 transition-colors hover:text-blue-700 sm:text-sm dark:text-blue-400 dark:hover:text-blue-300">
+                                View items
+                                <LuChevronRight class="h-4 w-4" />
+                            </Link>
+                            <Link
+                                :href="route('transactions.index')"
+                                class="flex items-center gap-1.5 text-xs font-semibold text-slate-600 transition-colors hover:text-slate-900 sm:text-sm dark:text-slate-400 dark:hover:text-slate-200">
+                                <LuArrowLeftRight class="h-4 w-4" />
+                                Transactions
+                            </Link>
+                        </div>
+                    </div>
+
+                    <!-- Vehicle Rentals Card -->
+                    <div
+                        v-if="dashboardAccess.rentals && moduleModes.rentals !== 'deactivated'"
+                        class="flex flex-col justify-between overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900"
+                        :class="{ 'opacity-60 grayscale': moduleModes.rentals === 'maintenance' }">
+                        <div class="p-4 sm:p-5">
+                            <div class="flex items-start justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div class="rounded-xl border border-amber-500/20 bg-amber-500/10 p-2.5 dark:bg-amber-400/15">
+                                        <LuCar class="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                                    </div>
+                                    <div>
+                                        <p class="text-xs font-semibold text-slate-500 sm:text-sm dark:text-slate-400">Vehicle Rentals</p>
+                                        <p class="mt-0.5 text-2xl font-extrabold text-slate-900 sm:text-3xl dark:text-white">
+                                            {{ stats.vehicle_rentals.total }}
+                                        </p>
+                                    </div>
+                                </div>
+                                <Link
+                                    :href="route('rentals.vehicle.index')"
+                                    class="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-blue-600 dark:hover:bg-slate-800 dark:hover:text-blue-400">
+                                    <LuArrowRight class="h-5 w-5" />
+                                </Link>
+                            </div>
+                            <div class="mt-3.5 grid grid-cols-4 gap-1 text-center text-[0.65rem] font-medium sm:mt-4 sm:text-xs">
+                                <div class="rounded-md bg-amber-50 p-1 dark:bg-amber-950/40">
+                                    <p class="font-bold text-amber-700 dark:text-amber-300">
+                                        {{ stats.vehicle_rentals.pending }}
+                                    </p>
+                                    <p class="text-amber-600/80 dark:text-amber-400/80">Pending</p>
+                                </div>
+                                <div class="rounded-md bg-green-50 p-1 dark:bg-green-950/40">
+                                    <p class="font-bold text-green-700 dark:text-green-300">
+                                        {{ stats.vehicle_rentals.approved }}
+                                    </p>
+                                    <p class="text-green-600/80 dark:text-green-400/80">Approved</p>
+                                </div>
+                                <div class="rounded-md bg-emerald-50 p-1 dark:bg-emerald-950/40">
+                                    <p class="font-bold text-emerald-700 dark:text-emerald-300">
+                                        {{ stats.vehicle_rentals.completed }}
+                                    </p>
+                                    <p class="text-emerald-600/80 dark:text-emerald-400/80">Done</p>
+                                </div>
+                                <div class="rounded-md bg-rose-50 p-1 dark:bg-rose-950/40">
+                                    <p class="font-bold text-rose-700 dark:text-rose-300">
+                                        {{ stats.vehicle_rentals.rejected }}
+                                    </p>
+                                    <p class="text-rose-600/80 dark:text-rose-400/80">Rejected</p>
+                                </div>
+                            </div>
+                            <div class="mt-3 h-24 sm:mt-4 sm:h-28">
+                                <canvas ref="vehicleChartCanvas"></canvas>
+                            </div>
+                        </div>
+                        <div class="border-t border-gray-100 bg-slate-50 px-4 py-2.5 sm:px-5 sm:py-3 dark:border-slate-800 dark:bg-slate-800/50">
+                            <Link
+                                :href="route('rentals.vehicle.index')"
+                                class="flex items-center gap-1.5 text-xs font-semibold text-blue-600 transition-colors hover:text-blue-700 sm:text-sm dark:text-blue-400 dark:hover:text-blue-300">
+                                Manage bookings
+                                <LuChevronRight class="h-4 w-4" />
+                            </Link>
+                        </div>
+                    </div>
+
+                    <!-- Venue Rentals Card -->
+                    <div
+                        v-if="dashboardAccess.rentals && moduleModes.rentals !== 'deactivated'"
+                        class="flex flex-col justify-between overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900"
+                        :class="{ 'opacity-60 grayscale': moduleModes.rentals === 'maintenance' }">
+                        <div class="p-4 sm:p-5">
+                            <div class="flex items-start justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div class="rounded-xl border border-purple-500/20 bg-purple-500/10 p-2.5 dark:bg-purple-400/15">
+                                        <LuBuilding class="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                                    </div>
+                                    <div>
+                                        <p class="text-xs font-semibold text-slate-500 sm:text-sm dark:text-slate-400">Venue Rentals</p>
+                                        <p class="mt-0.5 text-2xl font-extrabold text-slate-900 sm:text-3xl dark:text-white">
+                                            {{ stats.venue_rentals.total }}
+                                        </p>
+                                    </div>
+                                </div>
+                                <Link
+                                    :href="route('rentals.venue.index')"
+                                    class="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-blue-600 dark:hover:bg-slate-800 dark:hover:text-blue-400">
+                                    <LuArrowRight class="h-5 w-5" />
+                                </Link>
+                            </div>
+                            <div class="mt-3.5 grid grid-cols-4 gap-1 text-center text-[0.65rem] font-medium sm:mt-4 sm:text-xs">
+                                <div class="rounded-md bg-amber-50 p-1 dark:bg-amber-950/40">
+                                    <p class="font-bold text-amber-700 dark:text-amber-300">
+                                        {{ stats.venue_rentals.pending }}
+                                    </p>
+                                    <p class="text-amber-600/80 dark:text-amber-400/80">Pending</p>
+                                </div>
+                                <div class="rounded-md bg-green-50 p-1 dark:bg-green-950/40">
+                                    <p class="font-bold text-green-700 dark:text-green-300">
+                                        {{ stats.venue_rentals.approved }}
+                                    </p>
+                                    <p class="text-green-600/80 dark:text-green-400/80">Approved</p>
+                                </div>
+                                <div class="rounded-md bg-emerald-50 p-1 dark:bg-emerald-950/40">
+                                    <p class="font-bold text-emerald-700 dark:text-emerald-300">
+                                        {{ stats.venue_rentals.completed }}
+                                    </p>
+                                    <p class="text-emerald-600/80 dark:text-emerald-400/80">Done</p>
+                                </div>
+                                <div class="rounded-md bg-rose-50 p-1 dark:bg-rose-950/40">
+                                    <p class="font-bold text-rose-700 dark:text-rose-300">
+                                        {{ stats.venue_rentals.rejected }}
+                                    </p>
+                                    <p class="text-rose-600/80 dark:text-rose-400/80">Rejected</p>
+                                </div>
+                            </div>
+                            <div class="mt-3 h-24 sm:mt-4 sm:h-28">
+                                <canvas ref="venueChartCanvas"></canvas>
+                            </div>
+                        </div>
+                        <div class="border-t border-gray-100 bg-slate-50 px-4 py-2.5 sm:px-5 sm:py-3 dark:border-slate-800 dark:bg-slate-800/50">
+                            <Link
+                                :href="route('rentals.venue.index')"
+                                class="flex items-center gap-1.5 text-xs font-semibold text-blue-600 transition-colors hover:text-blue-700 sm:text-sm dark:text-blue-400 dark:hover:text-blue-300">
+                                Manage venues
+                                <LuChevronRight class="h-4 w-4" />
+                            </Link>
+                        </div>
+                    </div>
+
+                    <!-- Lab Equipment Card -->
+                    <div
+                        v-if="dashboardAccess.laboratory && moduleModes.laboratory !== 'deactivated'"
+                        class="flex flex-col justify-between overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900"
+                        :class="{ 'opacity-60 grayscale': moduleModes.laboratory === 'maintenance' }">
+                        <div class="p-4 sm:p-5">
+                            <div class="flex items-start justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div class="rounded-xl border border-indigo-500/20 bg-indigo-500/10 p-2.5 dark:bg-indigo-400/15">
+                                        <LuMicroscope class="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                                    </div>
+                                    <div>
+                                        <p class="text-xs font-semibold text-slate-500 sm:text-sm dark:text-slate-400">Lab Equipment</p>
+                                        <p class="mt-0.5 text-2xl font-extrabold text-slate-900 sm:text-3xl dark:text-white">
+                                            {{ stats.laboratory_equipment.total }}
+                                        </p>
+                                    </div>
+                                </div>
+                                <Link
+                                    :href="route('equipment-logger.dashboard')"
+                                    class="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-blue-600 dark:hover:bg-slate-800 dark:hover:text-blue-400">
+                                    <LuArrowRight class="h-5 w-5" />
+                                </Link>
+                            </div>
+                            <div class="mt-3.5 flex items-center justify-around text-[0.7rem] font-medium sm:mt-4 sm:text-xs">
+                                <div class="flex flex-col items-center gap-0.5">
+                                    <div class="flex items-center gap-1 rounded-full bg-green-50 px-2.5 py-1 dark:bg-green-950/40">
+                                        <LuActivity class="h-3 w-3 text-green-500" />
+                                        <span class="font-bold text-green-700 dark:text-green-300">
+                                            {{ stats.laboratory_equipment.active }}
+                                        </span>
+                                    </div>
+                                    <span class="mt-0.5 text-slate-500 dark:text-slate-400">Active</span>
+                                </div>
+                                <div class="flex flex-col items-center gap-0.5">
+                                    <div class="flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-1 dark:bg-amber-950/40">
+                                        <LuAlertTriangle class="h-3 w-3 text-amber-500" />
+                                        <span class="font-bold text-amber-700 dark:text-amber-300">
+                                            {{ stats.laboratory_equipment.overdue }}
+                                        </span>
+                                    </div>
+                                    <span class="mt-0.5 text-slate-500 dark:text-slate-400">Overdue</span>
+                                </div>
+                                <div class="flex flex-col items-center gap-0.5">
+                                    <div class="flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-1 dark:bg-blue-950/40">
+                                        <LuCheckCircle class="h-3 w-3 text-blue-500" />
+                                        <span class="font-bold text-blue-700 dark:text-blue-300">
+                                            {{ stats.laboratory_equipment.completed }}
+                                        </span>
+                                    </div>
+                                    <span class="mt-0.5 text-slate-500 dark:text-slate-400">Done</span>
+                                </div>
+                            </div>
+                            <div class="mt-3 h-24 sm:mt-4 sm:h-28">
+                                <canvas ref="labChartCanvas"></canvas>
+                            </div>
+                        </div>
+                        <div class="border-t border-gray-100 bg-slate-50 px-4 py-2.5 sm:px-5 sm:py-3 dark:border-slate-800 dark:bg-slate-800/50">
+                            <Link
+                                :href="route('equipment-logger.dashboard')"
+                                class="flex items-center gap-1.5 text-xs font-semibold text-blue-600 transition-colors hover:text-blue-700 sm:text-sm dark:text-blue-400 dark:hover:text-blue-300">
+                                View logs
+                                <LuChevronRight class="h-4 w-4" />
+                            </Link>
                         </div>
                     </div>
                 </div>
@@ -667,429 +1042,6 @@ export default {
                             </div>
                         </div>
                     </div>
-                </div>
-
-                <!-- ═══════ SUMMARY STATS GRID (existing cards, preserved) ═══════ -->
-                <div
-                    v-if="hasSummaryCards"
-                    class="sm:gap-4.5 grid grid-cols-1 gap-3.5 md:grid-cols-2 lg:grid-cols-3">
-                    <!-- Event Forms Card -->
-                    <div
-                        v-if="dashboardAccess.events"
-                        class="flex flex-col justify-between overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900">
-                        <div class="p-4 sm:p-5">
-                            <div class="flex items-start justify-between">
-                                <div class="flex items-center gap-3">
-                                    <div class="rounded-xl border border-green-500/20 bg-green-500/10 p-2.5 dark:bg-green-400/15">
-                                        <LuCalendar class="h-5 w-5 text-green-600 dark:text-green-400" />
-                                    </div>
-                                    <div>
-                                        <p class="text-xs font-semibold text-slate-500 sm:text-sm dark:text-slate-400">Event Forms</p>
-                                        <p class="mt-0.5 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl dark:text-white">
-                                            {{ stats.events.total }}
-                                        </p>
-                                    </div>
-                                </div>
-                                <Link
-                                    :href="route('forms.index')"
-                                    class="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-blue-600 dark:hover:bg-slate-800 dark:hover:text-blue-400">
-                                    <LuArrowRight class="h-5 w-5" />
-                                </Link>
-                            </div>
-                            <div class="mt-3.5 flex items-center justify-between text-[0.7rem] font-medium sm:mt-4 sm:text-xs">
-                                <div class="flex items-center gap-1.5">
-                                    <span class="h-2 w-2 rounded-full bg-green-500"></span>
-                                    <span class="text-slate-600 dark:text-slate-300">{{ stats.events.active }} Active</span>
-                                </div>
-                                <div class="flex items-center gap-1.5">
-                                    <span class="h-2 w-2 rounded-full bg-blue-500"></span>
-                                    <span class="text-slate-600 dark:text-slate-300">{{ stats.events.upcoming }} Upcoming</span>
-                                </div>
-                                <div class="flex items-center gap-1.5">
-                                    <span class="h-2 w-2 rounded-full bg-amber-500"></span>
-                                    <span class="text-slate-600 dark:text-slate-300">{{ stats.events.suspended }} Suspended</span>
-                                </div>
-                            </div>
-                            <div class="mt-3 h-24 sm:mt-4 sm:h-28">
-                                <canvas ref="eventsChartCanvas"></canvas>
-                            </div>
-                        </div>
-                        <div class="border-t border-gray-100 bg-slate-50 px-4 py-2.5 sm:px-5 sm:py-3 dark:border-slate-800 dark:bg-slate-800/50">
-                            <Link
-                                :href="route('forms.index')"
-                                class="flex items-center gap-1.5 text-xs font-semibold text-blue-600 transition-colors hover:text-blue-700 sm:text-sm dark:text-blue-400 dark:hover:text-blue-300">
-                                View all events
-                                <LuChevronRight class="h-4 w-4" />
-                            </Link>
-                        </div>
-                    </div>
-
-                    <!-- FES Requests Card -->
-                    <div
-                        v-if="dashboardAccess.fes"
-                        class="flex flex-col justify-between overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900">
-                        <div class="p-4 sm:p-5">
-                            <div class="flex items-start justify-between">
-                                <div class="flex items-center gap-3">
-                                    <div class="rounded-xl border border-amber-500/20 bg-amber-500/10 p-2.5 dark:bg-amber-400/15">
-                                        <LuShield class="h-5 w-5 text-amber-600 dark:text-amber-400" />
-                                    </div>
-                                    <div>
-                                        <p class="text-xs font-semibold text-slate-500 sm:text-sm dark:text-slate-400">FES Requests</p>
-                                        <p class="mt-0.5 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl dark:text-white">
-                                            {{ stats.access_requests.total }}
-                                        </p>
-                                    </div>
-                                </div>
-                                <Link
-                                    :href="route('accessUseRequest.index')"
-                                    class="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-blue-600 dark:hover:bg-slate-800 dark:hover:text-blue-400">
-                                    <LuArrowRight class="h-5 w-5" />
-                                </Link>
-                            </div>
-                            <div class="mt-3.5 flex items-center justify-between text-[0.7rem] font-medium sm:mt-4 sm:text-xs">
-                                <div class="flex items-center gap-1">
-                                    <LuClock class="h-3.5 w-3.5 shrink-0 text-amber-500" />
-                                    <span class="text-slate-600 dark:text-slate-300">{{ stats.access_requests.pending }} Pending</span>
-                                </div>
-                                <div class="flex items-center gap-1">
-                                    <LuCheckCircle class="h-3.5 w-3.5 shrink-0 text-emerald-500" />
-                                    <span class="text-slate-600 dark:text-slate-300">{{ stats.access_requests.approved }} Approved</span>
-                                </div>
-                                <div class="flex items-center gap-1">
-                                    <LuXCircle class="h-3.5 w-3.5 shrink-0 text-rose-500" />
-                                    <span class="text-slate-600 dark:text-slate-300">{{ stats.access_requests.rejected }} Rejected</span>
-                                </div>
-                            </div>
-                            <div class="mt-3 h-24 sm:mt-4 sm:h-28">
-                                <canvas ref="accessChartCanvas"></canvas>
-                            </div>
-                        </div>
-                        <div class="border-t border-gray-100 bg-slate-50 px-4 py-2.5 sm:px-5 sm:py-3 dark:border-slate-800 dark:bg-slate-800/50">
-                            <Link
-                                :href="route('accessUseRequest.index')"
-                                class="flex items-center gap-1.5 text-xs font-semibold text-blue-600 transition-colors hover:text-blue-700 sm:text-sm dark:text-blue-400 dark:hover:text-blue-300">
-                                Review requests
-                                <LuChevronRight class="h-4 w-4" />
-                            </Link>
-                        </div>
-                    </div>
-
-                    <!-- Inventory Card -->
-                    <div
-                        v-if="dashboardAccess.inventory"
-                        class="flex flex-col justify-between overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900">
-                        <div class="p-4 sm:p-5">
-                            <div class="flex items-start justify-between">
-                                <div class="flex items-center gap-3">
-                                    <div class="rounded-xl border border-blue-500/20 bg-blue-500/10 p-2.5 dark:bg-blue-400/15">
-                                        <LuPackage class="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                                    </div>
-                                    <div>
-                                        <p class="text-xs font-semibold text-slate-500 sm:text-sm dark:text-slate-400">Inventory Items</p>
-                                        <p class="mt-0.5 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl dark:text-white">
-                                            {{ stats.inventory.items }}
-                                        </p>
-                                    </div>
-                                </div>
-                                <div class="flex gap-1">
-                                    <Link
-                                        :href="route('items.index')"
-                                        class="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-blue-600 dark:hover:bg-slate-800 dark:hover:text-blue-400">
-                                        <LuArrowRight class="h-5 w-5" />
-                                    </Link>
-                                </div>
-                            </div>
-                            <div class="mt-3.5 grid grid-cols-2 gap-1.5 text-[0.7rem] font-medium sm:mt-4 sm:text-xs">
-                                <div class="flex items-center gap-1.5 rounded-md bg-slate-100 px-2 py-1 dark:bg-slate-800/60">
-                                    <span class="h-1.5 w-1.5 rounded-full bg-slate-400"></span>
-                                    <span class="text-slate-600 dark:text-slate-300">{{ stats.inventory.stock_buckets?.empty ?? 0 }} Empty</span>
-                                </div>
-                                <div class="flex items-center gap-1.5 rounded-md bg-orange-50 px-2 py-1 dark:bg-orange-950/40">
-                                    <span class="h-1.5 w-1.5 rounded-full bg-orange-500"></span>
-                                    <span class="text-orange-700 dark:text-orange-300">{{ stats.inventory.stock_buckets?.low ?? 0 }} Low</span>
-                                </div>
-                                <div class="flex items-center gap-1.5 rounded-md bg-blue-50 px-2 py-1 dark:bg-blue-950/40">
-                                    <span class="h-1.5 w-1.5 rounded-full bg-blue-500"></span>
-                                    <span class="text-blue-700 dark:text-blue-300">{{ stats.inventory.stock_buckets?.mid ?? 0 }} Mid</span>
-                                </div>
-                                <div class="flex items-center gap-1.5 rounded-md bg-emerald-50 px-2 py-1 dark:bg-emerald-950/40">
-                                    <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
-                                    <span class="text-emerald-700 dark:text-emerald-300">{{ stats.inventory.stock_buckets?.high ?? 0 }} High</span>
-                                </div>
-                            </div>
-                            <div class="mt-3 h-24 sm:mt-4 sm:h-28">
-                                <canvas ref="inventoryChartCanvas"></canvas>
-                            </div>
-                        </div>
-                        <div class="flex justify-between border-t border-gray-100 bg-slate-50 px-4 py-2.5 sm:px-5 sm:py-3 dark:border-slate-800 dark:bg-slate-800/50">
-                            <Link
-                                :href="route('items.index')"
-                                class="flex items-center gap-1.5 text-xs font-semibold text-blue-600 transition-colors hover:text-blue-700 sm:text-sm dark:text-blue-400 dark:hover:text-blue-300">
-                                View items
-                                <LuChevronRight class="h-4 w-4" />
-                            </Link>
-                            <Link
-                                :href="route('transactions.index')"
-                                class="flex items-center gap-1.5 text-xs font-semibold text-slate-600 transition-colors hover:text-slate-900 sm:text-sm dark:text-slate-400 dark:hover:text-slate-200">
-                                <LuArrowLeftRight class="h-4 w-4" />
-                                Transactions
-                            </Link>
-                        </div>
-                    </div>
-
-                    <!-- Vehicle Rentals Card -->
-                    <div
-                        v-if="dashboardAccess.rentals"
-                        class="flex flex-col justify-between overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900">
-                        <div class="p-4 sm:p-5">
-                            <div class="flex items-start justify-between">
-                                <div class="flex items-center gap-3">
-                                    <div class="rounded-xl border border-amber-500/20 bg-amber-500/10 p-2.5 dark:bg-amber-400/15">
-                                        <LuCar class="h-5 w-5 text-amber-600 dark:text-amber-400" />
-                                    </div>
-                                    <div>
-                                        <p class="text-xs font-semibold text-slate-500 sm:text-sm dark:text-slate-400">Vehicle Rentals</p>
-                                        <p class="mt-0.5 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl dark:text-white">
-                                            {{ stats.vehicle_rentals.total }}
-                                        </p>
-                                    </div>
-                                </div>
-                                <Link
-                                    :href="route('rentals.vehicle.index')"
-                                    class="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-blue-600 dark:hover:bg-slate-800 dark:hover:text-blue-400">
-                                    <LuArrowRight class="h-5 w-5" />
-                                </Link>
-                            </div>
-                            <div class="mt-3.5 grid grid-cols-4 gap-1 text-center text-[0.65rem] font-medium sm:mt-4 sm:text-xs">
-                                <div class="rounded-md bg-amber-50 p-1 dark:bg-amber-950/40">
-                                    <p class="font-bold text-amber-700 dark:text-amber-300">
-                                        {{ stats.vehicle_rentals.pending }}
-                                    </p>
-                                    <p class="text-amber-600/80 dark:text-amber-400/80">Pending</p>
-                                </div>
-                                <div class="rounded-md bg-green-50 p-1 dark:bg-green-950/40">
-                                    <p class="font-bold text-green-700 dark:text-green-300">
-                                        {{ stats.vehicle_rentals.approved }}
-                                    </p>
-                                    <p class="text-green-600/80 dark:text-green-400/80">Approved</p>
-                                </div>
-                                <div class="rounded-md bg-emerald-50 p-1 dark:bg-emerald-950/40">
-                                    <p class="font-bold text-emerald-700 dark:text-emerald-300">
-                                        {{ stats.vehicle_rentals.completed }}
-                                    </p>
-                                    <p class="text-emerald-600/80 dark:text-emerald-400/80">Done</p>
-                                </div>
-                                <div class="rounded-md bg-rose-50 p-1 dark:bg-rose-950/40">
-                                    <p class="font-bold text-rose-700 dark:text-rose-300">
-                                        {{ stats.vehicle_rentals.rejected }}
-                                    </p>
-                                    <p class="text-rose-600/80 dark:text-rose-400/80">Rejected</p>
-                                </div>
-                            </div>
-                            <div class="mt-3 h-24 sm:mt-4 sm:h-28">
-                                <canvas ref="vehicleChartCanvas"></canvas>
-                            </div>
-                        </div>
-                        <div class="border-t border-gray-100 bg-slate-50 px-4 py-2.5 sm:px-5 sm:py-3 dark:border-slate-800 dark:bg-slate-800/50">
-                            <Link
-                                :href="route('rentals.vehicle.index')"
-                                class="flex items-center gap-1.5 text-xs font-semibold text-blue-600 transition-colors hover:text-blue-700 sm:text-sm dark:text-blue-400 dark:hover:text-blue-300">
-                                Manage bookings
-                                <LuChevronRight class="h-4 w-4" />
-                            </Link>
-                        </div>
-                    </div>
-
-                    <!-- Venue Rentals Card -->
-                    <div
-                        v-if="dashboardAccess.rentals"
-                        class="flex flex-col justify-between overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900">
-                        <div class="p-4 sm:p-5">
-                            <div class="flex items-start justify-between">
-                                <div class="flex items-center gap-3">
-                                    <div class="rounded-xl border border-purple-500/20 bg-purple-500/10 p-2.5 dark:bg-purple-400/15">
-                                        <LuBuilding class="h-5 w-5 text-purple-600 dark:text-purple-400" />
-                                    </div>
-                                    <div>
-                                        <p class="text-xs font-semibold text-slate-500 sm:text-sm dark:text-slate-400">Venue Rentals</p>
-                                        <p class="mt-0.5 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl dark:text-white">
-                                            {{ stats.venue_rentals.total }}
-                                        </p>
-                                    </div>
-                                </div>
-                                <Link
-                                    :href="route('rentals.venue.index')"
-                                    class="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-blue-600 dark:hover:bg-slate-800 dark:hover:text-blue-400">
-                                    <LuArrowRight class="h-5 w-5" />
-                                </Link>
-                            </div>
-                            <div class="mt-3.5 grid grid-cols-4 gap-1 text-center text-[0.65rem] font-medium sm:mt-4 sm:text-xs">
-                                <div class="rounded-md bg-amber-50 p-1 dark:bg-amber-950/40">
-                                    <p class="font-bold text-amber-700 dark:text-amber-300">
-                                        {{ stats.venue_rentals.pending }}
-                                    </p>
-                                    <p class="text-amber-600/80 dark:text-amber-400/80">Pending</p>
-                                </div>
-                                <div class="rounded-md bg-green-50 p-1 dark:bg-green-950/40">
-                                    <p class="font-bold text-green-700 dark:text-green-300">
-                                        {{ stats.venue_rentals.approved }}
-                                    </p>
-                                    <p class="text-green-600/80 dark:text-green-400/80">Approved</p>
-                                </div>
-                                <div class="rounded-md bg-emerald-50 p-1 dark:bg-emerald-950/40">
-                                    <p class="font-bold text-emerald-700 dark:text-emerald-300">
-                                        {{ stats.venue_rentals.completed }}
-                                    </p>
-                                    <p class="text-emerald-600/80 dark:text-emerald-400/80">Done</p>
-                                </div>
-                                <div class="rounded-md bg-rose-50 p-1 dark:bg-rose-950/40">
-                                    <p class="font-bold text-rose-700 dark:text-rose-300">
-                                        {{ stats.venue_rentals.rejected }}
-                                    </p>
-                                    <p class="text-rose-600/80 dark:text-rose-400/80">Rejected</p>
-                                </div>
-                            </div>
-                            <div class="mt-3 h-24 sm:mt-4 sm:h-28">
-                                <canvas ref="venueChartCanvas"></canvas>
-                            </div>
-                        </div>
-                        <div class="border-t border-gray-100 bg-slate-50 px-4 py-2.5 sm:px-5 sm:py-3 dark:border-slate-800 dark:bg-slate-800/50">
-                            <Link
-                                :href="route('rentals.venue.index')"
-                                class="flex items-center gap-1.5 text-xs font-semibold text-blue-600 transition-colors hover:text-blue-700 sm:text-sm dark:text-blue-400 dark:hover:text-blue-300">
-                                Manage venues
-                                <LuChevronRight class="h-4 w-4" />
-                            </Link>
-                        </div>
-                    </div>
-
-                    <!-- Lab Equipment Card -->
-                    <div
-                        v-if="dashboardAccess.laboratory"
-                        class="flex flex-col justify-between overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900">
-                        <div class="p-4 sm:p-5">
-                            <div class="flex items-start justify-between">
-                                <div class="flex items-center gap-3">
-                                    <div class="rounded-xl border border-indigo-500/20 bg-indigo-500/10 p-2.5 dark:bg-indigo-400/15">
-                                        <LuMicroscope class="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
-                                    </div>
-                                    <div>
-                                        <p class="text-xs font-semibold text-slate-500 sm:text-sm dark:text-slate-400">Lab Equipment</p>
-                                        <p class="mt-0.5 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl dark:text-white">
-                                            {{ stats.laboratory_equipment.total }}
-                                        </p>
-                                    </div>
-                                </div>
-                                <Link
-                                    :href="route('equipment-logger.dashboard')"
-                                    class="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-blue-600 dark:hover:bg-slate-800 dark:hover:text-blue-400">
-                                    <LuArrowRight class="h-5 w-5" />
-                                </Link>
-                            </div>
-                            <div class="mt-3.5 flex items-center justify-around text-[0.7rem] font-medium sm:mt-4 sm:text-xs">
-                                <div class="flex flex-col items-center gap-0.5">
-                                    <div class="flex items-center gap-1 rounded-full bg-green-50 px-2.5 py-1 dark:bg-green-950/40">
-                                        <LuActivity class="h-3 w-3 text-green-500" />
-                                        <span class="font-bold text-green-700 dark:text-green-300">
-                                            {{ stats.laboratory_equipment.active }}
-                                        </span>
-                                    </div>
-                                    <span class="mt-0.5 text-slate-500 dark:text-slate-400">Active</span>
-                                </div>
-                                <div class="flex flex-col items-center gap-0.5">
-                                    <div class="flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-1 dark:bg-amber-950/40">
-                                        <LuAlertTriangle class="h-3 w-3 text-amber-500" />
-                                        <span class="font-bold text-amber-700 dark:text-amber-300">
-                                            {{ stats.laboratory_equipment.overdue }}
-                                        </span>
-                                    </div>
-                                    <span class="mt-0.5 text-slate-500 dark:text-slate-400">Overdue</span>
-                                </div>
-                                <div class="flex flex-col items-center gap-0.5">
-                                    <div class="flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-1 dark:bg-blue-950/40">
-                                        <LuCheckCircle class="h-3 w-3 text-blue-500" />
-                                        <span class="font-bold text-blue-700 dark:text-blue-300">
-                                            {{ stats.laboratory_equipment.completed }}
-                                        </span>
-                                    </div>
-                                    <span class="mt-0.5 text-slate-500 dark:text-slate-400">Done</span>
-                                </div>
-                            </div>
-                            <div class="mt-3 h-24 sm:mt-4 sm:h-28">
-                                <canvas ref="labChartCanvas"></canvas>
-                            </div>
-                        </div>
-                        <div class="border-t border-gray-100 bg-slate-50 px-4 py-2.5 sm:px-5 sm:py-3 dark:border-slate-800 dark:bg-slate-800/50">
-                            <Link
-                                :href="route('equipment-logger.dashboard')"
-                                class="flex items-center gap-1.5 text-xs font-semibold text-blue-600 transition-colors hover:text-blue-700 sm:text-sm dark:text-blue-400 dark:hover:text-blue-300">
-                                View logs
-                                <LuChevronRight class="h-4 w-4" />
-                            </Link>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ═══════ QUICK ACTIONS ═══════ -->
-                <div
-                    v-if="hasQuickActions"
-                    class="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-                    <Link
-                        v-if="dashboardAccess.events"
-                        :href="route('forms.create')"
-                        class="group rounded-2xl border border-gray-200 bg-white p-4 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-blue-500/40 hover:shadow-md sm:p-5 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-blue-400/40">
-                        <div class="flex items-start justify-between">
-                            <div class="rounded-xl border border-blue-500/20 bg-blue-500/10 p-2.5 transition-transform group-hover:scale-105 dark:bg-blue-400/15">
-                                <LuCalendarPlus class="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                            </div>
-                            <LuArrowUpRight class="h-5 w-5 text-slate-400 transition-colors group-hover:text-blue-600 dark:group-hover:text-blue-400" />
-                        </div>
-                        <h3 class="mt-3 text-sm font-bold text-slate-900 sm:text-base dark:text-white">Create Event</h3>
-                        <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">New event form</p>
-                    </Link>
-
-                    <Link
-                        v-if="dashboardAccess.events"
-                        :href="route('forms.scan')"
-                        class="group rounded-2xl border border-gray-200 bg-white p-4 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-emerald-500/40 hover:shadow-md sm:p-5 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-emerald-400/40">
-                        <div class="flex items-start justify-between">
-                            <div class="rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-2.5 transition-transform group-hover:scale-105 dark:bg-emerald-400/15">
-                                <LuQrCode class="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-                            </div>
-                            <LuArrowUpRight class="h-5 w-5 text-slate-400 transition-colors group-hover:text-emerald-600 dark:group-hover:text-emerald-400" />
-                        </div>
-                        <h3 class="mt-3 text-sm font-bold text-slate-900 sm:text-base dark:text-white">Scan QR</h3>
-                        <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">Check attendance</p>
-                    </Link>
-
-                    <Link
-                        v-if="dashboardAccess.rentals"
-                        :href="route('rentals.vehicle.index')"
-                        class="group rounded-2xl border border-gray-200 bg-white p-4 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-amber-500/40 hover:shadow-md sm:p-5 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-amber-400/40">
-                        <div class="flex items-start justify-between">
-                            <div class="rounded-xl border border-amber-500/20 bg-amber-500/10 p-2.5 transition-transform group-hover:scale-105 dark:bg-amber-400/15">
-                                <LuClipboardList class="h-5 w-5 text-amber-600 dark:text-amber-400" />
-                            </div>
-                            <LuArrowUpRight class="h-5 w-5 text-slate-400 transition-colors group-hover:text-amber-600 dark:group-hover:text-amber-400" />
-                        </div>
-                        <h3 class="mt-3 text-sm font-bold text-slate-900 sm:text-base dark:text-white">Bookings</h3>
-                        <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">Rentals & venues</p>
-                    </Link>
-
-                    <Link
-                        v-if="dashboardAccess.laboratory"
-                        :href="route('equipment-logger.dashboard')"
-                        class="group rounded-2xl border border-gray-200 bg-white p-4 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-indigo-500/40 hover:shadow-md sm:p-5 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-indigo-400/40">
-                        <div class="flex items-start justify-between">
-                            <div class="rounded-xl border border-indigo-500/20 bg-indigo-500/10 p-2.5 transition-transform group-hover:scale-105 dark:bg-indigo-400/15">
-                                <LuFlaskConical class="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
-                            </div>
-                            <LuArrowUpRight class="h-5 w-5 text-slate-400 transition-colors group-hover:text-indigo-600 dark:group-hover:text-indigo-400" />
-                        </div>
-                        <h3 class="mt-3 text-sm font-bold text-slate-900 sm:text-base dark:text-white">Laboratory</h3>
-                        <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">Equipment logs</p>
-                    </Link>
                 </div>
 
                 <!-- ═══════ BOTTOM GRID: Activity Timeline + Top Active Equipment ═══════ -->

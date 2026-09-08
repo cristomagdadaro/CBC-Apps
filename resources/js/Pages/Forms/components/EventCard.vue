@@ -250,7 +250,7 @@ export default {
             :style="{ ...styles.headerBox, ...styles.headerText }">
             <div class="relative z-10 flex items-start justify-between gap-4">
                 <div class="min-w-0 flex-1 pr-2">
-                    <h3 class="text-normal mb-2 line-clamp-2 font-black leading-tight tracking-tight drop-shadow-md sm:text-lg">
+                    <h3 class="text-normal mb-2 line-clamp-2 font-black leading-tight drop-shadow-md sm:text-lg">
                         {{ formsData.title }}
                     </h3>
                     <p class="line-clamp-2 text-sm font-medium leading-relaxed opacity-90 drop-shadow-sm">
@@ -260,7 +260,7 @@ export default {
 
                 <!-- Event ID Frosted Badge -->
                 <div class="flex shrink-0 flex-col items-center justify-center rounded-xl border border-white/20 bg-black/10 p-3 shadow-inner backdrop-blur-md dark:border-white/5 dark:bg-white/10">
-                    <label class="text-2xl font-black leading-none tracking-tighter drop-shadow-md">
+                    <label class="text-2xl font-black leading-none drop-shadow-md">
                         {{ formsData.event_id }}
                     </label>
                     <span class="mt-1.5 text-[0.6rem] font-bold uppercase opacity-80 drop-shadow-md">Event ID</span>
@@ -314,7 +314,7 @@ export default {
                     :class="item.isFull ? 'border-red-200 ring-1 ring-red-100 dark:border-red-900/50 dark:ring-red-900/30' : 'border-slate-200 dark:border-slate-700'">
                     <div class="mb-1.5 flex items-center justify-between">
                         <span
-                            class="text-xl font-black tracking-tight"
+                            class="text-xl font-black"
                             :class="item.isFull ? 'text-red-600 dark:text-red-400' : 'text-slate-900 dark:text-slate-50'">
                             {{ item.count }}
                         </span>

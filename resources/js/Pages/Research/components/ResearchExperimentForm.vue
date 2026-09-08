@@ -106,7 +106,7 @@ export default {
         @submit.prevent="submitProxy">
         <div class="flex flex-wrap items-start justify-between gap-4 border-b border-gray-100 pb-5">
             <div>
-                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">
+                <p class="text-xs font-semibold uppercase text-emerald-700">
                     {{ isEdit ? "Update Experiment" : "New Experiment" }}
                 </p>
                 <h2 class="mt-2 text-2xl font-semibold text-gray-900">

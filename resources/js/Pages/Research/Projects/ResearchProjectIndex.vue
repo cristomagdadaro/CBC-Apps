@@ -96,7 +96,7 @@ export default {
                     </div>
 
                     <div class="mt-6 border-t border-slate-100 pt-4">
-                        <p class="text-xs font-medium uppercase tracking-wider text-slate-500">Recent Studies</p>
+                        <p class="uppercasetext-slate-500 text-xs font-medium">Recent Studies</p>
                         <div
                             v-if="!(project.studies || []).length"
                             class="mt-2 text-sm italic text-slate-400">

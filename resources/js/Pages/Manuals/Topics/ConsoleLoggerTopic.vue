@@ -74,7 +74,7 @@ export default {
                         <div class="h-2.5 w-2.5 rounded-full bg-[#ffbd2e]"></div>
                         <div class="h-2.5 w-2.5 rounded-full bg-[#27c93f]"></div>
                     </div>
-                    <div class="ml-4 font-mono text-[0.65rem] font-medium tracking-wide text-[#858585]">logger.js</div>
+                    <div class="ml-4 font-mono text-[0.65rem] font-medium text-[#858585]">logger.js</div>
                 </div>
                 <pre class="vscode-scrollbar overflow-x-auto p-4 font-mono text-[0.75rem] leading-loose text-[#d4d4d4]"><code class="!bg-transparent !p-0 !border-0 !shadow-none !text-inherit"><span class="text-[#c586c0]">import</span> <span class="text-[#9cdcfe]">ConsoleLogger</span> <span class="text-[#c586c0]">from</span> <span class="text-[#ce9178]">'@/Modules/shared/infrastructure/ConsoleLogger'</span>;
 
@@ -189,7 +189,7 @@ export default {
                         <div class="h-2.5 w-2.5 rounded-full bg-[#ffbd2e]"></div>
                         <div class="h-2.5 w-2.5 rounded-full bg-[#27c93f]"></div>
                     </div>
-                    <div class="ml-4 font-mono text-[0.65rem] font-medium tracking-wide text-[#858585]">examples.js</div>
+                    <div class="ml-4 font-mono text-[0.65rem] font-medium text-[#858585]">examples.js</div>
                 </div>
                 <pre class="vscode-scrollbar overflow-x-auto p-4 font-mono text-[0.75rem] leading-loose text-[#d4d4d4]">
                             <code class="!bg-transparent !p-0 !border-0 !shadow-none !text-inherit">

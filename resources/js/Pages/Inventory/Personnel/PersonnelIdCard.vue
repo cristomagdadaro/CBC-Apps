@@ -16,7 +16,7 @@
                 class="h-9 w-9 shrink-0 object-contain" />
             <div class="flex flex-1 flex-col leading-tight">
                 <div class="text-[6px] leading-[7px] text-slate-800">Department of Agriculture</div>
-                <div class="text-[8px] font-bold uppercase leading-[9px] tracking-tight text-[#4CAF50]">CROP BIOTECHNOLOGY CENTER</div>
+                <div class="text-[8px] font-bold uppercase leading-[9px] text-[#4CAF50]">CROP BIOTECHNOLOGY CENTER</div>
                 <div class="mt-[1px] text-[5px] leading-[6px] text-slate-600">DA-PhilRice Compound, Muñoz, Nueva Ecija</div>
             </div>
         </header>
@@ -57,7 +57,7 @@
                     </h2>
 
                     <div class="flex flex-col items-center gap-0.5">
-                        <span class="inline-block shrink-0 rounded-full border-[1px] border-green-200 bg-green-50 px-2.5 py-[1px] text-[9px] font-bold uppercase tracking-wider text-[#4CAF50]">
+                        <span class="uppercasetext-[#4CAF50] inline-block shrink-0 rounded-full border-[1px] border-green-200 bg-green-50 px-2.5 py-[1px] text-[9px] font-bold">
                             {{ card.employee_id || "—" }}
                         </span>
                     </div>

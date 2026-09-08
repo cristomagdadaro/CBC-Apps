@@ -43,7 +43,7 @@ export default {
             v-for="(item, index) in outgoingFromApi.data"
             :key="`${item.item_id || item.id}-${item.unit}-${item.barcode || 'nobarcode'}-${index}`"
             @click="selectItem(item)"
-            class="shadow-xs active:scale-98 group flex cursor-pointer flex-col rounded-xl border border-slate-200 bg-white p-3 transition-all duration-200 hover:border-lime-500/50 hover:shadow-md dark:border-slate-800 dark:bg-slate-900"
+            class="active:scale-98 group flex cursor-pointer flex-col rounded-xl border border-slate-200 bg-white p-3 transition-all duration-200 hover:border-lime-500/50 hover:shadow-md dark:border-slate-800 dark:bg-slate-900"
             :data-guide="index === randomIndex ? 'supplies-sample-item' : null">
             <div class="flex h-full items-start justify-between gap-3">
                 <div class="flex min-w-0 flex-col space-y-1 text-[0.7rem] leading-none text-slate-500 sm:text-xs dark:text-slate-400">

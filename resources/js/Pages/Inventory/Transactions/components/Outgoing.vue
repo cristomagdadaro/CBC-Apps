@@ -330,7 +330,7 @@ export default {
 
                 <!-- Total Count Badge & Header -->
                 <div class="flex items-center justify-between px-1">
-                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 sm:text-sm dark:text-slate-300">Registered Stock Items</h3>
+                    <h3 class="uppercasetext-slate-700 text-xs font-bold sm:text-sm dark:text-slate-300">Registered Stock Items</h3>
                     <span class="rounded-full border border-slate-200 bg-slate-100 px-3 py-1 text-xs font-extrabold text-lime-600 dark:border-slate-700 dark:bg-slate-800 dark:text-lime-400">{{ outgoingFromApi?.data?.length || 0 }} Items Available</span>
                 </div>
 

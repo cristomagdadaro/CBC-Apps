@@ -256,7 +256,7 @@ export default {
                 v-else-if="selectOptionsEmpty"
                 class="mt-2.5 flex items-center gap-1.5 text-amber-600 dark:text-amber-400">
                 <AlertTriangle class="h-3.5 w-3.5 shrink-0" />
-                <p class="text-[0.65rem] font-bold uppercase tracking-widest">Add select choices below before choosing the default stored value.</p>
+                <p class="text-[0.65rem] font-bold uppercase">Add select choices below before choosing the default stored value.</p>
             </div>
         </div>
 

@@ -48,7 +48,7 @@ export default {
                     <LuAward class="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
                 </div>
                 <div>
-                    <h2 class="text-xl font-black tracking-tight text-slate-900 sm:text-2xl dark:text-white">Certificate Generator</h2>
+                    <h2 class="text-xl font-black text-slate-900 sm:text-2xl dark:text-white">Certificate Generator</h2>
                     <p class="mt-0.5 text-sm font-medium text-slate-500 dark:text-slate-400">Bulk-generate and email certificates using PPTX templates</p>
                 </div>
             </div>
@@ -60,7 +60,7 @@ export default {
                 <div class="border-b border-slate-100 bg-slate-50/50 px-6 py-5 dark:border-slate-800 dark:bg-slate-800/20">
                     <div class="flex items-center gap-2.5">
                         <LuCalendar class="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
-                        <h3 class="text-sm font-bold uppercase tracking-wide text-slate-900 dark:text-slate-100">Event Selection</h3>
+                        <h3 class="text-sm font-bold uppercase text-slate-900 dark:text-slate-100">Event Selection</h3>
                     </div>
                 </div>
 
@@ -126,7 +126,7 @@ export default {
                             </div>
                             <div>
                                 <p class="mb-0.5 text-[0.65rem] font-bold uppercase text-indigo-600/70 dark:text-indigo-400/80">Selected Event</p>
-                                <p class="text-2xl font-black tracking-tight text-indigo-900 dark:text-indigo-300">#{{ selectedEventId }}</p>
+                                <p class="text-2xl font-black text-indigo-900 dark:text-indigo-300">#{{ selectedEventId }}</p>
                             </div>
                         </div>
                         <button
