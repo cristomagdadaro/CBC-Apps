@@ -102,6 +102,13 @@
         left: -100%;
         animation: rotateGradient 10s linear infinite;
     }
+
+    /* Fix for chatbot overlapping modals */
+    iframe[src*="sproutai"], 
+    iframe[id*="sprout"],
+    div[id*="sprout"] {
+        z-index: 40 !important;
+    }
 </style>
 
 

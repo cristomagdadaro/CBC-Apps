@@ -31,8 +31,10 @@
 - **Payload Sanitization**: Public endpoints MUST return sanitized DTO/Resource objects; never expose raw `Model::toArray()` or sensitive PII (contact numbers, notes).
 - **PDF Assets**: Store generated PDFs in `storage/app/private/generated-pdfs` and stream only via authorized controllers.
 
-## Data & Notification Standards
+## Data, Audit, & Notification Standards
 
+- **Date Serialization**: Do not override `BaseModel::serializeDate()` globally if it risks breaking native HTML `<input type="date">` bindings (which expect `Y-m-d`). Apply precise timestamp serialization overrides (e.g., `Y-m-d\TH:i:sP`) exclusively on specific models that require them, such as `AuditLog` or `Transaction`.
+- **Audit Logging**: `AuditLog` models should utilize accessors like `getChangeSummaryAttribute()` to parse raw JSON diffs and filter out system noise (e.g., `updated_at`, `created_by`, `id`). Provide clean, human-readable strings to the frontend to keep Vue components thin.
 - **Personnel ID**: Generate non-PhilRice/outsider IDs via shared personnel ID service (`CBC-YY-0000` format) backed by `new_barcodes` and `personnels` collision scans.
 - **Realtime (Reverb)**: Use Laravel Reverb for web-sockets. Broadcast DTO/invalidation hints from services/jobs, feature-flagged via `config/realtime.php`.
 - **Notifications**: Queue-first mailables. Recipient resolution must resolve through `users` table and `config/notifications.php`.
@@ -50,6 +52,7 @@
 - **Visual Weight & Alignment**: Use symmetrical padding (`p-3 sm:p-5`), matching icon container proportions (`h-8 w-8 sm:h-11 sm:w-11`), consistent border-radii (`rounded-xl sm:rounded-2xl`), and balanced elevation shadows.
 - **Dark Mode Elevation & Contrast**: Provide full, rich dark mode support (`dark:bg-slate-900`, `dark:border-slate-800`, `dark:text-slate-100`, `dark:text-slate-300`). Maintain high WCAG-compliant contrast ratios without harsh stark whites on OLED screens.
 - **Micro-Interactions & Depth**: Integrate subtle hover elevations (`hover:-translate-y-0.5`), smooth transitions (`transition-all duration-300`), glassmorphic overlays (`backdrop-blur-md bg-white/95 dark:bg-slate-900/90`), and clear interactive states.
+- **Floating/Absolute Positioning**: Floating Action Buttons (FABs) and other fixed elements should be manually anchored to the viewport (e.g., `fixed bottom-24 right-5`). Do not place them inside wrapper components that use `overflow-hidden` or `transform` properties, as this will trap or clip their fixed positioning context.
 
 ## Modern Laravel & Repository Practices
 

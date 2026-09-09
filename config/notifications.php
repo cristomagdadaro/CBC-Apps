@@ -24,7 +24,7 @@ return [
             'requests' => [
                 'enabled' => env('NOTIFICATIONS_FES_REQUESTS_ENABLED', true),
                 'queue' => env('NOTIFICATIONS_FES_REQUESTS_QUEUE', env('NOTIFICATIONS_QUEUE', 'notifications')),
-                'delivery_mode' => env('NOTIFICATIONS_FES_REQUESTS_DELIVERY_MODE', 'individual'),
+                'delivery_mode' => env('NOTIFICATIONS_FES_REQUESTS_DELIVERY_MODE', 'batch'),
                 'option_keys' => [],
                 'roles' => [],
             ],
@@ -33,7 +33,7 @@ return [
             'responses' => [
                 'enabled' => env('NOTIFICATIONS_FORMS_RESPONSES_ENABLED', true),
                 'queue' => env('NOTIFICATIONS_FORMS_RESPONSES_QUEUE', env('NOTIFICATIONS_QUEUE', 'notifications')),
-                'delivery_mode' => env('NOTIFICATIONS_FORMS_RESPONSES_DELIVERY_MODE', 'grouped'),
+                'delivery_mode' => env('NOTIFICATIONS_FORMS_RESPONSES_DELIVERY_MODE', 'batch'),
                 'option_keys' => ['event_response_notification_email'],
                 'roles' => [Role::ADMIN->value],
             ],
@@ -54,7 +54,7 @@ return [
             'personnel_registrations' => [
                 'enabled' => env('NOTIFICATIONS_INVENTORY_PERSONNEL_REGISTRATIONS_ENABLED', true),
                 'queue' => env('NOTIFICATIONS_INVENTORY_PERSONNEL_REGISTRATIONS_QUEUE', env('NOTIFICATIONS_QUEUE', 'notifications')),
-                'delivery_mode' => env('NOTIFICATIONS_INVENTORY_PERSONNEL_REGISTRATIONS_DELIVERY_MODE', 'grouped'),
+                'delivery_mode' => env('NOTIFICATIONS_INVENTORY_PERSONNEL_REGISTRATIONS_DELIVERY_MODE', 'batch'),
                 'option_keys' => [],
                 'roles' => [
                     Role::ADMIN->value,
@@ -97,7 +97,7 @@ return [
             'summary' => [
                 'enabled' => env('NOTIFICATIONS_CERTIFICATES_SUMMARY_ENABLED', true),
                 'queue' => env('NOTIFICATIONS_CERTIFICATES_SUMMARY_QUEUE', env('CERTIFICATES_QUEUE', 'certificates')),
-                'delivery_mode' => env('NOTIFICATIONS_CERTIFICATES_SUMMARY_DELIVERY_MODE', 'grouped'),
+                'delivery_mode' => env('NOTIFICATIONS_CERTIFICATES_SUMMARY_DELIVERY_MODE', 'batch'),
                 'option_keys' => ['certificate_batch_summary_notification_emails'],
                 'roles' => [
                     Role::ADMIN->value,

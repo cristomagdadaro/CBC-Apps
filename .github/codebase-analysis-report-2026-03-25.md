@@ -145,6 +145,12 @@
 - [ID-2026-08-26-003] Resolved. Standardized local development environments by pointing `SPROUTAI_HOST` configuration to `127.0.0.1:8001` across `.env`, `config/services.php`, `config/sanctum.php`, and `routes/web.php`.
 - [ID-2026-08-26-004] Resolved. Cleaned up service boundaries by migrating `getRemainingStocks()` from `TransactionRepo` directly into `InventoryReportService`.
 
+## Tracker Updates (2026-09-08)
+- [ID-2026-09-08-001] Resolved. Removed redundant "Quick Actions" from the Laboratory and main Dashboard, consolidating the UI to prioritize the Module Health Summary.
+- [ID-2026-09-08-002] Resolved. Fixed date serialization bug where a global `BaseModel` change broke native `<input type="date">` fields. The ISO-8601 time precision override is now specifically targeted at `AuditLog` and `Transaction` models.
+- [ID-2026-09-08-003] Resolved. Refactored `AuditLog` to include a `change_summary` attribute that filters out system metadata (e.g. `updated_at`), providing a clean human-readable timeline for the frontend `AuditInfoCard.vue`.
+- [ID-2026-09-08-004] Resolved. Fixed layout and clipping issues for the Floating Storage Reference in `Incoming.vue` by adjusting CSS anchoring and removing conflicting transition wrappers.
+
 ### Verification Snapshot (2026-06-23)
 - `npm run build`: passed successfully.
 - `php artisan test`: 222 assertions passed successfully across the suite.

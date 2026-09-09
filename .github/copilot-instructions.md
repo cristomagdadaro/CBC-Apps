@@ -11,6 +11,7 @@
 - Leverage route caching (`php artisan route:cache`) and config caching whenever configuration changes land.
 - Keep HTTP responses consistent by reusing shared response macros or `response()->json([...])` structures instead of ad-hoc arrays.
 - Use `Resource` classes or `Inertia::share()` to standardize payloads when multiple controllers expose similar data.
+- **Date Serialization**: When a model requires precise timestamp serialization (e.g., `Y-m-d\TH:i:sP`), override `serializeDate()` on that specific model. Do not override `BaseModel::serializeDate()` globally if it will break standard `<input type="date">` bindings across the app.
 - Do not hardcode values like "Active" and "Suspended" or other statuses; use constants declared in `config/system.php` (e.g. `config('system.statuses.active')`).
 
 ## System Architecture
@@ -64,6 +65,7 @@
 - Avoid duplicating business logic in Vue; mirror backend validation through shared status codes/messages.
 - Centralize frontend auth state, admin detection, current-user roles, current-user permissions, and public-service metadata through `resources/js/Modules/composables/useAppContext.js` and the global app properties (`$isAdminUser`, `$currentRoles`, `$currentPermissions`, `$publicServices`). Do not re-implement ad-hoc `is_admin`, role, or permission checks in page components when the shared context already covers them.
 - Whenever a new public-facing feature or guest page is added, include a Driver.js guide entry, stable `data-guide` anchors, and a manuals update so onboarding ships with the feature.
+- **Audit Trails & Frontend**: Keep Vue components thin when displaying audit histories. Do not parse raw JSON attribute differences in the frontend. Instead, the backend (e.g., `AuditLog` model) should use accessors to parse, filter system noise (like `updated_at`, `id`), and generate human-readable `change_summary` strings.
 
 ## Module Access Control Standard
 - Deployment access is controlled centrally through [`app/Services/DeploymentAccessService.php`](../app/Services/DeploymentAccessService.php) and enforced by the `deployment.access:<module>` middleware. Treat that backend evaluation as the source of truth.
@@ -74,7 +76,7 @@
 - Frontend hiding is only a UX mirror of backend policy. If you change module access behavior, update both the backend shared payload and the Vue consumers so navigation, cards, forms, and API authorization stay synchronized.
 - When a guest page relies on authenticated mutations, the page must reflect that requirement in the UI instead of presenting write actions that the backend will reject.
 - Public service cards on `Welcome.vue`, internal navigation in `AppLayout.vue`, and any page-level action guards must all derive from the same deployment-access payload plus the shared auth globals. Do not maintain separate hard-coded visibility lists per page.
-- Dashboard summaries, quick actions, and recent-activity widgets must follow the same deployment-access and RBAC rules as their underlying modules. Do not leave aggregated counts or shortcuts visible for modules the current user cannot access on the current deployment surface.
+- Dashboard summaries, quick actions, and recent-activity widgets must follow the same deployment-access and RBAC rules as their underlying modules. Do not leave aggregated counts or shortcuts visible for modules the current user cannot access on the current deployment surface. Furthermore, elements that are accessible but whose module is in "maintenance" mode should properly reflect this visual state (e.g., using `grayscale` or `opacity-60`) uniformly.
 - If a local-trust guest workflow intentionally accepts employee ID or other typed staff identifiers, keep that exception explicitly limited to the module key that is set to local-only. If the module later becomes internet-accessible, revisit the workflow before expanding exposure.
 - `currentChannel()` depends on real hostnames and deployment URLs. When changing deployment-aware logic, validate behavior against the actual local host (`192.168.36.10`), the public host (`onecbc.philrice.gov.ph`), localhost, and direct private-IP access where applicable.
 - A Module Access Control change is not complete until all of these stay aligned: route middleware, shared Inertia payload, welcome-page services, sidebar visibility, page-level action buttons, and the related APIs.

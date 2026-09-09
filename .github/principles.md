@@ -39,3 +39,10 @@ Following a comprehensive review and refactor of the Inventory module (`Inventor
 3. **Dependency Inversion & Form Requests (Controllers):** `TransactionController` perfectly adheres to SoC and Fail Fast. It offloads all validation to FormRequests (`CreateTransactionRequest`, `NewOutgoingRequest`) before hitting controller logic, failing instantly upon bad data. It depends heavily on abstraction (Dependency Injection for Repositories and Services) rather than concrete implementations.
 
 4. **Composition over Inheritance (Pipelines):** The transaction creation lifecycle correctly avoids deep, fragile class hierarchies. Instead, it utilizes Laravel Pipelines (`ResolveUserByEmployeeId`, `AssignTransactionUuid`, `PersistTransaction`). These modular, self-contained pieces of functionality allow the transaction flow to be infinitely extensible without modifying core classes (Open/Closed Principle).
+
+---
+
+## Audit & Serialization Realizations (September 2026)
+
+1. **Open/Closed Principle & SoC (Date Serialization):** A global `BaseModel::serializeDate` override to enforce `Y-m-d\TH:i:sP` broke standard HTML `<input type="date">` bindings application-wide. We localized this requirement by overriding `serializeDate` explicitly on models that actually required precise timestamps (like `AuditLog` and `Transaction`), successfully adhering to SoC and Open/Closed principles without causing sprawling regressions.
+2. **Separation of Concerns (Vue Thinness in Auditing):** Vue components were incorrectly tasked with deciphering raw JSON diff strings for audit histories. We shifted this responsibility to the backend by introducing the `change_summary` accessor in `AuditLog`. The backend now filters out system noise (`updated_at`, `created_by`, `id`) and generates a clean, human-readable summary. Vue remains completely thin, simply rendering the provided string.
