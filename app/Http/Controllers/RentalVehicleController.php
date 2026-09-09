@@ -280,6 +280,13 @@ class RentalVehicleController extends BaseController
             'status',
             'purpose',
             'destination_location',
+            'destination_city',
+            'destination_province',
+            'destination_region',
+            'destination_stops',
+            'is_shared_ride',
+            'shared_ride_reference',
+            'travel_details',
         ]);
 
         $options = app(\App\Repositories\OptionRepo::class)->getVehicles();

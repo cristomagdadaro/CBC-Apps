@@ -58,12 +58,14 @@ class RentalVehicle extends BaseModel
         'contact_number',
         'status',
         'notes',
+        'travel_details',
     ];
 
     protected $casts = [
         'members_of_party' => 'array',
         'destination_stops' => 'array',
         'is_shared_ride' => 'boolean',
+        'travel_details' => 'encrypted:array',
     ];
 
     protected $dates = ['date_from', 'date_to', 'deleted_at', 'updated_at', 'created_at'];

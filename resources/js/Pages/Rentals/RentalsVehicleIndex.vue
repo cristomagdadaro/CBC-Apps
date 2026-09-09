@@ -65,7 +65,7 @@ export default {
 </script>
 
 <template>
-    <Head title="Rental Services" />
+    <Head title="Travel Orders" />
 
     <AppLayout>
         <template #header>
@@ -190,7 +190,7 @@ export default {
                 <div
                     v-else
                     class="rounded-lg border border-AB py-3 text-center">
-                    No rental requests available.
+                    No travel orders available.
                 </div>
             </div>
 

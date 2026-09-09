@@ -30,6 +30,16 @@ export default defineComponent({
             }
         },
     },
+    computed: {
+        imagePreviewUrl() {
+            if (!this.form.image) return null;
+            if (typeof this.form.image === 'string') return this.form.image;
+            if (this.form.image instanceof File) {
+                return URL.createObjectURL(this.form.image);
+            }
+            return null;
+        }
+    },
 });
 </script>
 
@@ -145,7 +155,7 @@ export default defineComponent({
                             class="pointer-events-none absolute inset-0 opacity-[0.03] dark:opacity-10"
                             style="background-image: radial-gradient(#000 1px, transparent 1px); background-size: 10px 10px"></div>
                         <img
-                            :src="form.image"
+                            :src="imagePreviewUrl"
                             @click.right.prevent="null"
                             draggable="false"
                             class="z-10 max-h-48 max-w-[12rem] rounded object-contain drop-shadow-md"

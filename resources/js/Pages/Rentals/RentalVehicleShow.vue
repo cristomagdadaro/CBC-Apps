@@ -75,6 +75,34 @@ export default {
                 }
             );
         },
+        groupedFlights() {
+            const flights = this.rental?.travel_details?.flights || [];
+            if (!flights.length) return {};
+
+            const grouped = {
+                Departure: {},
+                Return: {},
+            };
+
+            flights.forEach((flight) => {
+                const type = flight.is_return ? "Return" : "Departure";
+                let date = "Unknown Date";
+                if (flight.flight_date) {
+                    const d = new Date(flight.flight_date + "T00:00:00");
+                    date = d.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+                }
+                if (!grouped[type][date]) {
+                    grouped[type][date] = [];
+                }
+                grouped[type][date].push(flight);
+            });
+
+            // Remove empty types
+            if (Object.keys(grouped.Departure).length === 0) delete grouped.Departure;
+            if (Object.keys(grouped.Return).length === 0) delete grouped.Return;
+
+            return grouped;
+        },
     },
     mounted() {
         this.loadRental();
@@ -116,8 +144,8 @@ export default {
     <Head title="Vehicle Rental Details" />
 
     <GuestFormPage
-        title="Vehicle Rental Details"
-        subtitle="View booking details and current status."
+        title="Travel Order & Vehicle Request Details"
+        subtitle="View Travel Order and booking details and current status."
         guide-key="rental-vehicle-detail"
         :delay-ready="true"
         max-width="max-w-4xl">
@@ -250,6 +278,59 @@ export default {
                                         </p>
                                     </div>
                                 </div>
+                                <div class="flex items-start space-x-3">
+                                    <div class="mt-0.5 h-2 w-2 rounded-full bg-blue-600 dark:bg-blue-400"></div>
+                                    <div>
+                                        <p class="text-xs text-slate-500 dark:text-slate-400">Transport Mode</p>
+                                        <p class="text-sm font-medium uppercase text-slate-900 dark:text-white">
+                                            {{ rental.travel_details?.transport_mode || "vehicle" }}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div
+                                    v-if="rental.travel_details?.requires_flight && rental.travel_details?.flights?.length"
+                                    class="flex items-start space-x-3">
+                                    <div class="mt-0.5 h-2 w-2 rounded-full bg-blue-600 dark:bg-blue-400"></div>
+                                    <div class="w-full">
+                                        <p class="text-xs text-slate-500 dark:text-slate-400">Flight Route(s)</p>
+                                        <div class="mt-2 space-y-4">
+                                            <div
+                                                v-for="(dates, type) in groupedFlights"
+                                                :key="type">
+                                                <div
+                                                    v-for="(flights, date) in dates"
+                                                    :key="date"
+                                                    class="mb-3">
+                                                    <div class="mb-1.5 flex items-center gap-2">
+                                                        <span :class="['rounded-md px-1.5 py-0.5 text-[0.6rem] font-bold uppercase tracking-wider', type === 'Return' ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300' : 'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300']">
+                                                            {{ type }}
+                                                        </span>
+                                                        <span class="text-[0.65rem] font-bold text-slate-500">{{ date }}</span>
+                                                    </div>
+                                                    <ul class="ml-1.5 space-y-1 border-l-2 border-slate-100 pl-1 dark:border-slate-700">
+                                                        <li
+                                                            v-for="(flight, idx) in flights"
+                                                            :key="idx"
+                                                            class="pl-3 text-sm font-medium text-slate-900 dark:text-white">
+                                                            {{ flight.departure_airport || "?" }} &rarr; {{ flight.arrival_airport || "?" }}
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div
+                                    v-if="rental.travel_details?.itinerary"
+                                    class="flex items-start space-x-3">
+                                    <div class="mt-0.5 h-2 w-2 rounded-full bg-blue-600 dark:bg-blue-400"></div>
+                                    <div class="w-full">
+                                        <p class="text-xs text-slate-500 dark:text-slate-400">Detailed Itinerary</p>
+                                        <p class="mt-1 whitespace-pre-wrap text-xs font-medium leading-relaxed text-slate-900 dark:text-white">
+                                            {{ rental.travel_details.itinerary }}
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -259,6 +340,32 @@ export default {
                                 <span>Public Details</span>
                             </h3>
                             <div class="space-y-3">
+                                <div class="flex items-start space-x-3">
+                                    <div class="mt-0.5 h-2 w-2 rounded-full bg-blue-600 dark:bg-blue-400"></div>
+                                    <div>
+                                        <p class="text-xs text-slate-500 dark:text-slate-400">Destination</p>
+                                        <p class="text-sm font-medium text-slate-900 dark:text-white">
+                                            {{ rental.destination_location }}
+                                            <span
+                                                v-if="rental.destination_city"
+                                                class="text-xs font-normal text-slate-500">
+                                                ({{ rental.destination_city }}, {{ rental.destination_province }})
+                                            </span>
+                                        </p>
+                                        <div
+                                            v-if="rental.destination_stops && rental.destination_stops.length > 0"
+                                            class="mt-2">
+                                            <p class="text-[0.65rem] font-bold uppercase tracking-wider text-slate-400">Stops / Route</p>
+                                            <ul class="mt-1 list-disc space-y-0.5 pl-4 text-xs font-medium text-slate-700 dark:text-slate-300">
+                                                <li
+                                                    v-for="(stop, sIdx) in rental.destination_stops"
+                                                    :key="sIdx">
+                                                    {{ stop }}
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
                                 <div class="flex items-start space-x-3">
                                     <div class="mt-0.5 h-2 w-2 rounded-full bg-blue-600 dark:bg-blue-400"></div>
                                     <div>
@@ -301,6 +408,14 @@ export default {
                     </div>
                 </div>
             </div>
+
+            <!-- Route Visualizer -->
+            <RentalTripRouteVisualizer
+                :trip-type="rental.trip_type"
+                :destination-location="rental.destination_location"
+                :destination-stops="destinationStops"
+                :is-shared-ride="rental.is_shared_ride"
+                :shared-ride-reference="rental.shared_ride_reference" />
 
             <!-- Help Text -->
             <div class="text-center">

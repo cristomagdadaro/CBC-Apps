@@ -50,6 +50,22 @@ class UpdateRentalVehicleRequest extends FormRequest
             'contact_number' => ['sometimes', 'string', 'regex:/^[0-9\-\+\s\(\)]*$/'],
             'status' => ['sometimes', Rule::in(['pending', 'approved', 'in_progress', 'rejected', 'cancelled', 'completed'])],
             'notes' => ['nullable', 'string', 'max:1000'],
+            'travel_details' => ['nullable', 'array'],
+            'travel_details.transport_mode' => ['nullable', 'string', 'in:vehicle,commute'],
+            'travel_details.requires_flight' => ['nullable', 'boolean'],
+            'travel_details.itinerary' => ['nullable', 'string', 'max:5000'],
+            'travel_details.charging_project' => ['nullable', 'string', 'max:255'],
+            'travel_details.tracking_number' => ['nullable', 'string', 'max:255'],
+            'travel_details.preparer_id' => ['nullable', 'exists:personnels,id'],
+            'travel_details.pickup_point' => ['nullable', 'string', 'max:255'],
+            'travel_details.flights' => ['nullable', 'array'],
+            'travel_details.flights.*.airline' => ['required_with:travel_details.flights', 'string', 'max:255'],
+            'travel_details.flights.*.departure_airport' => ['required_with:travel_details.flights', 'string', 'max:255'],
+            'travel_details.flights.*.arrival_airport' => ['required_with:travel_details.flights', 'string', 'max:255'],
+            'travel_details.flights.*.flight_date' => ['required_with:travel_details.flights', 'date'],
+            'travel_details.flights.*.flight_etd' => ['required_with:travel_details.flights', 'date_format:H:i:s'],
+            'travel_details.flights.*.flight_eta' => ['required_with:travel_details.flights', 'date_format:H:i:s'],
+            'travel_details.flights.*.is_return' => ['nullable', 'boolean'],
         ];
     }
 }

@@ -213,7 +213,7 @@ export default {
 
     <!-- Details Modal -->
     <DialogModal
-        max-width="2xl"
+        max-width="6xl"
         :show="showModal"
         @close="showModal = false">
         <template #title>
@@ -353,7 +353,7 @@ export default {
                 <div
                     v-if="canApprove"
                     class="border-b border-gray-100 bg-gray-50/50 p-6 dark:border-slate-800/50 dark:bg-slate-800/20">
-                    <div class="mx-auto flex max-w-2xl flex-col gap-4">
+                    <div class="mx-auto flex flex-col gap-4">
                         <custom-dropdown
                             label="Assign Vehicle"
                             required

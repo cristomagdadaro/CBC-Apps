@@ -21,7 +21,7 @@ defineProps({
             </div>
 
             <div
-                class="prose w-full max-w-4xl max-w-none rounded-2xl border border-gray-200 bg-white p-5 text-xs leading-relaxed shadow-xl dark:prose-invert sm:p-10 sm:text-sm md:text-base dark:border-slate-800 dark:bg-slate-900"
+                class="prose w-full max-w-4xl max-w-none rounded-2xl border border-gray-200 bg-white p-5 text-xs leading-relaxed shadow-xl dark:prose-invert sm:p-10 sm:text-sm md:text-base dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:prose-headings:text-slate-100 dark:prose-a:text-lime-400 dark:prose-strong:text-slate-100"
                 v-html="policy" />
 
             <div class="mt-6 text-center">

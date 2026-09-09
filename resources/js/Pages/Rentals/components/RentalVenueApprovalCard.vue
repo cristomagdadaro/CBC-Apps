@@ -336,7 +336,7 @@ export default {
                 <div
                     v-if="canApprove"
                     class="border-b border-gray-100 bg-gray-50/50 p-6 dark:border-slate-800/50 dark:bg-slate-800/20">
-                    <div class="mx-auto flex max-w-2xl flex-col gap-4">
+                    <div class="mx-auto flex flex-col gap-4">
                         <text-area
                             v-model="formState.notes"
                             :rows="3"

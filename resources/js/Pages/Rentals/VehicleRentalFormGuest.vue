@@ -13,7 +13,7 @@ export default {
     data() {
         return {
             delayReady: false,
-            title: "Vehicle Rental Form",
+            title: "Travel Order Request & Vehicle Request Form",
             subtitle: "Please refer to the official dispatch as guide for your input. ",
         };
     },

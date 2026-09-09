@@ -5,14 +5,16 @@ import FormLocalMixin from "@/Modules/mixins/FormLocalMixin";
 import { subscribeToRealtimeChannels } from "@/Modules/realtime/subscriptions";
 import SuccessModal from "@/Components/SuccessModal.vue";
 import CalendarModule from "@/Components/CalendarModule.vue";
+import ProgressTabs from "@/Components/ProgressTabs.vue";
 import { rentalVehicleTripOptions, getTripTypeMeta } from "@/Pages/Rentals/constants/tripWorkflows";
-import { Car, CalendarDays, Loader2, AlertTriangle, Info, X, ChevronDown, CheckCircle2 } from "lucide-vue-next";
+import { Car, CalendarDays, Loader2, AlertTriangle, Info, X, ChevronDown, CheckCircle2, Maximize, Minimize, GripVertical } from "lucide-vue-next";
 
 export default {
     name: "VehicleRentalForm",
     components: {
         SuccessModal,
         CalendarModule,
+        ProgressTabs,
         Car,
         CalendarDays,
         Loader2,
@@ -21,6 +23,9 @@ export default {
         X,
         ChevronDown,
         CheckCircle2,
+        Maximize,
+        Minimize,
+        GripVertical,
     },
     mixins: [ApiMixin, FormLocalMixin],
     props: {
@@ -33,8 +38,17 @@ export default {
         this.model = new RentalVehicle();
         this.setFormAction("create");
     },
+    mounted() {
+        document.addEventListener("keydown", this.handleKeydown);
+    },
+    beforeUnmount() {
+        document.removeEventListener("keydown", this.handleKeydown);
+        document.body.classList.remove("overflow-hidden");
+    },
     data() {
         return {
+            currentStep: 0,
+            isFullscreen: false,
             submitted: false,
             employee_id: null,
             showSuccessModal: false,
@@ -45,6 +59,7 @@ export default {
             realtimeRefreshTimer: null,
             membersOfPartyRows: [],
             destinationStopInput: "",
+            draggedFlightIndex: null,
         };
     },
     computed: {
@@ -95,6 +110,13 @@ export default {
         },
     },
     watch: {
+        isFullscreen(value) {
+            if (value) {
+                document.body.classList.add("overflow-hidden");
+            } else {
+                document.body.classList.remove("overflow-hidden");
+            }
+        },
         "form.destination_region"(value) {
             if (!this.form) return;
             if (!value) {
@@ -117,6 +139,11 @@ export default {
         },
     },
     methods: {
+        handleKeydown(e) {
+            if (e.key === "Escape" && this.isFullscreen) {
+                this.isFullscreen = false;
+            }
+        },
         cleanupRealtime() {
             if (typeof this.realtimeCleanup === "function") {
                 this.realtimeCleanup();
@@ -209,6 +236,40 @@ export default {
         memberRowError(index) {
             return this.form?.errors?.[`members_of_party.${index}`] ?? null;
         },
+        addFlightSegment() {
+            if (!Array.isArray(this.form.travel_details.flights)) {
+                this.form.travel_details.flights = [];
+            }
+            const flightsCount = this.form.travel_details.flights.length;
+            const lastFlight = flightsCount > 0 ? this.form.travel_details.flights[flightsCount - 1] : null;
+
+            this.form.travel_details.flights.push({
+                airline: lastFlight ? lastFlight.airline : null,
+                departure_airport: lastFlight ? lastFlight.arrival_airport : null,
+                arrival_airport: null,
+                flight_date: lastFlight ? lastFlight.flight_date : null,
+                flight_etd: null,
+                flight_eta: null,
+                is_return: lastFlight ? lastFlight.is_return : false,
+            });
+        },
+        removeFlightSegment(index) {
+            if (Array.isArray(this.form.travel_details.flights)) {
+                this.form.travel_details.flights.splice(index, 1);
+            }
+        },
+        onFlightDragStart(index, event) {
+            this.draggedFlightIndex = index;
+            event.dataTransfer.effectAllowed = "move";
+        },
+        onFlightDrop(index) {
+            if (this.draggedFlightIndex !== null && this.draggedFlightIndex !== index) {
+                const draggedItem = this.form.travel_details.flights[this.draggedFlightIndex];
+                this.form.travel_details.flights.splice(this.draggedFlightIndex, 1);
+                this.form.travel_details.flights.splice(index, 0, draggedItem);
+            }
+            this.draggedFlightIndex = null;
+        },
         normalizeCalendarEvents(rows = []) {
             return rows.map((rental) => ({
                 id: rental.id,
@@ -286,15 +347,28 @@ export default {
         <div
             data-guide="rental-form-shell"
             v-if="form"
-            class="h-fit w-full rounded-2xl border border-slate-200/60 bg-white/80 p-6 shadow-sm backdrop-blur-xl lg:col-span-1 dark:border-slate-800 dark:bg-slate-900/80">
-            <div class="mb-5 flex items-center gap-3 border-b border-slate-100 pb-5 dark:border-slate-800/60">
-                <div class="shrink-0 rounded-xl border border-indigo-100 bg-indigo-50 p-2.5 shadow-sm dark:border-indigo-500/20 dark:bg-indigo-500/10">
-                    <Car class="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+            :class="['h-fit w-full shadow-sm backdrop-blur-xl transition-all duration-300', isFullscreen ? 'fixed inset-0 z-[10000] max-h-screen min-h-screen overflow-y-auto rounded-none border-0 bg-slate-50/95 p-4 backdrop-blur-3xl sm:p-8 lg:p-12 dark:bg-slate-900/95' : 'rounded-2xl border border-slate-200/60 bg-white/80 p-6 lg:col-span-1 dark:border-slate-800 dark:bg-slate-900/80']">
+            <div class="mb-5 flex items-center justify-between border-b border-slate-100 pb-5 dark:border-slate-800/60">
+                <div class="flex items-center gap-3">
+                    <div class="shrink-0 rounded-xl border border-indigo-100 bg-indigo-50 p-2.5 shadow-sm dark:border-indigo-500/20 dark:bg-indigo-500/10">
+                        <Car class="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                    </div>
+                    <div>
+                        <p class="mb-0.5 text-[0.65rem] font-bold uppercase text-indigo-600 dark:text-indigo-400">Booking</p>
+                        <h2 class="text-lg font-bold text-slate-900 dark:text-white">Travel Order Request</h2>
+                    </div>
                 </div>
-                <div>
-                    <p class="mb-0.5 text-[0.65rem] font-bold uppercase text-indigo-600 dark:text-indigo-400">Booking</p>
-                    <h2 class="text-lg font-bold text-slate-900 dark:text-white">Vehicle Request</h2>
-                </div>
+                <button
+                    type="button"
+                    @click="isFullscreen = !isFullscreen"
+                    class="rounded-lg p-2 text-slate-500 transition-colors hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800">
+                    <Maximize
+                        v-if="!isFullscreen"
+                        class="h-5 w-5" />
+                    <Minimize
+                        v-else
+                        class="h-5 w-5" />
+                </button>
             </div>
 
             <!-- Informational Alerts -->
@@ -311,7 +385,7 @@ export default {
                     </div>
                 </div>
 
-                <div class="shadow-xs rounded-xl border border-indigo-200 bg-indigo-50/80 p-4 dark:border-indigo-500/30 dark:bg-indigo-500/10">
+                <div class="shadow-xs hidden rounded-xl border border-indigo-200 bg-indigo-50/80 p-4 dark:border-indigo-500/30 dark:bg-indigo-500/10">
                     <h2 class="uppercasetext-indigo-900 mb-2 flex items-center gap-2 text-xs font-bold dark:text-indigo-300">
                         <Info class="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
                         Important Reminders
@@ -326,6 +400,12 @@ export default {
             <form
                 @submit.prevent="submitProxyCreate"
                 class="h-fit w-full space-y-5">
+                <div class="mb-6">
+                    <ProgressTabs
+                        v-model:current="currentStep"
+                        :steps="['General Details', 'Destination & Schedule', 'Personnel & Admin']" />
+                </div>
+
                 <!-- General Error -->
                 <div
                     v-if="form.errors.general"
@@ -333,250 +413,488 @@ export default {
                     {{ form.errors.general }}
                 </div>
 
-                <!-- Trip Workflow -->
-                <div class="space-y-3">
-                    <custom-dropdown
-                        label="Trip Workflow"
-                        required
-                        placeholder="Select a trip workflow"
-                        @selectedChange="handleTripTypeChange"
-                        :value="form.trip_type"
-                        :with-all-option="false"
-                        :options="tripTypeOptions"
-                        :error="form.errors.trip_type"
-                        class="w-full">
-                        <template #icon>
-                            <ChevronDown class="h-4 w-4 text-slate-400 dark:text-slate-500" />
-                        </template>
-                    </custom-dropdown>
+                <!-- STEP 1: General Details -->
+                <div
+                    v-show="currentStep === 0"
+                    class="space-y-5">
+                    <!-- Trip Workflow -->
+                    <div class="space-y-3">
+                        <custom-dropdown
+                            label="Trip Workflow"
+                            required
+                            placeholder="Select a trip workflow"
+                            @selectedChange="handleTripTypeChange"
+                            :value="form.trip_type"
+                            :with-all-option="false"
+                            :options="tripTypeOptions"
+                            :error="form.errors.trip_type"
+                            class="w-full">
+                            <template #icon>
+                                <ChevronDown class="h-4 w-4 text-slate-400 dark:text-slate-500" />
+                            </template>
+                        </custom-dropdown>
 
-                    <div
-                        v-if="selectedTripTypeMeta"
-                        class="shadow-xs rounded-xl border border-slate-200/60 bg-slate-50/50 p-4 dark:border-slate-700/60 dark:bg-slate-800/30">
-                        <p class="text-[0.65rem] font-bold uppercase text-indigo-600 dark:text-indigo-400">Selected Workflow</p>
-                        <p class="mt-1 text-sm font-bold text-slate-900 dark:text-white">
-                            {{ selectedTripTypeMeta.label }}
-                        </p>
-                        <p class="mt-1 text-xs font-medium leading-relaxed text-slate-600 dark:text-slate-400">
-                            {{ selectedTripTypeMeta.description }}
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Date Range -->
-                <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
-                    <DateInput
-                        id="date_from"
-                        label="Start Date"
-                        required
-                        v-model="form.date_from"
-                        :min="minDate"
-                        :error="form.errors.date_from"
-                        class="block w-full" />
-                    <DateInput
-                        id="date_to"
-                        label="End Date"
-                        required
-                        v-model="form.date_to"
-                        type="date"
-                        :min="form.date_from || minDate"
-                        :error="form.errors.date_to"
-                        class="block w-full" />
-                </div>
-
-                <!-- Time Range -->
-                <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
-                    <TimeInput
-                        id="time_from"
-                        label="Start Time"
-                        required
-                        v-model="form.time_from"
-                        :error="form.errors.time_from"
-                        class="block w-full" />
-                    <TimeInput
-                        id="time_to"
-                        label="End Time"
-                        required
-                        v-model="form.time_to"
-                        :error="form.errors.time_to"
-                        class="block w-full" />
-                </div>
-
-                <!-- Purpose -->
-                <TextArea
-                    id="purpose"
-                    v-model="form.purpose"
-                    label="Purpose"
-                    required
-                    placeholder="Describe the purpose of your vehicle rental"
-                    :error="form.errors.purpose"
-                    class="block w-full"></TextArea>
-
-                <!-- Destination Location -->
-                <div>
-                    <label class="mb-2 block text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">Destination Location</label>
-                    <div class="grid grid-cols-1 gap-4">
-                        <SelectRegion
-                            v-model="form.destination_region"
-                            :error="form.errors.destination_region"
-                            @update:modelValue="handleDestinationRegionChange"
-                            class="block w-full" />
-                        <SelectProvince
-                            v-model="form.destination_province"
-                            :region="form.destination_region"
-                            :disabled="!form.destination_region"
-                            :error="form.errors.destination_province"
-                            @update:modelValue="handleDestinationProvinceChange"
-                            class="block w-full" />
-                        <SelectCity
-                            v-model="form.destination_city"
-                            :region="form.destination_region"
-                            :province="form.destination_province"
-                            :disabled="!form.destination_province"
-                            :error="form.errors.destination_city"
-                            class="block w-full" />
-                    </div>
-                </div>
-
-                <TextInput
-                    id="destination_location"
-                    label="Specific Address"
-                    required
-                    v-model="form.destination_location"
-                    type="text"
-                    placeholder="Specific destination / address"
-                    :error="form.errors.destination_location"
-                    class="block w-full" />
-
-                <TextArea
-                    id="destination_stops"
-                    v-model="destinationStopInput"
-                    label="Additional Stops"
-                    placeholder="One stop per line for shuttle or multi-stop trips"
-                    @input="syncDestinationStops"
-                    :error="form.errors.destination_stops"
-                    class="block w-full"></TextArea>
-
-                <!-- Shared Ride Checkbox -->
-                <div class="shadow-xs rounded-xl border border-slate-200/60 bg-slate-50/50 p-4 dark:border-slate-700/60 dark:bg-slate-800/30">
-                    <Checkbox
-                        v-model:checked="form.is_shared_ride"
-                        name="is_shared_ride"
-                        label="Shared/Hitch Ride" />
-                    <span class="mt-1.5 block pl-6 text-xs font-medium leading-relaxed text-slate-500 dark:text-slate-400">Enable this if the trip can be grouped with another approved request.</span>
-                </div>
-
-                <TextInput
-                    v-if="form.is_shared_ride"
-                    id="shared_ride_reference"
-                    label="Shared/Hitch Ride Reference"
-                    v-model="form.shared_ride_reference"
-                    type="text"
-                    placeholder="Full name of the person you're sharing with"
-                    :error="form.errors.shared_ride_reference"
-                    class="block w-full" />
-
-                <!-- Requestor Details -->
-                <div class="space-y-5">
-                    <PersonnelLookup
-                        v-model="employee_id"
-                        @found="handlePersonnelFound" />
-                    <TextInput
-                        id="requested_by"
-                        label="Your Name"
-                        required
-                        v-model="form.requested_by"
-                        type="text"
-                        placeholder="Full name"
-                        :error="form.errors.requested_by"
-                        class="block w-full" />
-                </div>
-
-                <TextInput
-                    id="organization"
-                    label="Division / Organization"
-                    required
-                    v-model="form.organization"
-                    type="text"
-                    placeholder="e.g. Crop Biotechnology Center"
-                    :error="form.errors.organization"
-                    class="block w-full" />
-
-                <div class="shadow-xs space-y-4 rounded-xl border border-slate-200/60 bg-slate-50/50 p-5 dark:border-slate-700/60 dark:bg-slate-800/30">
-                    <div class="flex items-center justify-between">
-                        <label class="text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">Members of the Party (MOP)</label>
-                        <button
-                            type="button"
-                            class="uppercasetext-indigo-600 inline-flex items-center gap-1 rounded-lg border border-dashed border-indigo-300 px-3 py-1.5 text-[0.65rem] font-bold transition-colors hover:bg-indigo-50 dark:border-indigo-500/50 dark:text-indigo-400 dark:hover:bg-indigo-500/10"
-                            @click="addMemberOfPartyRow">
-                            + Add Member
-                        </button>
-                    </div>
-
-                    <p class="text-xs font-medium leading-relaxed text-slate-500 dark:text-slate-400">Add companions for this trip. Leave empty if none.</p>
-
-                    <div
-                        v-if="form.errors.members_of_party"
-                        class="text-xs font-semibold text-rose-600 dark:text-rose-400">
-                        {{ form.errors.members_of_party }}
-                    </div>
-
-                    <div
-                        v-if="membersOfPartyRows.length"
-                        class="flex flex-col gap-3">
                         <div
-                            v-for="(member, index) in membersOfPartyRows"
-                            :key="`mop-${index}`"
-                            class="flex items-start gap-3">
-                            <div class="flex-1">
-                                <TextInput
-                                    :id="`members_of_party_${index}`"
-                                    :label="`Member ${index + 1}`"
-                                    v-model="member.name"
-                                    type="text"
-                                    placeholder="Enter member full name"
-                                    @input="syncMembersOfPartyPayload"
-                                    class="block w-full" />
-                                <p
-                                    v-if="memberRowError(index)"
-                                    class="mt-1 text-xs font-semibold text-rose-600 dark:text-rose-400">
-                                    {{ memberRowError(index) }}
-                                </p>
-                            </div>
+                            v-if="selectedTripTypeMeta"
+                            class="shadow-xs rounded-xl border border-slate-200/60 bg-slate-50/50 p-4 dark:border-slate-700/60 dark:bg-slate-800/30">
+                            <p class="text-[0.65rem] font-bold uppercase text-indigo-600 dark:text-indigo-400">Selected Workflow</p>
+                            <p class="mt-1 text-sm font-bold text-slate-900 dark:text-white">
+                                {{ selectedTripTypeMeta.label }}
+                            </p>
+                            <p class="mt-1 text-xs font-medium leading-relaxed text-slate-600 dark:text-slate-400">
+                                {{ selectedTripTypeMeta.description }}
+                            </p>
+                        </div>
+                    </div>
 
-                            <div class="flex gap-1 pt-[1.65rem]">
-                                <button
-                                    type="button"
-                                    class="rounded-xl border border-transparent p-2 text-rose-500 transition-colors hover:border-rose-200 hover:bg-rose-50 dark:hover:border-rose-500/30 dark:hover:bg-rose-500/10"
-                                    @click="removeMemberOfPartyRow(index)"
-                                    title="Remove member">
-                                    <X class="h-4 w-4" />
-                                </button>
+                    <!-- Transport Mode -->
+                    <div class="space-y-3">
+                        <custom-dropdown
+                            label="Transport Mode"
+                            required
+                            placeholder="Select transport mode"
+                            @selectedChange="(val) => (form.travel_details.transport_mode = val)"
+                            :value="form.travel_details.transport_mode"
+                            :with-all-option="false"
+                            :options="[
+                                { name: 'vehicle', label: 'PhilRice / CBC Vehicle' },
+                                { name: 'commute', label: 'Commute / Private / Other Vehicle' },
+                            ]"
+                            :error="form.errors['travel_details.transport_mode']"
+                            class="w-full">
+                            <template #icon>
+                                <ChevronDown class="h-4 w-4 text-slate-400 dark:text-slate-500" />
+                            </template>
+                        </custom-dropdown>
+                    </div>
+
+                    <!-- PhilRice Vehicle specifics -->
+                    <div
+                        v-if="form.travel_details.transport_mode === 'vehicle'"
+                        class="space-y-5 rounded-xl border border-indigo-700 p-4 dark:border-indigo-200">
+                        <h3 class="text-xs font-bold uppercase text-slate-500">Vehicle Requirements</h3>
+                        <custom-dropdown
+                            v-if="!isGuestContext"
+                            label="Vehicle Type"
+                            required
+                            placeholder="Select preferred vehicle"
+                            @selectedChange="(val) => (form.vehicle_type = val)"
+                            :value="form.vehicle_type"
+                            :with-all-option="false"
+                            :options="vehicleTypeOptions"
+                            :error="form.errors.vehicle_type"
+                            class="w-full"></custom-dropdown>
+
+                        <TextInput
+                            id="pickup_point"
+                            label="Pickup Point"
+                            required
+                            v-model="form.travel_details.pickup_point"
+                            placeholder="E.g., PhilRice CES Gate, Hotel, etc."
+                            :error="form.errors['travel_details.pickup_point']"
+                            class="block w-full" />
+                    </div>
+                    <div
+                        class="shadow-xs cursor-pointer rounded-xl border border-slate-200/60 bg-slate-50/50 p-4 dark:border-slate-700/60 dark:bg-slate-800/30"
+                        @click="form.travel_details.requires_flight = !form.travel_details.requires_flight">
+                        <Checkbox
+                            v-model="form.travel_details.requires_flight"
+                            name="requires_flight"
+                            label="Has flight details?"
+                            @click.stop />
+                    </div>
+                    <!-- Flight Details -->
+                    <div
+                        v-if="form.travel_details.requires_flight"
+                        class="space-y-5 rounded-xl border border-indigo-700 p-4 dark:border-indigo-200">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-xs font-bold uppercase text-slate-500">Flight Details</h3>
+                        </div>
+
+                        <div
+                            v-for="(flight, index) in form.travel_details.flights"
+                            :key="index"
+                            draggable="true"
+                            @dragstart="onFlightDragStart(index, $event)"
+                            @dragover.prevent
+                            @dragenter.prevent
+                            @drop="onFlightDrop(index)"
+                            class="relative cursor-move rounded-lg border border-slate-200 p-4 transition-all hover:shadow-md dark:border-slate-700">
+                            <button
+                                type="button"
+                                class="absolute right-2 top-2 rounded-md p-1 text-slate-400 hover:bg-rose-50 hover:text-rose-500"
+                                @click="removeFlightSegment(index)">
+                                <X class="h-4 w-4" />
+                            </button>
+                            <div class="mb-3 flex items-center gap-4">
+                                <GripVertical class="h-4 w-4 text-slate-400 opacity-50" />
+                                <h4 class="text-xs font-bold uppercase text-slate-500">Segment {{ index + 1 }}</h4>
+                                <Checkbox
+                                    v-model:checked="flight.is_return"
+                                    :name="`is_return_${index}`"
+                                    label="Return Flight?" />
                             </div>
+                            <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+                                <TextInput
+                                    :id="`departure_airport_${index}`"
+                                    label="Departure Airport"
+                                    required
+                                    v-model="flight.departure_airport"
+                                    placeholder="E.g., MNL"
+                                    :error="form.errors[`travel_details.flights.${index}.departure_airport`]"
+                                    class="block w-full" />
+                                <TextInput
+                                    :id="`arrival_airport_${index}`"
+                                    label="Arrival Airport"
+                                    required
+                                    v-model="flight.arrival_airport"
+                                    placeholder="E.g., CEB"
+                                    :error="form.errors[`travel_details.flights.${index}.arrival_airport`]"
+                                    class="block w-full" />
+                            </div>
+                            <div class="mt-5">
+                                <TextInput
+                                    :id="`airline_${index}`"
+                                    label="Airline"
+                                    required
+                                    v-model="flight.airline"
+                                    placeholder="E.g., Cebu Pacific, PAL"
+                                    :error="form.errors[`travel_details.flights.${index}.airline`]"
+                                    class="block w-full" />
+                            </div>
+                            <div class="mt-5 grid grid-cols-1 gap-5 md:grid-cols-3">
+                                <DateInput
+                                    :id="`flight_date_${index}`"
+                                    label="Flight Date"
+                                    required
+                                    v-model="flight.flight_date"
+                                    :error="form.errors[`travel_details.flights.${index}.flight_date`]"
+                                    class="block w-full" />
+                                <TimeInput
+                                    :id="`flight_etd_${index}`"
+                                    label="ETD (Departure)"
+                                    required
+                                    v-model="flight.flight_etd"
+                                    :error="form.errors[`travel_details.flights.${index}.flight_etd`]"
+                                    class="block w-full" />
+                                <TimeInput
+                                    :id="`flight_eta_${index}`"
+                                    label="ETA (Arrival)"
+                                    required
+                                    v-model="flight.flight_eta"
+                                    :error="form.errors[`travel_details.flights.${index}.flight_eta`]"
+                                    class="block w-full" />
+                            </div>
+                        </div>
+                        <div
+                            v-if="!form.travel_details.flights || form.travel_details.flights.length === 0"
+                            class="rounded-lg border border-dashed border-slate-300 p-8 text-center dark:border-slate-700">
+                            <p class="text-xs font-medium text-slate-500 dark:text-slate-400">No flights added. Click "Add Flight Segment" to specify your flights.</p>
+                        </div>
+                        
+                        <div class="mt-4 flex justify-center">
+                            <button
+                                type="button"
+                                class="inline-flex items-center gap-1 rounded-lg border border-dashed border-indigo-300 px-4 py-2 text-xs font-bold uppercase text-indigo-600 transition-colors hover:bg-indigo-50 dark:border-indigo-500/50 dark:text-indigo-400 dark:hover:bg-indigo-500/10"
+                                @click="addFlightSegment">
+                                + Add Flight Segment
+                            </button>
                         </div>
                     </div>
                 </div>
 
-                <TextInput
-                    id="contact_number"
-                    label="Contact Number"
-                    required
-                    v-model="form.contact_number"
-                    type="tel"
-                    placeholder="09XX-XXX-XXXX"
-                    :error="form.errors.contact_number"
-                    class="block w-full" />
+                <!-- STEP 2: Destination & Schedule -->
+                <div
+                    v-show="currentStep === 1"
+                    class="space-y-5">
+                    <!-- Date Range -->
+                    <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+                        <DateInput
+                            id="date_from"
+                            label="Start Date"
+                            required
+                            v-model="form.date_from"
+                            :min="minDate"
+                            :error="form.errors.date_from"
+                            class="block w-full" />
+                        <DateInput
+                            id="date_to"
+                            label="End Date"
+                            required
+                            v-model="form.date_to"
+                            type="date"
+                            :min="form.date_from || minDate"
+                            :error="form.errors.date_to"
+                            class="block w-full" />
+                    </div>
 
-                <TextArea
-                    id="notes"
-                    label="Additional Notes"
-                    v-model="form.notes"
-                    placeholder="Any additional information..."
-                    class="block w-full" />
+                    <!-- Time Range -->
+                    <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+                        <TimeInput
+                            id="time_from"
+                            label="Start Time"
+                            required
+                            v-model="form.time_from"
+                            :error="form.errors.time_from"
+                            class="block w-full" />
+                        <TimeInput
+                            id="time_to"
+                            label="End Time"
+                            required
+                            v-model="form.time_to"
+                            :error="form.errors.time_to"
+                            class="block w-full" />
+                    </div>
 
-                <!-- Submit Button -->
-                <div class="mt-6 border-t border-slate-100 pt-5 dark:border-slate-800/60">
+                    <!-- Meeting Datetime -->
+                    <DateInput
+                        id="meeting_datetime"
+                        label="Date and Time of Meeting"
+                        v-model="form.travel_details.meeting_datetime"
+                        type="datetime-local"
+                        :error="form.errors['travel_details.meeting_datetime']"
+                        class="block w-full" />
+
+                    <!-- Purpose -->
+                    <TextArea
+                        id="purpose"
+                        v-model="form.purpose"
+                        label="Purpose"
+                        required
+                        placeholder="Describe the purpose of your vehicle rental"
+                        :error="form.errors.purpose"
+                        class="block w-full"></TextArea>
+
+                    <div
+                        class="grid grid-cols-1 gap-5"
+                        :class="{ 'md:grid-cols-2': !isGuestContext }">
+                        <TextInput
+                            id="charging_project"
+                            label="Charging Project"
+                            v-model="form.travel_details.charging_project"
+                            placeholder="Project name or code"
+                            :error="form.errors['travel_details.charging_project']"
+                            class="block w-full" />
+                        <TextInput
+                            v-if="!isGuestContext"
+                            id="tracking_number"
+                            label="Tracking Number"
+                            v-model="form.travel_details.tracking_number"
+                            placeholder="Manual tracking number"
+                            :error="form.errors['travel_details.tracking_number']"
+                            class="block w-full" />
+                    </div>
+
+                    <!-- Destination Location -->
+                    <div>
+                        <label class="mb-2 block text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">Destination Location</label>
+                        <div class="grid grid-cols-1 gap-4">
+                            <SelectRegion
+                                v-model="form.destination_region"
+                                label="Region"
+                                placeholder="Select a Region"
+                                :error="form.errors.destination_region"
+                                @update:modelValue="handleDestinationRegionChange"
+                                class="block w-full" />
+                            <SelectProvince
+                                v-if="form.destination_region"
+                                label="Province"
+                                placeholder="Select a Province"
+                                v-model="form.destination_province"
+                                :region="form.destination_region"
+                                :disabled="!form.destination_region"
+                                :error="form.errors.destination_province"
+                                @update:modelValue="handleDestinationProvinceChange"
+                                class="block w-full" />
+                            <SelectCity
+                                v-if="form.destination_province"
+                                label="City/Municipality"
+                                placeholder="Select a City/Municipality"
+                                v-model="form.destination_city"
+                                :region="form.destination_region"
+                                :province="form.destination_province"
+                                :disabled="!form.destination_province"
+                                :error="form.errors.destination_city"
+                                class="block w-full" />
+                        </div>
+                    </div>
+
+                    <TextInput
+                        id="destination_location"
+                        label="Specific Address"
+                        required
+                        v-model="form.destination_location"
+                        type="text"
+                        placeholder="Specific destination / address"
+                        :error="form.errors.destination_location"
+                        class="block w-full" />
+
+                    <TextArea
+                        id="destination_stops"
+                        v-model="destinationStopInput"
+                        label="Additional Stops"
+                        placeholder="One stop per line for shuttle or multi-stop trips"
+                        @input="syncDestinationStops"
+                        :error="form.errors.destination_stops"
+                        class="block w-full"></TextArea>
+
+                    <!-- Shared Ride Checkbox -->
+                    <div class="shadow-xs rounded-xl border border-slate-200/60 bg-slate-50/50 p-4 dark:border-slate-700/60 dark:bg-slate-800/30">
+                        <Checkbox
+                            v-model:checked="form.is_shared_ride"
+                            name="is_shared_ride"
+                            label="Shared/Hitch Ride" />
+                        <span class="mt-1.5 block pl-6 text-xs font-medium leading-relaxed text-slate-500 dark:text-slate-400">Enable this if the trip can be grouped with another approved request.</span>
+                    </div>
+
+                    <TextInput
+                        v-if="form.is_shared_ride"
+                        id="shared_ride_reference"
+                        label="Shared/Hitch Ride Reference"
+                        v-model="form.shared_ride_reference"
+                        type="text"
+                        placeholder="Full name of the person you're sharing with"
+                        :error="form.errors.shared_ride_reference"
+                        class="block w-full" />
+                </div>
+
+                <!-- STEP 3: Personnel & Administration -->
+                <div
+                    v-show="currentStep === 2"
+                    class="space-y-5">
+                    <!-- Requestor Details -->
+                    <div class="space-y-5">
+                        <div
+                            class="grid grid-cols-1 gap-5"
+                            :class="{ 'md:grid-cols-2': !isGuestContext }">
+                            <div>
+                                <label class="mb-2 block text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">Requestor Lookup</label>
+                                <PersonnelLookup
+                                    v-model="employee_id"
+                                    @found="handlePersonnelFound" />
+                            </div>
+                            <div v-if="!isGuestContext">
+                                <label class="mb-2 block text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">Preparer Lookup (Optional)</label>
+                                <PersonnelLookup v-model="form.travel_details.preparer_id" />
+                            </div>
+                        </div>
+                        <TextInput
+                            id="requested_by"
+                            label="Your Name"
+                            required
+                            v-model="form.requested_by"
+                            type="text"
+                            placeholder="Full name"
+                            :error="form.errors.requested_by"
+                            class="block w-full" />
+                    </div>
+
+                    <TextInput
+                        id="organization"
+                        label="Division / Organization"
+                        required
+                        v-model="form.organization"
+                        type="text"
+                        placeholder="e.g. Crop Biotechnology Center"
+                        :error="form.errors.organization"
+                        class="block w-full" />
+
+                    <div class="shadow-xs space-y-4 rounded-xl border border-indigo-700 bg-slate-50/50 p-5 dark:border-indigo-200 dark:bg-slate-800/30">
+                        <div class="flex items-center justify-between">
+                            <label class="text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">Members of the Party (MOP)</label>
+                            <button
+                                type="button"
+                                class="uppercasetext-indigo-600 inline-flex items-center gap-1 rounded-lg border border-dashed border-indigo-300 px-3 py-1.5 text-[0.65rem] font-bold transition-colors hover:bg-indigo-50 dark:border-indigo-500/50 dark:text-indigo-400 dark:hover:bg-indigo-500/10"
+                                @click="addMemberOfPartyRow">
+                                + Add Member
+                            </button>
+                        </div>
+
+                        <p class="text-xs font-medium leading-relaxed text-slate-500 dark:text-slate-400">Add companions for this trip. Leave empty if none.</p>
+
+                        <div
+                            v-if="form.errors.members_of_party"
+                            class="text-xs font-semibold text-rose-600 dark:text-rose-400">
+                            {{ form.errors.members_of_party }}
+                        </div>
+
+                        <div
+                            v-if="membersOfPartyRows.length"
+                            class="flex flex-col gap-3">
+                            <div
+                                v-for="(member, index) in membersOfPartyRows"
+                                :key="`mop-${index}`"
+                                class="flex items-start gap-3">
+                                <div class="flex-1">
+                                    <TextInput
+                                        :id="`members_of_party_${index}`"
+                                        :label="`Member ${index + 1}`"
+                                        v-model="member.name"
+                                        type="text"
+                                        placeholder="Enter member full name"
+                                        @input="syncMembersOfPartyPayload"
+                                        class="block w-full" />
+                                    <p
+                                        v-if="memberRowError(index)"
+                                        class="mt-1 text-xs font-semibold text-rose-600 dark:text-rose-400">
+                                        {{ memberRowError(index) }}
+                                    </p>
+                                </div>
+
+                                <div class="flex gap-1 pt-[1.65rem]">
+                                    <button
+                                        type="button"
+                                        class="rounded-xl border border-transparent p-2 text-rose-500 transition-colors hover:border-rose-200 hover:bg-rose-50 dark:hover:border-rose-500/30 dark:hover:bg-rose-500/10"
+                                        @click="removeMemberOfPartyRow(index)"
+                                        title="Remove member">
+                                        <X class="h-4 w-4" />
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <TextInput
+                        id="contact_number"
+                        label="Contact Number"
+                        required
+                        v-model="form.contact_number"
+                        type="tel"
+                        placeholder="09XX-XXX-XXXX"
+                        :error="form.errors.contact_number"
+                        class="block w-full" />
+
+                    <TextArea
+                        id="notes"
+                        label="Additional Notes"
+                        v-model="form.notes"
+                        placeholder="Any additional information..."
+                        class="block w-full" />
+                </div>
+
+                <!-- Navigation & Submit Buttons -->
+                <div class="mt-6 flex items-center justify-between gap-3 border-t border-slate-100 pt-5 dark:border-slate-800/60">
                     <button
+                        v-if="currentStep > 0"
+                        type="button"
+                        @click="currentStep--"
+                        class="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-6 py-3.5 text-sm font-bold text-slate-700 shadow-sm transition-all hover:bg-slate-50 active:scale-95 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700">
+                        Previous
+                    </button>
+                    <div
+                        v-else
+                        class="w-full"></div>
+
+                    <button
+                        v-if="currentStep < 2"
+                        type="button"
+                        @click="currentStep++"
+                        class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-6 py-3.5 text-sm font-bold text-white shadow-sm transition-all hover:bg-indigo-700 active:scale-95">
+                        Next
+                    </button>
+
+                    <button
+                        v-if="currentStep === 2"
                         type="submit"
                         :disabled="processing"
                         class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-6 py-3.5 text-sm font-bold text-white shadow-sm transition-all hover:bg-indigo-700 active:scale-95 disabled:pointer-events-none disabled:opacity-50">

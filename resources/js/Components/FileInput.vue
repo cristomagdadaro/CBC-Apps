@@ -19,7 +19,7 @@ export default {
     },
     methods: {
         onChange(e) {
-            this.$emit("update:modelValue", e.target.value);
+            this.$emit("update:modelValue", e.target.files[0] || null);
         },
         onClear() {
             this.$emit("update:modelValue", "");

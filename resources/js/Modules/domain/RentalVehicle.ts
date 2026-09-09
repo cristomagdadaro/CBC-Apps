@@ -39,6 +39,16 @@ export default class RentalVehicle extends DtoRentalVehicle {
             contact_number: null,
             status: 'pending',
             notes: null,
+            travel_details: {
+                transport_mode: 'vehicle',
+                requires_flight: false,
+                itinerary: null,
+                charging_project: null,
+                tracking_number: null,
+                preparer_id: null,
+                pickup_point: null,
+                flights: []
+            },
         };
     }
 
@@ -65,6 +75,7 @@ export default class RentalVehicle extends DtoRentalVehicle {
             contact_number: data?.contact_number,
             status: data?.status,
             notes: data?.notes,
+            travel_details: data?.travel_details ?? {},
         };
     }
 

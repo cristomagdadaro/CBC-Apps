@@ -6,6 +6,7 @@ export default {
     mixins: [FieldMixin],
     props: {
         chameleon: { type: Boolean, default: false },
+        type: { type: String, default: "date" },
     },
     data() {
         return {
@@ -45,7 +46,7 @@ export default {
             <input
                 :id="inputId"
                 ref="input"
-                type="date"
+                :type="type"
                 :value="modelValue"
                 :placeholder="placeholder"
                 :disabled="disabled"

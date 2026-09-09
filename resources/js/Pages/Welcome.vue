@@ -33,19 +33,17 @@ const isInternetAccess = computed(() => {
 const visibleServices = computed(() => {
     const allowedServices = deploymentAccess.value?.services ?? {};
 
-    if (isAdminUser.value) {
-        return publicServices.value.map((service) => ({
-            ...service,
-            badgeCount: resolveServiceMetric(service.id),
-        }));
+    let services = publicServices.value;
+    if (!isAdminUser.value) {
+        services = services.filter((service) => !service.visibilityKey || allowedServices[service.visibilityKey] !== false);
     }
 
-    return publicServices.value
-        .filter((service) => !service.visibilityKey || allowedServices[service.visibilityKey] !== false)
+    return services
         .map((service) => ({
             ...service,
             badgeCount: resolveServiceMetric(service.id),
-        }));
+        }))
+        .sort((a, b) => a.title.localeCompare(b.title));
 });
 
 const hasHiddenLocalServices = computed(() => {
