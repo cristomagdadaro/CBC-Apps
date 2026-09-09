@@ -17,8 +17,8 @@ class Transaction extends BaseModel
     use HasFactory, SoftDeletes, HasUuids, Auditable;
 
     protected $casts = [
-        'created_at' => 'datetime:Y-m-d\TH:i:sP',
-        'updated_at' => 'datetime:Y-m-d\TH:i:sP',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
         'id' => 'string',
         'expiration' => 'date:Y-m-d'
     ];
