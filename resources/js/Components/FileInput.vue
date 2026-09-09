@@ -18,6 +18,37 @@ export default {
         },
     },
     methods: {
+        compressImage(dataUrl, callback) {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement("canvas");
+                const MAX_WIDTH = 1200;
+                const MAX_HEIGHT = 1200;
+                let width = img.width;
+                let height = img.height;
+
+                if (width > height) {
+                    if (width > MAX_WIDTH) {
+                        height = Math.round((height *= MAX_WIDTH / width));
+                        width = MAX_WIDTH;
+                    }
+                } else {
+                    if (height > MAX_HEIGHT) {
+                        width = Math.round((width *= MAX_HEIGHT / height));
+                        height = MAX_HEIGHT;
+                    }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext("2d");
+                ctx.drawImage(img, 0, 0, width, height);
+
+                const compressedDataUrl = canvas.toDataURL("image/jpeg", 0.7);
+                callback(compressedDataUrl);
+            };
+            img.src = dataUrl;
+        },
         onChange(e) {
             const file = e.target.files[0];
             if (!file) {
@@ -27,7 +58,13 @@ export default {
             
             const reader = new FileReader();
             reader.onload = (event) => {
-                this.$emit("update:modelValue", event.target.result);
+                if (file.type && file.type.startsWith("image/")) {
+                    this.compressImage(event.target.result, (compressedDataUrl) => {
+                        this.$emit("update:modelValue", compressedDataUrl);
+                    });
+                } else {
+                    this.$emit("update:modelValue", event.target.result);
+                }
             };
             reader.readAsDataURL(file);
         },
