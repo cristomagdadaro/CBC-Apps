@@ -19,7 +19,17 @@ export default {
     },
     methods: {
         onChange(e) {
-            this.$emit("update:modelValue", e.target.files[0] || null);
+            const file = e.target.files[0];
+            if (!file) {
+                this.$emit("update:modelValue", "");
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                this.$emit("update:modelValue", event.target.result);
+            };
+            reader.readAsDataURL(file);
         },
         onClear() {
             this.$emit("update:modelValue", "");

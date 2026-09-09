@@ -13,16 +13,6 @@ export default defineComponent({
         this.model = new Item();
         this.setFormAction("update");
     },
-    computed: {
-        imagePreviewUrl() {
-            if (!this.form.image) return null;
-            if (typeof this.form.image === 'string') return this.form.image;
-            if (this.form.image instanceof File) {
-                return URL.createObjectURL(this.form.image);
-            }
-            return null;
-        }
-    },
 });
 </script>
 
@@ -110,7 +100,7 @@ export default defineComponent({
                     v-if="form.image"
                     class="flex w-full justify-center rounded-md border bg-white p-2 shadow focus:border-indigo-500 focus:ring-indigo-500">
                     <img
-                        :src="imagePreviewUrl"
+                        :src="form.image"
                         @click.right.prevent="null"
                         draggable="false"
                         class="w-1/2 max-w-80 bg-transparent"
