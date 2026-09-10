@@ -156,7 +156,7 @@ class MailablesTest extends TestCase
 
         $this->assertStringContainsString('PCR Machine', $html);
         $this->assertStringContainsString(route('laboratory.equipments.show', ['equipment_id' => $item->id]), $html);
-        $this->assertStringContainsString('you may ignore this notice', $html);
+        $this->assertStringContainsString('please disregard this notice', $html);
     }
 
     public function test_personnel_registration_verification_mail_renders_signed_verification_link(): void
@@ -174,7 +174,7 @@ class MailablesTest extends TestCase
         $html = (new PersonnelRegistrationVerificationMail($registration))->render();
 
         $this->assertStringContainsString('Nora Valdez', $html);
-        $this->assertStringContainsString('Verify your personnel registration', $html);
+        $this->assertStringContainsString('Verify Email Address', $html);
         $this->assertStringContainsString(route('personnel.registration.verify', ['registration' => $registration->id]), $html);
     }
 

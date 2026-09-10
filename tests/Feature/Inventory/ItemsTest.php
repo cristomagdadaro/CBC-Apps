@@ -30,6 +30,7 @@ class ItemsTest extends TestCase
             'description' => 'Test item',
             'category_id' => $category->id,
             'supplier_id' => $supplier->id,
+            'simultaneous_users' => 1,
             'image' => null,
         ];
 
@@ -51,6 +52,7 @@ class ItemsTest extends TestCase
             'description' => 'Updated description',
             'category_id' => $category->id,
             'supplier_id' => $supplier->id,
+            'simultaneous_users' => 2,
             'image' => null,
         ];
 

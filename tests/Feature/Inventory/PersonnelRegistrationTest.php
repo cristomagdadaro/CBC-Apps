@@ -37,6 +37,7 @@ class PersonnelRegistrationTest extends TestCase
             'lname' => 'Rivera',
             'suffix' => null,
             'position' => 'Research Aide',
+            'affiliation' => 'PhilRice',
             'phone' => '09170000000',
             'address' => 'Science City of Munoz',
             'email' => 'ANA.RIVERA@example.test',
@@ -81,6 +82,7 @@ class PersonnelRegistrationTest extends TestCase
             'lname' => 'Rivera',
             'suffix' => null,
             'position' => 'Research Aide',
+            'affiliation' => 'PhilRice',
             'phone' => '09170000000',
             'address' => 'Science City of Munoz',
             'email' => 'ana.new@example.test',
@@ -112,6 +114,7 @@ class PersonnelRegistrationTest extends TestCase
             'lname' => 'Santos',
             'suffix' => null,
             'position' => 'Technician',
+            'affiliation' => 'PhilRice',
             'phone' => '09170000001',
             'address' => 'Science City of Munoz',
             'email' => 'ben.santos.duplicate@example.test',
@@ -134,6 +137,7 @@ class PersonnelRegistrationTest extends TestCase
             'lname' => 'Lopez',
             'suffix' => null,
             'position' => 'Intern',
+            'affiliation' => 'CLSU',
             'phone' => '09170000002',
             'address' => 'Science City of Munoz',
             'email' => 'mika.lopez@example.test',
@@ -147,7 +151,7 @@ class PersonnelRegistrationTest extends TestCase
         Mail::fake();
         Event::fake([PersonnelRegistrationSubmitted::class]);
 
-        $response = $this->post(route('api.inventory.personnel-registrations.store.guest'), [
+        $response = $this->postJson(route('api.inventory.personnel-registrations.store.guest'), [
             'is_philrice_employee' => false,
             'registration_type' => PersonnelRegistration::TYPE_STUDENT,
             'fname' => 'Mika',
@@ -155,6 +159,7 @@ class PersonnelRegistrationTest extends TestCase
             'lname' => 'Lopez',
             'suffix' => null,
             'position' => 'Intern',
+            'affiliation' => 'CLSU',
             'phone' => '09170000002',
             'address' => 'Science City of Munoz',
             'email' => 'mika.lopez@example.test',

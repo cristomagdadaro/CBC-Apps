@@ -7,7 +7,7 @@ use App\Http\Controllers\PersonnelRegistrationController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\TransactionController;
 use App\Repositories\OptionRepo;
-use App\Repositories\TransactionRepo;
+use App\Services\Inventory\InventoryReportService;
 use App\Services\DeploymentAccessService;
 use Illuminate\Support\Facades\Route;
 
@@ -36,7 +36,7 @@ Route::prefix('guest')->group(function () {
                     'per_page' => '*',
                 ]);
 
-                $stocks = app(TransactionRepo::class)
+                $stocks = app(InventoryReportService::class)
                     ->getRemainingStocks($params)
                     ->get('data', collect());
 
@@ -65,7 +65,7 @@ Route::prefix('guest')->group(function () {
                     'per_page' => '*',
                 ]);
 
-                $stocks = app(TransactionRepo::class)
+                $stocks = app(InventoryReportService::class)
                     ->getRemainingStocks($params)
                     ->get('data', collect());
 

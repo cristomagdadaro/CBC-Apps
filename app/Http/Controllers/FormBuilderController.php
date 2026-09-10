@@ -10,9 +10,9 @@ use App\Services\DynamicValidationService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
-use App\Http\Requests\AssignTemplateRequest;
-use App\Http\Requests\StoreTemplateRequest;
-use App\Http\Requests\UpdateTemplateRequest;
+use App\Http\Requests\FormBuilder\AssignTemplateRequest;
+use App\Http\Requests\FormBuilder\StoreTemplateRequest;
+use App\Http\Requests\FormBuilder\UpdateTemplateRequest;
 
 class FormBuilderController extends BaseController
 {

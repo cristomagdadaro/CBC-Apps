@@ -36,8 +36,13 @@
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
+        <env name="BROADCAST_DRIVER" value="log"/>
         <env name="XDEBUG_MODE" value="coverage"/>
         <env name="memory_limit" value="512M"/>
+        <env name="APP_ENV" value="testing"/>
+        <env name="BCRYPT_ROUNDS" value="4"/>
+        <env name="HASH_DRIVER" value="bcrypt"/>
+        <env name="CACHE_DRIVER" value="array"/>
     </php>
 
     <coverage>
