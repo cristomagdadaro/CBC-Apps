@@ -36,7 +36,7 @@ class PDFGeneratorControllerTest extends TestCase
     {
         $pivot = RequestFormPivot::factory()->create();
 
-        $pdfMock = Mockery::mock(PDFInstance::class);
+        $pdfMock = Mockery::mock();
         $pdfMock->shouldReceive('output')
             ->once()
             ->andReturn('%PDF-1.4 fake-pdf');
@@ -76,7 +76,7 @@ class PDFGeneratorControllerTest extends TestCase
 
     public function test_generate_barcode_labels_returns_download_response(): void
     {
-        $pdfMock = Mockery::mock(PDFInstance::class);
+        $pdfMock = Mockery::mock();
         $pdfMock->shouldReceive('setPaper')
             ->once()
             ->andReturnSelf();
