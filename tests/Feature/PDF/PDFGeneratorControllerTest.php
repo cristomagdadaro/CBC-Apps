@@ -10,6 +10,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\File;
 use Mockery;
 use Tests\TestCase;
+use Illuminate\Support\Facades\Auth;
 
 class PDFGeneratorControllerTest extends TestCase
 {
@@ -114,7 +115,7 @@ class PDFGeneratorControllerTest extends TestCase
 
     public function test_guest_cannot_access_request_pdf(): void
     {
-        auth()->logout();
+        Auth::logout();
 
         $pivot = RequestFormPivot::factory()->create();
 

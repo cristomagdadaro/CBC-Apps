@@ -15,6 +15,10 @@ export default {
             type: Array,
             default: () => [],
         },
+        driverOptions: {
+            type: Array,
+            default: () => [],
+        },
     },
 };
 </script>
@@ -26,6 +30,7 @@ export default {
             :key="data.id"
             :data="data"
             :vehicle-options="vehicleOptions"
+            :driver-options="driverOptions"
             @updated="$emit('updated', $event)"
             @failedUpdate="$emit('failedUpdate', $event)" />
     </div>

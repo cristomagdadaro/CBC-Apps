@@ -2,9 +2,10 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class GetFormsRequest extends FormRequest
+class AssignTemplateRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -17,12 +18,14 @@ class GetFormsRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
         return [
-            'event_id' => 'required|exists:forms,event_id',
+            'event_subform_id' => 'required|uuid|exists:event_subforms,id',
+            'template_id' => 'nullable|uuid|exists:form_type_templates,id',
+            'copy_schema' => 'boolean',
         ];
     }
 }

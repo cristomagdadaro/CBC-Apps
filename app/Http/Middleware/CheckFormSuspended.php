@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use App\Models\Form;
+use Illuminate\Support\Facades\Auth;
 
 class CheckFormSuspended
 {
@@ -13,7 +14,7 @@ class CheckFormSuspended
      */
     public function handle(Request $request, Closure $next)
     {
-        if (auth()->check()) {
+        if (Auth::check()) {
             return $next($request);
         }
 

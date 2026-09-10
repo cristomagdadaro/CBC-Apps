@@ -89,7 +89,7 @@ class RentalVenueController extends BaseController
 
     public function publicShow(string $id): JsonResponse
     {
-        $rental = $this->repo()->find($id);
+        $rental = $this->repo()->findByBookingId($id) ?? $this->repo()->find($id);
 
         if (!$rental) {
             return response()->json(['message' => 'Rental not found'], 404);
@@ -213,7 +213,7 @@ class RentalVenueController extends BaseController
 
     public function getByVenueType(string $venueType): JsonResponse
     {
-        $rentals = $this->repo()->all(['venue_type' => $venueType]);
+        $rentals = $this->repo()->search(collect(['venue_type' => $venueType]), false);
 
         return response()->json(['data' => $rentals]);
     }
@@ -229,7 +229,6 @@ class RentalVenueController extends BaseController
     private function buildPublicRentalPayload(RentalVenue $rental): array
     {
         $payload = Arr::only($rental->toArray(), [
-            'id',
             'booking_id',
             'organization',
             'requested_by',
@@ -246,6 +245,8 @@ class RentalVenueController extends BaseController
         $options = app(\App\Repositories\OptionRepo::class)->getEventHalls();
         $option = collect($options)->firstWhere('name', $rental->venue_type);
         $payload['venue_type_label'] = $option ? $option['label'] : $rental->venue_type;
+
+        $payload['id'] = $rental->booking_id;
 
         return $payload;
     }

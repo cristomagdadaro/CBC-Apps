@@ -15,6 +15,10 @@ export default {
             type: Array,
             default: () => [],
         },
+        driverOptions: {
+            type: Array,
+            default: () => [],
+        },
     },
     mixins: [ApiMixin],
     data() {
@@ -173,6 +177,7 @@ export default {
                     v-if="rentalsFromApi && rentalsFromApi.total > 0 && !processing"
                     :rentals-data="rentalsFromApi.data"
                     :vehicle-options="vehicleOptions"
+                    :driver-options="driverOptions"
                     @updated="searchRentals" />
 
                 <div

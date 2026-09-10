@@ -56,6 +56,7 @@ class RentalVehicle extends BaseModel
         'is_shared_ride',
         'shared_ride_reference',
         'contact_number',
+        'driver',
         'status',
         'notes',
         'travel_details',

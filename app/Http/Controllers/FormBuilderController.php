@@ -10,7 +10,9 @@ use App\Services\DynamicValidationService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\ValidationException;
+use App\Http\Requests\AssignTemplateRequest;
+use App\Http\Requests\StoreTemplateRequest;
+use App\Http\Requests\UpdateTemplateRequest;
 
 class FormBuilderController extends BaseController
 {
@@ -99,13 +101,9 @@ class FormBuilderController extends BaseController
     /**
      * Assign a template to an event subform
      */
-    public function assignToEvent(Request $request): JsonResponse
+    public function assignToEvent(AssignTemplateRequest $request): JsonResponse
     {
-        $validated = $request->validate([
-            'event_subform_id' => 'required|uuid|exists:event_subforms,id',
-            'template_id' => 'nullable|uuid|exists:form_type_templates,id',
-            'copy_schema' => 'boolean',
-        ]);
+        $validated = $request->validated();
 
         $subform = EventSubform::findOrFail($validated['event_subform_id']);
         $templateId = $validated['template_id'];
@@ -159,24 +157,9 @@ class FormBuilderController extends BaseController
     /**
      * Create a new custom template
      */
-    public function storeTemplate(Request $request): JsonResponse
+    public function storeTemplate(StoreTemplateRequest $request): JsonResponse
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string|max:1000',
-            'icon' => 'nullable|string|max:50',
-            'form_config' => 'nullable|array',
-            'fields' => 'required|array|min:1',
-            'fields.*.field_key' => 'required|string|max:100|distinct',
-            'fields.*.field_type' => 'required|string|in:' . implode(',', array_keys(FormFieldDefinition::FIELD_TYPES)),
-            'fields.*.label' => 'required|string|max:1024',
-            'fields.*.placeholder' => 'nullable|string|max:255',
-            'fields.*.description' => 'nullable|string|max:500',
-            'fields.*.validation_rules' => 'nullable|array',
-            'fields.*.options' => 'nullable|array',
-            'fields.*.display_config' => 'nullable|array',
-            'fields.*.field_config' => 'nullable|array',
-        ]);
+        $validated = $request->validated();
 
         $template = $this->formBuilderRepo()->createTemplateWithFields(
             [
@@ -199,27 +182,11 @@ class FormBuilderController extends BaseController
     /**
      * Update an existing template
      */
-    public function updateTemplate(Request $request, string $id): JsonResponse
+    public function updateTemplate(UpdateTemplateRequest $request, string $id): JsonResponse
     {
         $template = FormTypeTemplate::findOrFail($id);
 
-        $validated = $request->validate([
-            'name' => 'sometimes|string|max:255',
-            'description' => 'nullable|string|max:1000',
-            'icon' => 'nullable|string|max:50',
-            'form_config' => 'nullable|array',
-            'fields' => 'sometimes|array|min:1',
-            'fields.*.id' => 'nullable|uuid',
-            'fields.*.field_key' => 'required|string|max:100|distinct',
-            'fields.*.field_type' => 'required|string|in:' . implode(',', array_keys(FormFieldDefinition::FIELD_TYPES)),
-            'fields.*.label' => 'required|string|max:1024',
-            'fields.*.placeholder' => 'nullable|string|max:255',
-            'fields.*.description' => 'nullable|string|max:500',
-            'fields.*.validation_rules' => 'nullable|array',
-            'fields.*.options' => 'nullable|array',
-            'fields.*.display_config' => 'nullable|array',
-            'fields.*.field_config' => 'nullable|array',
-        ]);
+        $validated = $request->validated();
 
         $template = $this->formBuilderRepo()->updateTemplateWithFields(
             $template,

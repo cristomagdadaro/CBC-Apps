@@ -25,7 +25,7 @@ require __DIR__.'/web/golinks.php';
 require __DIR__.'/web/dev.php';
 
 Route::get('/ai', function() {
-    $user = auth()->user();
+    $user = \Illuminate\Support\Facades\Auth::user();
     
     $payload = base64_encode(json_encode([
         'id' => $user->id,

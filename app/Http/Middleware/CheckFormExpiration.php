@@ -6,6 +6,7 @@ use App\Models\Form;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\Auth;
 
 class CheckFormExpiration
 {
@@ -16,7 +17,7 @@ class CheckFormExpiration
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (auth()->check()) {
+        if (Auth::check()) {
             return $next($request);
         }
 

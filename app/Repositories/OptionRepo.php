@@ -473,42 +473,45 @@ class OptionRepo extends AbstractRepoService
         $raw = $this->getByKey('vehicles') ?? $this->getByKey('vehicle');
         $decoded = is_string($raw) ? json_decode($raw, true) : $raw;
 
-        if (is_array($decoded) && !empty($decoded)) {
-            return collect($decoded)
-                ->map(function ($vehicle) {
-                    $name = $vehicle['name'] ?? null;
-                    $label = $vehicle['label'] ?? $name;
+        return collect($decoded)
+            ->map(function ($vehicle) {
+                $name = $vehicle['name'] ?? null;
+                $label = $vehicle['label'] ?? $name;
 
-                    if (!$name) {
-                        return null;
-                    }
+                if (!$name) {
+                    return null;
+                }
 
-                    return [
-                        'name' => (string) $name,
-                        'label' => (string) $label,
-                    ];
-                })
-                ->filter()
-                ->values();
-        }
+                return [
+                    'name' => (string) $name,
+                    'label' => (string) $label,
+                ];
+            })
+            ->filter()
+            ->values();
+    }
 
-        $items = \App\Models\Transaction::join('items', 'transactions.item_id', '=', 'items.id')
-            ->where('items.category_id', 8)
-            ->select('items.description as description', 'items.brand as brand')
-            ->get();
+    public function getDrivers()
+    {
+        $raw = $this->getByKey('drivers') ?? $this->getByKey('driver');
+        $decoded = is_string($raw) ? json_decode($raw, true) : $raw;
 
-        return $items->map(function ($item) {
-            $description = (string) $item->description;
-            $brand = trim((string) ($item->brand ?? ''));
-            $label = $brand ? "{$brand} ({$description})" : $description;
+        return collect($decoded)
+            ->map(function ($driver) {
+                $name = $driver['name'] ?? null;
+                $label = $driver['label'] ?? $name;
 
-            return [
-                'name' => $description,
-                'label' => $label,
-            ];
-        })
-        ->unique('name')
-        ->values();
+                if (!$name) {
+                    return null;
+                }
+
+                return [
+                    'name' => (string) $name,
+                    'label' => (string) $label,
+                ];
+            })
+            ->filter()
+            ->values();
     }
 
     /**

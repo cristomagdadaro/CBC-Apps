@@ -125,14 +125,14 @@ export default {
                     icon: "LuDollarSign",
                     children: [
                         {
-                            label: "Vehicle Requests List",
+                            label: "Travel Order Requests",
                             href: "rentals.vehicle.index",
                             permission: "rental.vehicle.manage",
                             moduleKey: "rentals",
                             icon: "LuCar",
                         },
                         {
-                            label: "Venue Requests List",
+                            label: "Venue Requests",
                             href: "rentals.venue.index",
                             permission: "rental.venue.manage",
                             moduleKey: "rentals",

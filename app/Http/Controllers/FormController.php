@@ -7,10 +7,11 @@ use App\Http\Requests\DeleteFormRequest;
 use App\Http\Requests\DeleteParticipantRequest;
 use App\Http\Requests\GetFormsRequest;
 use App\Http\Requests\UpdateFormRequest;
+use App\Http\Requests\UpdateRequirementsRequest;
 use App\Repositories\FormRepo;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Inspiring;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Collection;
 use Inertia\Inertia;
 
@@ -56,14 +57,13 @@ class FormController extends BaseController
         return new Collection(['data' => $data]);
     }
 
-    public function deleteParticipants(DeleteParticipantRequest $request, $participant_id): Model
+    public function deleteParticipants(DeleteParticipantRequest $request, string $participant_id): Model
     {
-        return $this->repo()->deleteParticipantById($participant_id);
+        return $this->repo()->deleteParticipantById($request->validated('id') ||$participant_id);
     }
 
     public function create(CreateFormRequest $request): Model
     {
-        //return parent::_store($request);
         return $this->repo()->createEventWithRequirements($request->validated());
     }
 
@@ -71,51 +71,30 @@ class FormController extends BaseController
     {
         $model = $this->repo()->updateByEventId($event_id, $request->validated());
         if ($request->has('requirements')) {
-            $this->updateRequirements($request, $event_id);
+            $reqValidator = Validator::make(
+                $request->only('requirements'),
+                (new UpdateRequirementsRequest())->rules()
+            );
+            $this->repo()->updateRequirements($event_id, $reqValidator->validate()['requirements'] ?? []);
         }
         return $model;
     }
 
     public function delete(DeleteFormRequest $request, $event_id = null): Model
     {
-        return $this->repo()->deleteByEventId($request->validated('event_id'));
+        return $this->repo()->deleteByEventId($request->validated('event_id') ?? $event_id);
     }
 
     public function show(GetFormsRequest $request, $event_id = null): Collection
     {
-        $form = $this->repo()->getByEventIdWithRequirements($event_id);
+        $form = $this->repo()->getByEventIdWithRequirements($request->validated('event_id') ?? $event_id);
 
         return new Collection($form ? $form->toArray() : []);
     }
 
-    public function updateRequirements(Request $request, $event_id)
+    public function updateRequirements(UpdateRequirementsRequest $request, string $event_id)
     {
-        $validated = $request->validate([
-            'requirements' => ['array'],
-            'requirements.*.form_type' => ['required', 'string'],
-            'requirements.*.form_type_template_id' => ['nullable', 'uuid', 'exists:form_type_templates,id'],
-            'requirements.*.step_type' => ['nullable', 'string'],
-            'requirements.*.step_order' => ['nullable', 'integer', 'min:1'],
-            'requirements.*.is_enabled' => ['boolean'],
-            'requirements.*.open_from' => ['nullable', 'date'],
-            'requirements.*.open_to' => ['nullable', 'date', 'after_or_equal:requirements.*.open_from'],
-            'requirements.*.is_required' => ['boolean'],
-            'requirements.*.max_slots' => ['nullable', 'integer', 'min:0'],
-            'requirements.*.config' => ['nullable', 'array'],
-            'requirements.*.config.limits' => ['nullable', 'array'],
-            'requirements.*.config.limits.*.field' => ['required_with:requirements.*.config.limits.*.max', 'string'],
-            'requirements.*.config.limits.*.max' => ['required_with:requirements.*.config.limits.*.field', 'integer', 'min:1'],
-            'requirements.*.field_schema' => ['nullable', 'array'],
-            'requirements.*.field_schema.*.field_key' => ['required_with:requirements.*.field_schema', 'string'],
-            'requirements.*.field_schema.*.field_type' => ['required_with:requirements.*.field_schema', 'string'],
-            'requirements.*.field_schema.*.label' => ['required_with:requirements.*.field_schema', 'string'],
-            'requirements.*.field_schema.*.validation_rules' => ['nullable', 'array'],
-            'requirements.*.field_schema.*.options' => ['nullable', 'array'],
-            'requirements.*.field_schema.*.display_config' => ['nullable', 'array'],
-            'requirements.*.field_schema.*.field_config' => ['nullable', 'array'],
-            'requirements.*.visibility_rules' => ['nullable', 'array'],
-            'requirements.*.completion_rules' => ['nullable', 'array'],
-        ]);
+        $validated = $request->validated();
 
         $requirements = $validated['requirements'] ?? [];
 

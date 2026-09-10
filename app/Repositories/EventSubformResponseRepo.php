@@ -77,4 +77,13 @@ class EventSubformResponseRepo extends AbstractRepoService
 
         return $this->applyPagination($builder, $parameters);
     }
+
+    public function hasSubmittedLegacyResponse(string $registrationId, string $requirementId): bool
+    {
+        return $this->model
+            ->where('form_parent_id', $requirementId)
+            ->where('participant_id', $registrationId)
+            ->where('status', 'submitted')
+            ->exists();
+    }
 }

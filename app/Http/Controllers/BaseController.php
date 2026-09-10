@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 
 
 abstract class BaseController extends Controller
@@ -24,7 +25,7 @@ abstract class BaseController extends Controller
 
     protected function requireAdmin(): void
     {
-        $user = auth()->user();
+        $user = Auth::user();
         abort_if(!$user || !$user->isAdministrator(), 403, 'Unauthorized.');
     }
 

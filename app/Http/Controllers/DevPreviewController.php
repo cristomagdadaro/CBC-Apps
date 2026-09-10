@@ -52,7 +52,9 @@ class DevPreviewController extends BaseController
 
         $mockData = $this->getMockData($viewName);
         
-        $viewPath = View::make($viewName)->getPath();
+        /** @var \Illuminate\View\View $view */
+        $view = View::make($viewName);
+        $viewPath = $view->getPath();
         $content = File::get($viewPath);
 
         // If it's a Markdown mailable, render it properly using the Markdown engine

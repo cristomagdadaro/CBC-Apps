@@ -207,8 +207,12 @@ export default {
                             <LuCar class="h-5 w-5 sm:h-6 sm:w-6" />
                         </div>
                         <div class="leading-tight">
-                            <h2 class="text-sm font-bold sm:text-lg">
-                                {{ rental.vehicle_type_label || rental.vehicle_type || "Vehicle Not Assigned Yet" }}
+                            <h2 class="text-sm font-bold sm:text-lg flex flex-wrap items-center gap-2">
+                                <span>{{ rental.vehicle_type_label || rental.vehicle_type || "Vehicle Not Assigned Yet" }}</span>
+                                <span v-if="rental.driver" class="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-[11px] font-bold tracking-wider text-blue-700 dark:bg-blue-500/20 dark:text-blue-300">
+                                    <LuUser class="mr-1 h-3 w-3" />
+                                    {{ rental.driver_label || rental.driver }}
+                                </span>
                             </h2>
                             <p class="mt-0.5 text-xs opacity-80 sm:text-sm">
                                 {{ tripTypeMeta.label }}

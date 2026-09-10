@@ -116,6 +116,17 @@
                                     :selected="option.name === value">
                                     {{ option.label }}
                                 </dropdown-option>
+
+                                <!-- Custom Option -->
+                                <dropdown-option
+                                    v-if="allowCustom && search && !filteredOptions.find(o => o.label.toLowerCase() === search.toLowerCase())"
+                                    @click.prevent="selectCustom()"
+                                    class="border-t border-slate-100 dark:border-slate-800">
+                                    <div class="flex items-center gap-2 text-xs sm:text-sm italic text-blue-600 dark:text-blue-400">
+                                        <LuPlus class="h-3.5 w-3.5" />
+                                        Use "{{ search }}"
+                                    </div>
+                                </dropdown-option>
                             </template>
                         </div>
                     </div>
@@ -161,6 +172,10 @@ export default {
         showSelectedOption: {
             type: Boolean,
             default: true,
+        },
+        allowCustom: {
+            type: Boolean,
+            default: false,
         },
     },
     data() {
@@ -209,10 +224,21 @@ export default {
         },
         selectByValue(value, silent = false) {
             this.selected = this.options.find((option) => option.name === value);
+            if (!this.selected && this.allowCustom && value) {
+                this.selected = { name: value, label: value };
+            }
             if (!silent) {
                 if (this.disabled) return;
                 this.$emit("selectedChange", this.selected ? this.selected.name : null);
             }
+        },
+        selectCustom() {
+            if (this.disabled || !this.search) return;
+            const customValue = this.search.trim();
+            const option = { name: customValue, label: customValue };
+            this.$emit("selectedChange", option.name);
+            this.selected = option;
+            this.open = false;
         },
         filterOptions() {
             if (this.search) this.filteredOptions = this.options.filter((option) => option.label.toLowerCase().includes(this.search.toLowerCase()));
@@ -223,7 +249,10 @@ export default {
         options: {
             handler() {
                 if (this.value !== undefined && this.value !== null) {
-                    const selectedOption = this.options?.find((option) => option.name === this.value);
+                    let selectedOption = this.options?.find((option) => option.name === this.value);
+                    if (!selectedOption && this.allowCustom) {
+                        selectedOption = { name: this.value, label: this.value };
+                    }
                     if (selectedOption) {
                         this.selected = selectedOption;
                         this.filteredOptions = [selectedOption, ...this.options.filter((option) => option.name !== this.value)];
@@ -239,7 +268,10 @@ export default {
             handler(newVal) {
                 const opts = Array.isArray(this.options) ? this.options : [];
                 if (newVal !== undefined && newVal !== null) {
-                    const selectedOption = opts.find((option) => option.name === this.value);
+                    let selectedOption = opts.find((option) => option.name === this.value);
+                    if (!selectedOption && this.allowCustom) {
+                        selectedOption = { name: newVal, label: newVal };
+                    }
                     if (selectedOption) {
                         this.selected = selectedOption;
                         this.filteredOptions = [selectedOption, ...opts.filter((option) => option.name !== newVal)];

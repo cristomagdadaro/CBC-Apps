@@ -93,7 +93,7 @@ class RentalVehicleController extends BaseController
 
     public function publicShow(string $id): JsonResponse
     {
-        $rental = $this->repo()->find($id);
+        $rental = $this->repo()->findByBookingId($id) ?? $this->repo()->find($id);
 
         if (!$rental) {
             return response()->json(['message' => 'Rental not found'], 404);
@@ -143,6 +143,12 @@ class RentalVehicleController extends BaseController
             ->values()
             ->all();
 
+        $listDrivers = collect(app(OptionRepo::class)->getDrivers())
+            ->pluck('name')
+            ->filter()
+            ->values()
+            ->all();
+
         $validated = $request->validate([
             'status' => ['required', Rule::in([
                 RentalVehicle::STATUS_PENDING,
@@ -156,6 +162,7 @@ class RentalVehicleController extends BaseController
                 'string',
                 !empty($vehicleTypes) ? Rule::in($vehicleTypes) : null,
             ])),
+            'driver' => ['nullable', 'string', 'max:255'],
             'notes' => ['nullable', 'string', 'max:1000'],
         ]);
 
@@ -186,11 +193,23 @@ class RentalVehicleController extends BaseController
             }
         }
 
-        $updated = $this->repo()->update($id, [
+        $updateData = [
             'status' => $validated['status'],
-            'vehicle_type' => $vehicleType,
-            'notes' => $validated['notes'] ?? $rental->notes,
-        ]);
+        ];
+
+        if (array_key_exists('vehicle_type', $validated)) {
+            $updateData['vehicle_type'] = $validated['vehicle_type'];
+        }
+
+        if (array_key_exists('driver', $validated)) {
+            $updateData['driver'] = $validated['driver'];
+        }
+
+        if (array_key_exists('notes', $validated)) {
+            $updateData['notes'] = $validated['notes'];
+        }
+
+        $updated = $this->repo()->update($id, $updateData);
         $this->broadcastRentalChange($updated, 'status_changed');
 
         return response()->json(['data' => $this->repo()->find((string) $updated->id)]);
@@ -251,7 +270,7 @@ class RentalVehicleController extends BaseController
 
     public function getByVehicleType(string $vehicleType): JsonResponse
     {
-        $rentals = $this->repo()->all(['vehicle_type' => $vehicleType]);
+        $rentals = $this->repo()->search(collect(['vehicle_type' => $vehicleType]), false);
 
         return response()->json(['data' => $rentals]);
     }
@@ -267,11 +286,11 @@ class RentalVehicleController extends BaseController
     private function buildPublicRentalPayload(RentalVehicle $rental): array
     {
         $payload = Arr::only($rental->toArray(), [
-            'id',
             'booking_id',
             'organization',
             'requested_by',
             'vehicle_type',
+            'driver',
             'trip_type',
             'date_from',
             'date_to',
@@ -292,6 +311,12 @@ class RentalVehicleController extends BaseController
         $options = app(\App\Repositories\OptionRepo::class)->getVehicles();
         $option = collect($options)->firstWhere('name', $rental->vehicle_type);
         $payload['vehicle_type_label'] = $option ? $option['label'] : $rental->vehicle_type;
+
+        $driverOptions = app(\App\Repositories\OptionRepo::class)->getDrivers();
+        $driverOption = collect($driverOptions)->firstWhere('name', $rental->driver);
+        $payload['driver_label'] = $driverOption ? $driverOption['label'] : $rental->driver;
+
+        $payload['id'] = $rental->booking_id;
 
         return $payload;
     }

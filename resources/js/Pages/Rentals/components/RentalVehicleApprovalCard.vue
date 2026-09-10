@@ -77,6 +77,10 @@ export default {
             type: Array,
             default: () => [],
         },
+        driverOptions: {
+            type: Array,
+            default: () => [],
+        },
     },
     emits: ["updated", "failedUpdate"],
     data() {
@@ -95,6 +99,11 @@ export default {
         },
         assignedVehicleLabel() {
             return this.formState.vehicle_type || "Vehicle to be assigned upon approval";
+        },
+        assignedDriverLabel() {
+            if (!this.formState.driver) return "No driver assigned";
+            const option = this.driverOptions.find((opt) => opt.name === this.formState.driver);
+            return option ? option.label : this.formState.driver;
         },
         statusConfig() {
             return STATUS_CONFIGS[this.formState.status] || STATUS_CONFIGS.pending;
@@ -135,6 +144,7 @@ export default {
                 const response = await this.fetchPutApi("api.rental.vehicles.update-status", this.formState.id, {
                     status,
                     vehicle_type: this.formState.vehicle_type,
+                    driver: this.formState.driver,
                     notes: this.formState.notes,
                 });
                 const data = response?.data ?? response;
@@ -260,8 +270,14 @@ export default {
                             {{ formState.requested_by || "N/A" }}
                         </p>
                         <p class="mt-1 text-sm font-medium text-gray-500 dark:text-slate-400">
-                            {{ assignedVehicleLabel }}
+                            <span class="text-pin-lime truncate font-semibold tracking-wide">{{ assignedVehicleLabel }}</span>
                         </p>
+                        <div
+                            v-if="formState.driver"
+                            class="flex max-w-[200px] flex-col overflow-hidden text-right">
+                            <span class="text-[10px] font-medium uppercase tracking-wider text-white/50">Driver</span>
+                            <span class="text-pin-lime truncate font-semibold tracking-wide">{{ assignedDriverLabel }}</span>
+                        </div>
                     </div>
                 </div>
 
@@ -359,10 +375,25 @@ export default {
                             required
                             searchable
                             :withAllOption="false"
-                            :show-valid-indicator="false"
                             :options="vehicleOptions"
                             @selectedChange="formState.vehicle_type = $event"
                             :value="formState.vehicle_type"
+                            class="w-full">
+                            <template #icon="{ open }">
+                                <LuChevronRight
+                                    :class="open ? 'rotate-90' : ''"
+                                    class="h-4 w-4 transition-transform duration-300" />
+                            </template>
+                        </custom-dropdown>
+
+                        <custom-dropdown
+                            label="Assign Driver"
+                            searchable
+                            :allowCustom="true"
+                            :withAllOption="false"
+                            :options="driverOptions"
+                            @selectedChange="formState.driver = $event"
+                            :value="formState.driver"
                             class="w-full">
                             <template #icon="{ open }">
                                 <LuChevronRight

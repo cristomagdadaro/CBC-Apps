@@ -10,4 +10,9 @@ class RegistrationRepo extends AbstractRepoService
     {
         parent::__construct($model);
     }
+
+    public function findWithLock(string $id): ?Registration
+    {
+        return $this->model->where('id', $id)->lockForUpdate()->first();
+    }
 }

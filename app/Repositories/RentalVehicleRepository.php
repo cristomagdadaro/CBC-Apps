@@ -17,6 +17,11 @@ class RentalVehicleRepository extends AbstractRepoService
         parent::__construct($model);
     }
 
+    public function findByBookingId(string $bookingId): ?RentalVehicle
+    {
+        return $this->model->where('booking_id', $bookingId)->first();
+    }
+
     public function search(Collection $parameters, bool $withPagination = true, bool $isTrashed = false)
     {
         $result = parent::search($parameters, $withPagination, $isTrashed);
@@ -84,7 +89,7 @@ class RentalVehicleRepository extends AbstractRepoService
         return $builder->get();
     }
 
-    public function find(string $id)
+    public function find(string $id): ?RentalVehicle
     {
         $query = $this->model->newQuery();
         

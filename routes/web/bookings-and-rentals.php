@@ -46,6 +46,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
             Route::get('/vehicle', function () {
                 return Inertia::render('Rentals/RentalsVehicleIndex', [
                     'vehicleOptions' => app(OptionRepo::class)->getVehicles(),
+                    'driverOptions' => app(OptionRepo::class)->getDrivers(),
                 ]);
             })->name('rentals.vehicle.index');
 
