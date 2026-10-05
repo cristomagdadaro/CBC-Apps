@@ -1,4 +1,6 @@
-@import "tailwindcss";[x-cloak] {
+@import "tailwindcss";
+
+[x-cloak] {
     display: none;
 }
 
