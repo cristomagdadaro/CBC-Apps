@@ -22,6 +22,8 @@ require __DIR__.'/web/options.php';
 require __DIR__.'/web/user-management.php';
 require __DIR__.'/web/golinks.php';
 
+Route::get('/auth/handoff', [\App\Http\Controllers\AuthHandoffController::class, 'handle'])->name('auth.handoff');
+
 require __DIR__.'/web/dev.php';
 
 Route::get('/ai', function() {
