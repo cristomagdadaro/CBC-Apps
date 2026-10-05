@@ -25,10 +25,10 @@ export default {
     },
     methods: {
         formatBytes(bytes, decimals = 1) {
-            if (!+bytes) return '0 Bytes';
+            if (!+bytes) return "0 Bytes";
             const k = 1024;
             const dm = decimals < 0 ? 0 : decimals;
-            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+            const sizes = ["Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
             const i = Math.floor(Math.log(bytes) / Math.log(k));
             return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
         },
@@ -54,7 +54,7 @@ export default {
                 this.compressedSize = null;
                 return;
             }
-            
+
             this.originalSize = file.size;
             this.compressedSize = null;
 
@@ -62,7 +62,7 @@ export default {
             reader.onload = (event) => {
                 if (file.type && file.type.startsWith("image/")) {
                     this.compressImage(event.target.result, (compressedDataUrl) => {
-                        const base64Data = compressedDataUrl.split(',')[1];
+                        const base64Data = compressedDataUrl.split(",")[1];
                         if (base64Data) {
                             this.compressedSize = Math.round((base64Data.length * 3) / 4);
                         }
@@ -118,9 +118,22 @@ export default {
                     :aria-invalid="isInvalid"
                     :aria-describedby="guideId"
                     @change="onChange" />
-                
-                <div v-if="originalSize && compressedSize" class="mt-1.5 flex items-center gap-1.5 px-1 text-[11px] font-medium text-emerald-600 dark:text-emerald-400">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+
+                <div
+                    v-if="originalSize && compressedSize"
+                    class="mt-1.5 flex items-center gap-1.5 px-1 text-[11px] font-medium text-emerald-600 dark:text-emerald-400">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="12"
+                        height="12"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
                     Compressed from {{ formatBytes(originalSize) }} to {{ formatBytes(compressedSize) }}
                 </div>
             </div>
