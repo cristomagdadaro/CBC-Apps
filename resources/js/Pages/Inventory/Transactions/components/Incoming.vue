@@ -43,6 +43,14 @@ export default {
         Plus,
         Warehouse,
     },
+    data() {
+        return {
+            showNewItemForm: false,
+            showStorageReference: false,
+            extractedData: null,
+            selectedExtractedItemIndex: 0,
+        };
+    },
     computed: {
         isUpdate() {
             return !!this.data?.id;
@@ -57,14 +65,28 @@ export default {
                 label: location.label,
             }));
         },
-    },
-    data() {
-        return {
-            showNewItemForm: false,
-            showStorageReference: false,
-        };
+        activeExtractedItemData() {
+            if (!this.extractedData) return null;
+            return {
+                supplier: this.extractedData.supplier,
+                items: [this.extractedData.items?.[this.selectedExtractedItemIndex] || {}],
+                transaction: this.extractedData.transaction,
+            };
+        },
     },
     methods: {
+        handleOcrExtracted(data) {
+            this.extractedData = data;
+            this.selectedExtractedItemIndex = 0;
+            
+            // If item data is present, optionally auto-open the New Item form
+            if (data?.items && data.items.length > 0) {
+                this.showNewItemForm = true;
+            }
+        },
+        handleOcrItemSelected(index) {
+            this.selectedExtractedItemIndex = index;
+        },
         toggleStorageReference() {
             this.showStorageReference = !this.showStorageReference;
         },
@@ -112,7 +134,9 @@ export default {
                         :attached-components="attachedComponents"
                         :parent-transaction="parentTransaction"
                         :list-conditions="listConditions"
-                        @showNewItemForm="showNewItemForm = $event" />
+                        @showNewItemForm="showNewItemForm = $event"
+                        @ocr-extracted="handleOcrExtracted"
+                        @ocr-item-selected="handleOcrItemSelected" />
                 </div>
 
                 <!-- Side Panel: New Item Form -->
@@ -135,7 +159,9 @@ export default {
                                 </button>
                             </div>
                             <div class="p-1">
-                                <item-form @close="showNewItemForm = false" />
+                                <item-form 
+                                    :extracted-data="activeExtractedItemData"
+                                    @close="showNewItemForm = false" />
                             </div>
                         </div>
                     </div>

@@ -9,7 +9,7 @@ import TransactionHeaderAction from "@/Pages/Inventory/Transactions/components/T
 import TransactionReportAccordion from "@/Pages/Inventory/Transactions/components/TransactionReportAccordion.vue";
 import TransactionComponentAccordion from "@/Pages/Inventory/Transactions/components/TransactionComponentAccordion.vue";
 import AuditInfoCard from "@/Components/AuditInfoCard.vue";
-import { Plus, X, Printer, RotateCcw, Save, Loader2, Package, GitBranch, ArrowUpRight, Filter, Calendar, Hash, User, FileText, DollarSign, Scale, Box, Tag, MapPin, AlertCircle, Info, ScanText } from "lucide-vue-next";
+import { Plus, X, Printer, RotateCcw, Save, Loader2, Package, GitBranch, ArrowUpRight, Filter, Calendar, Hash, User, FileText, DollarSign, Scale, Box, Tag, MapPin, AlertCircle, Info, ScanText, Sparkles } from "lucide-vue-next";
 import axios from "axios";
 
 export default {
@@ -59,6 +59,7 @@ export default {
         MapPin,
         AlertCircle,
         Info,
+        Sparkles,
     },
     mixins: [ApiMixin],
     data() {
@@ -70,9 +71,11 @@ export default {
             showNewItemForm: false,
             rememberFormKey: "incomingTransactionForm",
             isExtracting: false,
+            extractedData: null,
+            selectedItemIndex: 0,
         };
     },
-    emits: ["showNewItemForm"],
+    emits: ["showNewItemForm", "ocr-extracted", "ocr-item-selected"],
     methods: {
         async submitForm() {
             if (this.isUpdate) {
@@ -192,6 +195,9 @@ export default {
                     this.form.remarks = extracted.transaction.remarks || this.form.remarks;
                 }
                 
+                this.extractedData = extracted;
+                this.selectedItemIndex = 0;
+                
                 // Auto-fill the form with item transaction details
                 if (extracted.items && extracted.items.length > 0) {
                     const firstItem = extracted.items[0];
@@ -199,7 +205,14 @@ export default {
                     this.form.unit = firstItem.unit || this.form.unit;
                     this.form.unit_price = firstItem.unit_price || this.form.unit_price;
                     this.form.total_cost = firstItem.total_cost || this.form.total_cost;
+                    
+                    // Sync the new item form toggle
+                    this.showNewItemForm = true;
+                    this.$emit('showNewItemForm', true);
                 }
+                
+                // Emit the extracted data so parent components can pre-fill Item and Supplier forms
+                this.$emit('ocr-extracted', extracted);
                 
             } catch (error) {
                 console.error('OCR Extraction Failed', error);
@@ -210,6 +223,21 @@ export default {
                     this.$refs.ocrFileInput.value = '';
                 }
             }
+        },
+        selectExtractedItem(index) {
+            this.selectedItemIndex = index;
+            const selectedItem = this.extractedData.items[index];
+            if (selectedItem) {
+                this.form.quantity = selectedItem.quantity || this.form.quantity;
+                this.form.unit = selectedItem.unit || this.form.unit;
+                this.form.unit_price = selectedItem.unit_price || this.form.unit_price;
+                this.form.total_cost = selectedItem.total_cost || this.form.total_cost;
+            }
+            
+            // Forcibly open the New Item side panel so the user can see the item and supplier details
+            this.showNewItemForm = true;
+            this.$emit('showNewItemForm', true);
+            this.$emit('ocr-item-selected', index);
         },
     },
     computed: {
@@ -423,6 +451,28 @@ export default {
                         :src="svgText"
                         alt="Generated barcode"
                         class="h-12 w-auto rounded bg-white object-contain mix-blend-multiply dark:mix-blend-normal" />
+                </div>
+            </div>
+
+            <!-- Multiple Items Selector -->
+            <div v-if="extractedData?.items?.length > 1" class="border-b border-indigo-100 bg-indigo-50/50 p-5 dark:border-indigo-500/20 dark:bg-indigo-500/10">
+                <div class="mb-3 flex items-center gap-2">
+                    <Sparkles class="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+                    <h3 class="text-xs font-bold uppercase text-indigo-700 dark:text-indigo-300">Multiple Items Detected ({{ extractedData.items.length }})</h3>
+                </div>
+                <div class="custom-scrollbar flex gap-3 overflow-x-auto pb-2">
+                    <button 
+                        v-for="(item, index) in extractedData.items" 
+                        :key="index"
+                        type="button"
+                        @click="selectExtractedItem(index)"
+                        :class="['shrink-0 text-left w-64 rounded-xl border p-3 transition-all', selectedItemIndex === index ? 'border-indigo-500 bg-white shadow-md ring-1 ring-indigo-500 dark:bg-slate-800' : 'border-indigo-200 bg-indigo-50/50 hover:bg-white dark:border-indigo-500/30 dark:bg-indigo-500/10 dark:hover:bg-slate-800']">
+                        <div class="truncate text-sm font-bold text-slate-800 dark:text-slate-200">{{ item.name || 'Unknown Item' }}</div>
+                        <div class="mt-1 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+                            <span class="truncate">{{ item.brand || 'No Brand' }}</span>
+                            <span class="font-semibold text-indigo-600 dark:text-indigo-400">{{ item.quantity || 1 }} {{ item.unit || 'pcs' }}</span>
+                        </div>
+                    </button>
                 </div>
             </div>
 
