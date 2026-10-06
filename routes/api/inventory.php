@@ -119,6 +119,7 @@ Route::middleware(['api', 'auth:sanctum'])->group(function () {
                 Route::put('/{id?}', [TransactionController::class, 'update'])->name('api.inventory.transactions.update');
                 Route::get('/generate-barcode/{room?}', [TransactionController::class, 'generateUniqueBarcode128ID'])->name('api.inventory.transactions.genbarcode');
                 Route::put('/outgoingStore/{id?}', [TransactionController::class, 'outgoingStockStore'])->name('api.inventory.transactions.outgoing');
+                Route::post('/extract-ris', [\App\Http\Controllers\Api\RisOcrController::class, 'extract'])->name('api.inventory.transactions.extract-ris');
             });
 
             Route::prefix('items')->group(function () {

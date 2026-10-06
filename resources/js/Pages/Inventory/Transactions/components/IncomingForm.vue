@@ -9,7 +9,8 @@ import TransactionHeaderAction from "@/Pages/Inventory/Transactions/components/T
 import TransactionReportAccordion from "@/Pages/Inventory/Transactions/components/TransactionReportAccordion.vue";
 import TransactionComponentAccordion from "@/Pages/Inventory/Transactions/components/TransactionComponentAccordion.vue";
 import AuditInfoCard from "@/Components/AuditInfoCard.vue";
-import { Plus, X, Printer, RotateCcw, Save, Loader2, Package, GitBranch, ArrowUpRight, Filter, Calendar, Hash, User, FileText, DollarSign, Scale, Box, Tag, MapPin, AlertCircle, Info } from "lucide-vue-next";
+import { Plus, X, Printer, RotateCcw, Save, Loader2, Package, GitBranch, ArrowUpRight, Filter, Calendar, Hash, User, FileText, DollarSign, Scale, Box, Tag, MapPin, AlertCircle, Info, ScanText } from "lucide-vue-next";
+import axios from "axios";
 
 export default {
     name: "IncomingForm",
@@ -68,6 +69,7 @@ export default {
             svgText: "",
             showNewItemForm: false,
             rememberFormKey: "incomingTransactionForm",
+            isExtracting: false,
         };
     },
     emits: ["showNewItemForm"],
@@ -163,6 +165,51 @@ export default {
                 height: 60,
             });
             this.svgText = canvas.toDataURL();
+        },
+        async handleOcrUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            this.isExtracting = true;
+            const formData = new FormData();
+            formData.append('document', file);
+
+            try {
+                // We use our local endpoint which proxies to SproutAi
+                const response = await axios.post('/api/inventory/transactions/extract-ris', formData, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                });
+                
+                const extracted = response.data.data;
+                
+                // Auto-fill the form with transaction details
+                if (extracted.transaction) {
+                    this.form.project_code = extracted.transaction.project_code || this.form.project_code;
+                    this.form.par_no = extracted.transaction.par_no || this.form.par_no;
+                    this.form.po_no = extracted.transaction.po_no || this.form.po_no;
+                    this.form.pr_no = extracted.transaction.pr_no || this.form.pr_no;
+                    this.form.serial_no = extracted.transaction.serial_no || this.form.serial_no;
+                    this.form.remarks = extracted.transaction.remarks || this.form.remarks;
+                }
+                
+                // Auto-fill the form with item transaction details
+                if (extracted.items && extracted.items.length > 0) {
+                    const firstItem = extracted.items[0];
+                    this.form.quantity = firstItem.quantity || this.form.quantity;
+                    this.form.unit = firstItem.unit || this.form.unit;
+                    this.form.unit_price = firstItem.unit_price || this.form.unit_price;
+                    this.form.total_cost = firstItem.total_cost || this.form.total_cost;
+                }
+                
+            } catch (error) {
+                console.error('OCR Extraction Failed', error);
+                alert('Failed to extract data from the RIS image.');
+            } finally {
+                this.isExtracting = false;
+                if (this.$refs.ocrFileInput) {
+                    this.$refs.ocrFileInput.value = '';
+                }
+            }
         },
     },
     computed: {
@@ -343,9 +390,28 @@ export default {
                             {{ isUpdate ? "Update Transaction" : "Incoming Transaction" }}
                         </h2>
                     </div>
-                    <p class="text-xs font-semibold text-slate-500 dark:text-slate-400">
-                        {{ isUpdate ? "Update the details of this incoming transaction." : "Submit details for a new incoming transaction." }}
-                    </p>
+                    <div class="flex items-center gap-4">
+                        <p class="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                            {{ isUpdate ? "Update the details of this incoming transaction." : "Submit details for a new incoming transaction." }}
+                        </p>
+                        <div v-if="!isUpdate" class="flex items-center gap-2 border-l border-slate-200 pl-4 dark:border-slate-700">
+                            <input 
+                                type="file" 
+                                ref="ocrFileInput" 
+                                accept="image/*" 
+                                class="hidden" 
+                                @change="handleOcrUpload" />
+                            <button
+                                type="button"
+                                @click="$refs.ocrFileInput.click()"
+                                :disabled="isExtracting"
+                                class="inline-flex items-center gap-1.5 rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-xs font-bold text-indigo-600 transition-all hover:bg-indigo-100 active:scale-95 disabled:opacity-50 dark:border-indigo-500/30 dark:bg-indigo-500/10 dark:text-indigo-400 dark:hover:bg-indigo-500/20">
+                                <ScanText v-if="!isExtracting" class="h-3.5 w-3.5" />
+                                <Loader2 v-else class="h-3.5 w-3.5 animate-spin" />
+                                {{ isExtracting ? 'Extracting OCR...' : 'Auto-fill from RIS Image' }}
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Barcode Display -->

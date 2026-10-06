@@ -36,3 +36,4 @@ node_modules/
 NUL
 venv/
 app/python/Certificate-Generator/venv/
+storage/framework/*
