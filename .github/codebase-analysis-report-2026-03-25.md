@@ -151,6 +151,11 @@
 - [ID-2026-09-08-003] Resolved. Refactored `AuditLog` to include a `change_summary` attribute that filters out system metadata (e.g. `updated_at`), providing a clean human-readable timeline for the frontend `AuditInfoCard.vue`.
 - [ID-2026-09-08-004] Resolved. Fixed layout and clipping issues for the Floating Storage Reference in `Incoming.vue` by adjusting CSS anchoring and removing conflicting transition wrappers.
 
+## Tracker Updates (2026-10-07)
+- [ID-2026-10-07-001] Resolved. AI OCR logic (`OcrExtractionService`) now robustly extracts item names (generic), specifications (details), and accurately maps the `category_id`. The prompt was restricted to guarantee raw JSON responses without markdown to prevent parsing failures, and the regex cleaning was enhanced to survive any residual reasoning artifacts from `gemma-4-26b-a4b-qat`.
+- [ID-2026-10-07-002] Resolved. `SelectSearchField.vue` was upgraded to support a `:show-description` property. When enabled on the "Catalog Item" field within `IncomingForm.vue`, the `api.inventory.items.options` endpoint now passes down item `specifications` to the frontend, which are elegantly rendered in the dropdown underneath the generic item name for clearer UX.
+- [ID-2026-10-07-003] Resolved. The "Storage Reference" UI in `Incoming.vue` was a floating action button that overlapped and clipped with bottom elements on mobile/smaller screens. It has been moved directly inside `IncomingForm.vue` as an inline "Reference" button adjoining the "Storage Location" dropdown, opening as a centered `DialogModal` to eliminate UI clipping and maintain a cleaner page layout.
+
 ### Verification Snapshot (2026-06-23)
 - `npm run build`: passed successfully.
 - `php artisan test`: 222 assertions passed successfully across the suite.

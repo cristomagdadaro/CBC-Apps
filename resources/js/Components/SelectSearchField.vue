@@ -396,12 +396,13 @@ export default {
         formatOption(option) {
             if (option == null) return null;
             if (typeof option === "string" || typeof option === "number") {
-                return { value: option, label: String(option) };
+                return { value: option, label: String(option), description: null };
             }
             const fullName = option.full_name ? option.full_name : option.first_name || option.last_name ? `${option.first_name || ""} ${option.last_name || ""}`.trim() : null;
             return {
                 value: option.id || option.value,
                 label: option.name || option.title || option.label || option.value || fullName || String(option.id ?? option.value ?? ""),
+                description: option.description || option.specifications || null,
             };
         },
         initLocalOptions() {
@@ -527,30 +528,33 @@ export default {
 <template>
     <div class="relative flex w-full flex-col border-0 bg-transparent p-0">
         <div class="flex w-full flex-col">
-            <div class="flex items-center gap-1">
-                <text-input
-                    :id="id"
-                    :name="id"
-                    ref="textInput"
-                    :title="title"
-                    :label="dynamicLabel"
-                    :error="$attrs.error"
-                    :required="required"
-                    :show-clear="!disabled"
-                    :disabled="disabled"
-                    v-model="displayedInput"
-                    :placeholder="placeholder"
-                    :autocomplete="autocomplete"
-                    @focusin="toggleDropdown()"
-                    @click="toggleDropdown()"
-                    @input="debounceApiCall($event)"
-                    @clear="clearSelection">
-                    <button
-                        v-if="!disabled"
-                        class="m-1 rounded-md bg-AB p-2 text-white">
-                        <search-icon class="pointer-events-none h-5 w-5" />
-                    </button>
-                </text-input>
+            <div class="flex flex-col w-full">
+                <div class="flex items-center gap-1 w-full">
+                    <text-input
+                        :id="id"
+                        :name="id"
+                        ref="textInput"
+                        :title="title"
+                        :label="dynamicLabel"
+                        :error="$attrs.error"
+                        :required="required"
+                        :show-clear="!disabled"
+                        :disabled="disabled"
+                        v-model="displayedInput"
+                        :placeholder="placeholder"
+                        :autocomplete="autocomplete"
+                        @focusin="toggleDropdown()"
+                        @click="toggleDropdown()"
+                        @input="debounceApiCall($event)"
+                        @clear="clearSelection">
+                        <button
+                            v-if="!disabled"
+                            class="m-1 rounded-md bg-AB p-2 text-white">
+                            <search-icon class="pointer-events-none h-5 w-5" />
+                        </button>
+                    </text-input>
+                </div>
+                <slot name="after-input" :option="selectedOption"></slot>
             </div>
 
             <transition-container>
@@ -588,10 +592,12 @@ export default {
                                 'bg-indigo-100 text-indigo-900': selectedOption?.value === option.value,
                                 'text-gray-900': selectedOption?.value !== option.value,
                             }">
-                            <div
-                                class="overflow-hidden text-ellipsis whitespace-nowrap"
-                                :title="option.label">
-                                {{ option.label }}
+                            <div class="flex flex-col">
+                                <div
+                                    class="overflow-hidden text-ellipsis whitespace-nowrap font-medium"
+                                    :title="option.label">
+                                    {{ option.label }}
+                                </div>
                             </div>
                         </div>
 

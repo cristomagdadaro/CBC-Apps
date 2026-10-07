@@ -9,7 +9,8 @@ import TransactionHeaderAction from "@/Pages/Inventory/Transactions/components/T
 import TransactionReportAccordion from "@/Pages/Inventory/Transactions/components/TransactionReportAccordion.vue";
 import TransactionComponentAccordion from "@/Pages/Inventory/Transactions/components/TransactionComponentAccordion.vue";
 import AuditInfoCard from "@/Components/AuditInfoCard.vue";
-import { Plus, X, Printer, RotateCcw, Save, Loader2, Package, GitBranch, ArrowUpRight, Filter, Calendar, Hash, User, FileText, DollarSign, Scale, Box, Tag, MapPin, AlertCircle, Info, ScanText, Sparkles } from "lucide-vue-next";
+import DialogModal from "@/Components/DialogModal.vue";
+import { Plus, X, Printer, RotateCcw, Save, Loader2, Package, GitBranch, ArrowUpRight, Filter, Calendar, Hash, User, FileText, DollarSign, Scale, Box, Tag, MapPin, AlertCircle, Info, ScanText, Sparkles, Warehouse } from "lucide-vue-next";
 import axios from "axios";
 
 export default {
@@ -60,6 +61,8 @@ export default {
         AlertCircle,
         Info,
         Sparkles,
+        Warehouse,
+        DialogModal,
     },
     mixins: [ApiMixin],
     data() {
@@ -68,6 +71,7 @@ export default {
             noModelApi: null,
             barcodeCanvas: null,
             svgText: "",
+            showStorageReference: false,
             showNewItemForm: false,
             rememberFormKey: "incomingTransactionForm",
             isExtracting: false,
@@ -494,7 +498,19 @@ export default {
                                 :api-link="'api.inventory.items.options'"
                                 :error="form.errors.item_id"
                                 label="Catalog Item"
-                                v-model="form.item_id" />
+                                v-model="form.item_id">
+                                <template #after-input="{ option }">
+                                    <div v-if="option?.description" class="mt-1 flex items-center gap-2 text-xs border p-2 rounded-lg">
+                                        <div class="flex-1 text-slate-500 line-clamp-2" :title="option.description">
+                                            {{ option.description }}
+                                        </div>
+                                        <a :href="route('items.show', option.value)" target="_blank" class="inline-flex shrink-0 items-center gap-1 font-semibold text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300" title="View Catalog Item">
+                                            <ArrowUpRight class="h-5 w-auto" />
+                                            View
+                                        </a>
+                                    </div>
+                                </template>
+                            </select-search-field>
                         </div>
                         <div
                             v-if="!isUpdate"
@@ -546,20 +562,32 @@ export default {
                             </template>
                         </custom-dropdown>
 
-                        <custom-dropdown
-                            required
-                            :disabled="isUpdate"
-                            :with-all-option="false"
-                            :value="selectedStorage"
-                            :options="storage_locations"
-                            placeholder="Select Storage"
-                            label="Storage Location"
-                            :error="form.errors.barcode"
-                            @selectedChange="generateBarcode($event)">
-                            <template #icon>
-                                <MapPin class="h-4 w-4 text-slate-400" />
-                            </template>
-                        </custom-dropdown>
+                        <div class="flex items-end gap-2">
+                            <div class="flex-1">
+                                <custom-dropdown
+                                    required
+                                    :disabled="isUpdate"
+                                    :with-all-option="false"
+                                    :value="selectedStorage"
+                                    :options="storage_locations"
+                                    placeholder="Select Storage"
+                                    label="Storage Location"
+                                    :error="form.errors.barcode"
+                                    @selectedChange="generateBarcode($event)">
+                                    <template #icon>
+                                        <MapPin class="h-4 w-4 text-slate-400" />
+                                    </template>
+                                </custom-dropdown>
+                            </div>
+                            <button
+                                type="button"
+                                @click="showStorageReference = true"
+                                class="inline-flex h-[42px] items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-xs font-bold text-slate-600 shadow-sm transition-colors hover:border-indigo-400 hover:bg-slate-50 hover:text-indigo-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:text-indigo-400 dark:hover:bg-slate-700"
+                                title="View Storage Reference">
+                                <Warehouse class="h-4 w-4" />
+                                <span class="hidden sm:inline">Reference</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -823,6 +851,59 @@ export default {
             </div>
         </div>
     </form>
+    
+    <!-- Storage Reference Modal -->
+    <dialog-modal :show="showStorageReference" @close="showStorageReference = false" max-width="md">
+        <template #title>
+            <div class="flex items-center gap-2.5">
+                <Warehouse class="h-5 w-5 text-indigo-500" />
+                <span>Storage Reference Locations</span>
+            </div>
+        </template>
+        <template #content>
+            <div class="custom-scrollbar max-h-[50vh] overflow-y-auto rounded-xl border border-slate-200 dark:border-slate-700">
+                <table class="w-full text-sm">
+                    <thead class="sticky top-0 border-b border-slate-200 bg-slate-50 backdrop-blur-md dark:border-slate-700 dark:bg-slate-800/80">
+                        <tr>
+                            <th class="w-24 px-5 py-3 text-left text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">Room Code</th>
+                            <th class="px-5 py-3 text-left text-[0.65rem] font-semibold uppercase text-slate-500 dark:text-slate-400">Storage Facility</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 bg-white dark:divide-slate-800/60 dark:bg-slate-900/50">
+                        <tr
+                            v-for="location in storage_locations"
+                            :key="location.name"
+                            class="transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/40">
+                            <td class="px-5 py-3 font-mono text-xs font-semibold text-indigo-600 dark:text-indigo-400">
+                                {{ location.name }}
+                            </td>
+                            <td class="px-5 py-3 font-medium text-slate-700 dark:text-slate-300">
+                                {{ location.label }}
+                            </td>
+                        </tr>
+                        <tr v-if="!storage_locations.length">
+                            <td
+                                colspan="2"
+                                class="px-5 py-8 text-center text-sm font-medium text-slate-400 dark:text-slate-500">
+                                No storage locations registered.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </template>
+        <template #footer>
+            <div class="flex w-full items-center justify-between">
+                <span class="text-xs text-slate-500">{{ storage_locations.length }} Locations Registered</span>
+                <button
+                    type="button"
+                    @click="showStorageReference = false"
+                    class="rounded-xl border border-slate-200 bg-white px-5 py-2 text-sm font-bold text-slate-600 shadow-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700">
+                    Close
+                </button>
+            </div>
+        </template>
+    </dialog-modal>
 </template>
 
 <style scoped>

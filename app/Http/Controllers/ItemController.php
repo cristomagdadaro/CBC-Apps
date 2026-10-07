@@ -54,6 +54,7 @@ class ItemController extends BaseController
                         ) . ')'
                         : ''
                 ),
+                'description' => $item->specifications,
             ];
         });
 
