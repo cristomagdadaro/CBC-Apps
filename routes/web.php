@@ -33,14 +33,19 @@ Route::get('/apps/sproutai-sso', function () {
         return redirect()->route('login');
     }
 
+    $token = (string) config('services.sproutai.internal_sync_token', env('SPROUTAI_INTERNAL_SYNC_TOKEN'));
+    if (strlen($token) < 32) {
+        abort(500, 'SPROUTAI_INTERNAL_SYNC_TOKEN is not configured securely.');
+    }
+
     $payload = base64_encode(json_encode([
+        'jti' => (string) \Illuminate\Support\Str::uuid(),
         'id' => $user->id,
         'name' => $user->name,
         'email' => $user->email,
         'timestamp' => now()->timestamp,
     ]));
 
-    $token = config('services.sproutai.internal_sync_token', env('SPROUTAI_INTERNAL_SYNC_TOKEN', '46c4393d1b078e2ca57e8cc3a825121f54cc4e5b43ae95ac'));
     $signature = hash_hmac('sha256', $payload, $token);
 
     $sproutAiHost = config('services.sproutai.host', env('SPROUTAI_HOST', 'https://onecbc.philrice.gov.ph/ai'));
@@ -49,6 +54,6 @@ Route::get('/apps/sproutai-sso', function () {
         'signature' => $signature,
     ]);
 
-    return redirect()->away($redirectUrl);
-})->middleware('auth')->name('sproutai.microservice');
+    return redirect()->away($redirectUrl)->header('Referrer-Policy', 'no-referrer');
+})->middleware(['auth', 'throttle:30,1'])->name('sproutai.microservice');
 

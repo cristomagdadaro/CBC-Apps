@@ -10,7 +10,7 @@ class SproutAiTokenMiddleware
 {
     public function handle(Request $request, Closure $next): Response
     {
-        $expected = env('SPROUTAI_INTERNAL_SYNC_TOKEN');
+        $expected = config('services.sproutai.internal_sync_token', env('SPROUTAI_INTERNAL_SYNC_TOKEN'));
 
         if (empty($expected)) {
             return response()->json(['error' => 'Sync token not configured on this server.'], 503);
