@@ -39,7 +39,7 @@ return [
     ],
 
     'sproutai' => [
-        'host' => env('SPROUTAI_HOST', 'http://127.0.0.1:8001'),
+        'host' => env('SPROUTAI_HOST', 'https://onecbc.philrice.gov.ph/ai'),
+        'internal_sync_token' => env('SPROUTAI_INTERNAL_SYNC_TOKEN', '46c4393d1b078e2ca57e8cc3a825121f54cc4e5b43ae95ac'),
     ],
-
 ];

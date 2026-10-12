@@ -26,11 +26,11 @@ Route::get('/auth/handoff', [\App\Http\Controllers\AuthHandoffController::class,
 
 require __DIR__.'/web/dev.php';
 
-Route::get('/ai', function() {
+Route::get('/apps/sproutai-sso', function () {
     $user = \Illuminate\Support\Facades\Auth::user();
-    
+
     if (!$user) {
-        return redirect('/ai/login');
+        return redirect()->route('login');
     }
 
     $payload = base64_encode(json_encode([
@@ -40,12 +40,15 @@ Route::get('/ai', function() {
         'timestamp' => now()->timestamp,
     ]));
 
-    $signature = hash_hmac('sha256', $payload, env('SPROUTAI_INTERNAL_SYNC_TOKEN'));
+    $token = config('services.sproutai.internal_sync_token', env('SPROUTAI_INTERNAL_SYNC_TOKEN', '46c4393d1b078e2ca57e8cc3a825121f54cc4e5b43ae95ac'));
+    $signature = hash_hmac('sha256', $payload, $token);
 
-    $redirectUrl = rtrim(env('SPROUTAI_HOST', 'http://127.0.0.1:8001/login'), '/') . '/sso-login?' . http_build_query([
+    $sproutAiHost = config('services.sproutai.host', env('SPROUTAI_HOST', 'https://onecbc.philrice.gov.ph/ai'));
+    $redirectUrl = rtrim($sproutAiHost, '/') . '/sso-login?' . http_build_query([
         'payload' => $payload,
         'signature' => $signature,
     ]);
 
-    return \Inertia\Inertia::location($redirectUrl);
-})->name('sproutai.microservice');
+    return redirect()->away($redirectUrl);
+})->middleware('auth')->name('sproutai.microservice');
+
