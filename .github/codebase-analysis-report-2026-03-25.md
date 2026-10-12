@@ -158,6 +158,7 @@
 
 ## Tracker Updates (2026-10-12)
 - [ID-2026-10-12-001] Resolved. SproutAi SSO integration from the OneCBC Portal was failing because the route was bound to `/ai`, which was intercepted directly by Nginx's `location ^~ /ai` alias before CBC-Apps could sign the SSO token payload. The SSO initiator in CBC-Apps is now mapped to `/apps/sproutai-sso`, `ziggy.js` was regenerated, and SproutAi's internal redirects (`SsoLoginController`, `AuthenticatedSessionController`, `bootstrap/app.php`, `routes/web.php`) use standard named routes (`route('admin.dashboard')`, `route('login')`) to prevent duplicate `/ai` path prefixing under reverse proxy.
+- [ID-2026-10-12-002] Resolved. Security vulnerability scan of the cross-application SSO handshake identified four vulnerabilities: (1) Hardcoded fallback sync secret in code; (2) Replay vulnerability within the expiration window; (3) Missing email/name sanitization before account creation; (4) Lack of endpoint rate-limiting and Referrer-Policy headers. All vulnerabilities resolved: removed hardcoded secret fallbacks and enforced fail-closed configuration checks (≥32 chars); implemented single-use JTI nonce verification via Cache::add; strictly validated and normalized email/name inputs; added throttle:30,1 rate-limiting middleware to both endpoints; and added Referrer-Policy: no-referrer header on the SSO handoff redirect.
 
 ### Verification Snapshot (2026-06-23)
 - `npm run build`: passed successfully.
