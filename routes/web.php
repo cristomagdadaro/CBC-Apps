@@ -29,6 +29,10 @@ require __DIR__.'/web/dev.php';
 Route::get('/ai', function() {
     $user = \Illuminate\Support\Facades\Auth::user();
     
+    if (!$user) {
+        return redirect('/ai/login');
+    }
+
     $payload = base64_encode(json_encode([
         'id' => $user->id,
         'name' => $user->name,
@@ -44,4 +48,4 @@ Route::get('/ai', function() {
     ]);
 
     return \Inertia\Inertia::location($redirectUrl);
-})->middleware('auth')->name('sproutai.microservice');
+})->name('sproutai.microservice');
