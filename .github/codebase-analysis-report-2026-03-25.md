@@ -156,6 +156,9 @@
 - [ID-2026-10-07-002] Resolved. `SelectSearchField.vue` was upgraded to support a `:show-description` property. When enabled on the "Catalog Item" field within `IncomingForm.vue`, the `api.inventory.items.options` endpoint now passes down item `specifications` to the frontend, which are elegantly rendered in the dropdown underneath the generic item name for clearer UX.
 - [ID-2026-10-07-003] Resolved. The "Storage Reference" UI in `Incoming.vue` was a floating action button that overlapped and clipped with bottom elements on mobile/smaller screens. It has been moved directly inside `IncomingForm.vue` as an inline "Reference" button adjoining the "Storage Location" dropdown, opening as a centered `DialogModal` to eliminate UI clipping and maintain a cleaner page layout.
 
+## Tracker Updates (2026-10-12)
+- [ID-2026-10-12-001] Resolved. SproutAi SSO integration from the OneCBC Portal was failing because the route was bound to `/ai`, which was intercepted directly by Nginx's `location ^~ /ai` alias before CBC-Apps could sign the SSO token payload. The SSO initiator in CBC-Apps is now mapped to `/apps/sproutai-sso`, `ziggy.js` was regenerated, and SproutAi's internal redirects (`SsoLoginController`, `AuthenticatedSessionController`, `bootstrap/app.php`, `routes/web.php`) use standard named routes (`route('admin.dashboard')`, `route('login')`) to prevent duplicate `/ai` path prefixing under reverse proxy.
+
 ### Verification Snapshot (2026-06-23)
 - `npm run build`: passed successfully.
 - `php artisan test`: 222 assertions passed successfully across the suite.
