@@ -46,6 +46,9 @@ export default {
             errorMessage: "",
             outputFormat: "pdf",
             namingTemplate: "{event}_{Fullname}_{date}",
+            eventTitle: "",
+            eventDate: "",
+            dateGiven: new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }),
             batchId: null,
             poller: null,
             realtimeCleanup: null,
@@ -258,7 +261,7 @@ export default {
                 const tableColumns = [];
 
                 rawHeaderRow.forEach((col, idx) => {
-                    const title = String(col || "").trim() || `Column ${idx + 1}`;
+                    const title = String(col || "").replace(/^\ufeff/, "").trim().replace(/^["']|["']$/g, "") || `Column ${idx + 1}`;
                     detectedColumns.push(title);
                     tableColumns.push({
                         key: `col_${idx}`,
@@ -301,6 +304,20 @@ export default {
                     this.selectedEmailColumn = emailColMatch;
                 } else if (detectedColumns.length > 1 && !this.selectedEmailColumn) {
                     this.selectedEmailColumn = detectedColumns[1];
+                }
+
+                // Auto-detect Event Title from file if present and not set
+                const titleColMatch = detectedColumns.find((col) => /event[_\s]*title|^title$/i.test(col));
+                if (titleColMatch && tableRows.length > 0 && !this.eventTitle) {
+                    const val = tableRows[0][`col_${detectedColumns.indexOf(titleColMatch)}`];
+                    if (val && String(val).trim()) this.eventTitle = String(val).trim();
+                }
+
+                // Auto-detect Event Date from file if present and not set
+                const dateColMatch = detectedColumns.find((col) => /event[_\s]*date|^date$/i.test(col));
+                if (dateColMatch && tableRows.length > 0 && !this.eventDate) {
+                    const val = tableRows[0][`col_${detectedColumns.indexOf(dateColMatch)}`];
+                    if (val && String(val).trim()) this.eventDate = String(val).trim();
                 }
             } catch (err) {
                 console.error("Failed to parse data file:", err);
@@ -361,6 +378,13 @@ export default {
                 if (!this.selectedNameColumn) {
                     const nameMatch = this.responseColumns.find((col) => /full\s*name|fullname|name/i.test(String(col)));
                     this.selectedNameColumn = nameMatch || "";
+                }
+                const eventInfo = payload?.event || null;
+                if (eventInfo?.title && !this.eventTitle) {
+                    this.eventTitle = eventInfo.title;
+                }
+                if (eventInfo?.formatted_date && !this.eventDate) {
+                    this.eventDate = eventInfo.formatted_date;
                 }
                 if (!this.hasSavedTemplate) this.useSavedTemplate = false;
             } catch (error) {

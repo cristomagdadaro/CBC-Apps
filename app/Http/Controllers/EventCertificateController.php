@@ -505,18 +505,26 @@ class EventCertificateController extends BaseController
 
     private function formatEventDate(?Form $event): string
     {
-        if (!$event || !$event->date_from || !$event->date_to) {
+        if (!$event) {
             return '';
         }
 
-        $from = $event->date_from->copy();
-        $to = $event->date_to->copy();
+        if ($event->date_from && $event->date_to) {
+            $from = $event->date_from->copy();
+            $to = $event->date_to->copy();
 
-        if ($from->isSameDay($to)) {
-            return $from->format('F j, Y');
+            if ($from->isSameDay($to)) {
+                return $from->format('F j, Y');
+            }
+
+            return $from->format('F j, Y') . ' - ' . $to->format('F j, Y');
         }
 
-        return $from->format('F j, Y') . ' - ' . $to->format('F j, Y');
+        if ($event->date_from) {
+            return $event->date_from->copy()->format('F j, Y');
+        }
+
+        return '';
     }
 
     private function buildRecipientDeliveryStatusMap(Collection $responses, string $eventId): array
@@ -577,29 +585,5 @@ class EventCertificateController extends BaseController
     private function defaultTemplateAbsolutePath(): string
     {
         return base_path(self::DEFAULT_TEMPLATE_RELATIVE_PATH);
-    }
-
-    private function formatEventDate(?Form $event): string
-    {
-        if (!$event) {
-            return '';
-        }
-
-        if ($event->date_from && $event->date_to) {
-            $from = $event->date_from->copy();
-            $to = $event->date_to->copy();
-
-            if ($from->isSameDay($to)) {
-                return $from->format('F j, Y');
-            }
-
-            return $from->format('F j, Y') . ' - ' . $to->format('F j, Y');
-        }
-
-        if ($event->date_from) {
-            return $event->date_from->copy()->format('F j, Y');
-        }
-
-        return '';
     }
 }
