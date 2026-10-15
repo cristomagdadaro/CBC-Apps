@@ -336,6 +336,24 @@ def to_lo_user_installation_uri(path_value: str) -> str:
     return f'file:///{normalized}'
 
 
+def setup_libreoffice_profile(profile_dir: str) -> None:
+    """Populate LibreOffice profile with bundled fonts so they are available during headless conversion."""
+    bundled_fonts_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'fonts')
+    if not os.path.isdir(bundled_fonts_dir):
+        return
+
+    fonts_dir = os.path.join(profile_dir, 'user', 'fonts')
+    os.makedirs(fonts_dir, exist_ok=True)
+    for font_file in os.listdir(bundled_fonts_dir):
+        if font_file.lower().endswith(('.ttf', '.otf', '.ttc')):
+            src = os.path.join(bundled_fonts_dir, font_file)
+            dst = os.path.join(fonts_dir, font_file)
+            try:
+                shutil.copy2(src, dst)
+            except Exception:
+                pass
+
+
 def pptx_to_pdf(soffice_path: str, pptx_path: str, out_dir: str) -> str:
     # Convert pptx to pdf using LibreOffice soffice CLI
     resolved_soffice = resolve_soffice_path(soffice_path)
@@ -346,6 +364,7 @@ def pptx_to_pdf(soffice_path: str, pptx_path: str, out_dir: str) -> str:
     normalized_out_dir = os.path.normpath(os.path.abspath(out_dir))
 
     profile_dir = mkdtemp(prefix='lo-profile-')
+    setup_libreoffice_profile(profile_dir)
     profile_uri = to_lo_user_installation_uri(profile_dir)
 
     cmd = [
@@ -392,6 +411,7 @@ def pptx_to_images_with_soffice(soffice_path: str, pptx_path: str, out_dir: str)
     normalized_pptx_path = os.path.normpath(os.path.abspath(pptx_path))
     normalized_out_dir = os.path.normpath(os.path.abspath(out_dir))
     profile_dir = mkdtemp(prefix='lo-profile-')
+    setup_libreoffice_profile(profile_dir)
     profile_uri = to_lo_user_installation_uri(profile_dir)
 
     cmd = [
