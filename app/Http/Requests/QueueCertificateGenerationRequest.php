@@ -27,8 +27,16 @@ class QueueCertificateGenerationRequest extends FormRequest
             'data' => [
                 $useEventData ? 'nullable' : 'required',
                 'file',
-                'mimes:xlsx,csv',
                 'max:10240',
+                function ($attribute, $value, $fail) {
+                    if (!$value instanceof \Illuminate\Http\UploadedFile) {
+                        return;
+                    }
+                    $ext = strtolower((string) $value->getClientOriginalExtension());
+                    if (!in_array($ext, ['xlsx', 'csv'], true)) {
+                        $fail('The data field must be a file of type: xlsx, csv.');
+                    }
+                },
             ],
             'use_event_data' => ['nullable', 'boolean'],
             'name_column' => ['nullable', 'string', 'max:150', $useEventData ? 'required' : 'nullable'],
@@ -38,6 +46,9 @@ class QueueCertificateGenerationRequest extends FormRequest
             'recipient_ids.*' => [$useEventData ? 'nullable' : 'prohibited', 'string', 'max:64'],
             'format' => ['required', 'string', 'in:pptx,pdf,png,jpg'],
             'name_template' => ['nullable', 'string', 'max:150'],
+            'event_title' => ['nullable', 'string', 'max:255'],
+            'event_date' => ['nullable', 'string', 'max:150'],
+            'date_given' => ['nullable', 'string', 'max:150'],
         ];
     }
 }
