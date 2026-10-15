@@ -91,6 +91,8 @@ class EventCertificateController extends BaseController
                 dataPath: $dataPath,
                 format: $validated['format'],
                 nameTemplate: $validated['name_template'] ?? null,
+                nameColumn: $validated['name_column'] ?? null,
+                emailColumn: $validated['email_column'] ?? null,
             )->onQueue('default');
         } catch (\Throwable $e) {
             Storage::delete([$templatePath, $dataPath]);

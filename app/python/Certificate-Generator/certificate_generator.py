@@ -129,17 +129,47 @@ def ensure_unique_basename(out_dir: str, base: str, ext: str) -> str:
 def resolve_placeholder_value(mapping: Dict[str, object], key: str) -> Tuple[bool, object]:
     normalized_key = str(key or '').strip().lower()
     if normalized_key in mapping:
-        return True, mapping.get(normalized_key, '')
+        val = mapping.get(normalized_key, '')
+        try:
+            if not pd.isna(val) and str(val).strip() != '':
+                return True, val
+        except Exception:
+            return True, val
 
     alias_map = {
-        'name': ['fullname', 'full name'],
-        'fullname': ['name', 'full name'],
-        'full name': ['fullname', 'name'],
+        'name': ['fullname', 'full name', 'full_name', 'recipient_name', 'participant_name', 'participant', 'name of participant'],
+        'fullname': ['name', 'full name', 'full_name', 'recipient_name', 'participant_name', 'participant', 'name of participant'],
+        'full name': ['fullname', 'name', 'full_name', 'recipient_name', 'participant_name', 'participant'],
+        'full_name': ['fullname', 'name', 'full name', 'recipient_name', 'participant_name', 'participant'],
+        'email': ['email address', 'email_address', 'e-mail', 'mail'],
+        'email_address': ['email', 'email address', 'e-mail'],
+        'event_date': ['eventdate', 'date', 'date_of_event'],
+        'eventdate': ['event_date', 'date'],
+        'date_given': ['dategiven', 'date', 'given_date'],
+        'dategiven': ['date_given', 'date'],
+        'event_title': ['eventtitle', 'event', 'title', 'event_name'],
+        'event_id': ['eventid', 'event'],
     }
 
     for alias in alias_map.get(normalized_key, []):
         if alias in mapping:
-            return True, mapping.get(alias, '')
+            val = mapping.get(alias, '')
+            try:
+                if not pd.isna(val) and str(val).strip() != '':
+                    return True, val
+            except Exception:
+                return True, val
+
+    # Fuzzy match for participant name
+    if normalized_key in ('name', 'fullname', 'full name', 'full_name'):
+        for k, v in mapping.items():
+            k_lower = str(k).lower()
+            if 'name' in k_lower and not any(term in k_lower for term in ('file', 'event', 'sheet', 'user', 'path')):
+                try:
+                    if v is not None and not pd.isna(v) and str(v).strip() != '':
+                        return True, v
+                except Exception:
+                    continue
 
     return False, ''
 
@@ -207,8 +237,9 @@ def replace_placeholders(prs: Presentation, mapping: dict):
                             replace_placeholders_in_paragraph(p, mapping)
 
 
-def format_filename(template: str, row: pd.Series, date_now: datetime, event_id: str = '', event_title: str = ''):
-    # allow placeholders like {FirstName}, {Fullname}, {event}, {event_id}, {event_title}, {date}, {timestamp}
+def format_filename(template: str, row: pd.Series, date_now: datetime, event_id: str = '', event_title: str = '',
+                    event_date: str = '', date_given: str = '', name_col: str = ''):
+    # allow placeholders like {FirstName}, {Fullname}, {event}, {event_id}, {event_title}, {date}, {timestamp}, {event_date}, {date_given}
     # create a case-insensitive mapping of column headers
     mapping_ci = {str(k).strip().lower(): ('' if pd.isna(v) else v) for k, v in row.items()}
     mapping_ci['date'] = date_now.strftime('%m-%d-%Y')
@@ -217,6 +248,9 @@ def format_filename(template: str, row: pd.Series, date_now: datetime, event_id:
 
     clean_event_id = str(event_id or '').strip()
     clean_event_title = str(event_title or '').strip()
+    clean_event_date = str(event_date or '').strip()
+    clean_date_given = str(date_given or '').strip() or date_now.strftime('%B %d, %Y')
+    clean_name_col = str(name_col or '').strip().lower()
 
     if clean_event_id:
         mapping_ci.setdefault('event_id', clean_event_id)
@@ -224,21 +258,48 @@ def format_filename(template: str, row: pd.Series, date_now: datetime, event_id:
     if clean_event_title:
         mapping_ci.setdefault('event_title', clean_event_title)
         mapping_ci.setdefault('eventtitle', clean_event_title)
+    if clean_event_date:
+        mapping_ci.setdefault('event_date', clean_event_date)
+        mapping_ci.setdefault('eventdate', clean_event_date)
+    if clean_date_given:
+        mapping_ci.setdefault('date_given', clean_date_given)
+        mapping_ci.setdefault('dategiven', clean_date_given)
 
     # Alias full name variations
-    name_val = (
-        mapping_ci.get('fullname')
-        or mapping_ci.get('full name')
-        or mapping_ci.get('full_name')
-        or mapping_ci.get('name')
-        or mapping_ci.get('recipient_name')
-        or ''
-    )
+    name_val = ''
+    if clean_name_col and clean_name_col in mapping_ci:
+        name_val = str(mapping_ci[clean_name_col]).strip()
+
+    if not name_val:
+        name_val = (
+            mapping_ci.get('fullname')
+            or mapping_ci.get('full name')
+            or mapping_ci.get('full_name')
+            or mapping_ci.get('name')
+            or mapping_ci.get('recipient_name')
+            or mapping_ci.get('participant_name')
+            or mapping_ci.get('participant')
+            or ''
+        )
+
+    if not name_val:
+        for k, v in mapping_ci.items():
+            if 'name' in k and not any(term in k for term in ('file', 'event', 'sheet', 'user', 'path')):
+                try:
+                    if v is not None and not pd.isna(v) and str(v).strip() != '':
+                        name_val = str(v).strip()
+                        break
+                except Exception:
+                    continue
+
     if name_val:
-        mapping_ci.setdefault('fullname', name_val)
-        mapping_ci.setdefault('full name', name_val)
-        mapping_ci.setdefault('full_name', name_val)
-        mapping_ci.setdefault('name', name_val)
+        mapping_ci['fullname'] = name_val
+        mapping_ci['full name'] = name_val
+        mapping_ci['full_name'] = name_val
+        mapping_ci['name'] = name_val
+        first_name = name_val.split()[0] if name_val.split() else name_val
+        mapping_ci.setdefault('firstname', first_name)
+        mapping_ci.setdefault('first name', first_name)
 
     # Event aliases: resolve {event} from row, event_id, or event_title
     current_event = str(mapping_ci.get('event', '')).strip()
@@ -278,17 +339,31 @@ def format_filename(template: str, row: pd.Series, date_now: datetime, event_id:
     return filename
 
 
-def extract_recipient_email(row: pd.Series) -> str:
+def extract_recipient_email(row: pd.Series, email_col: str = '') -> str:
+    normalized = {str(k).strip().lower(): v for k, v in row.items()}
+    if email_col:
+        clean_col = str(email_col).strip().lower()
+        if clean_col in normalized:
+            val = normalized[clean_col]
+            if val is not None and not pd.isna(val) and str(val).strip():
+                return str(val).strip()
+
     for key, value in row.items():
         if 'email' in str(key).strip().lower() and not pd.isna(value):
             return str(value).strip()
     return ''
 
 
-def extract_recipient_name(row: pd.Series) -> str:
-    preferred_keys = ['fullname', 'full name', 'name']
+def extract_recipient_name(row: pd.Series, name_col: str = '') -> str:
     normalized = {str(k).strip().lower(): v for k, v in row.items()}
+    if name_col:
+        clean_col = str(name_col).strip().lower()
+        if clean_col in normalized:
+            val = normalized[clean_col]
+            if val is not None and not pd.isna(val) and str(val).strip():
+                return str(val).strip()
 
+    preferred_keys = ['fullname', 'full name', 'full_name', 'name', 'recipient_name', 'participant_name', 'participant']
     for key in preferred_keys:
         value = normalized.get(key)
         try:
@@ -298,7 +373,7 @@ def extract_recipient_name(row: pd.Series) -> str:
             continue
 
     for key, value in normalized.items():
-        if 'name' in key and 'file' not in key:
+        if 'name' in key and not any(term in key for term in ('file', 'event', 'sheet', 'user', 'path')):
             try:
                 if value is not None and not pd.isna(value) and str(value).strip() != '':
                     return str(value).strip()
@@ -500,10 +575,17 @@ def generate_for_row(prs_template: Presentation, row: pd.Series, out_dir: str, o
                      filename_template: str, slide_indices: Optional[List[int]] = None,
                      soffice_path: str = 'soffice', poppler_path: str = None,
                      dpi: int = 200, event_id: str = '', event_title: str = '',
+                     event_date: str = '', date_given: str = '',
+                     name_col: str = '', email_col: str = '',
                      template_path: Optional[str] = None) -> Tuple[bool, str, Optional[Dict]]:
     """Generate certificate for a row. Returns (success, message, output_paths dict)."""
     date_now = datetime.now()
-    filename_base = format_filename(filename_template, row, date_now, event_id=event_id, event_title=event_title)
+    filename_base = format_filename(
+        filename_template, row, date_now,
+        event_id=event_id, event_title=event_title,
+        event_date=event_date, date_given=date_given,
+        name_col=name_col
+    )
     os.makedirs(out_dir, exist_ok=True)
 
     # choose a unique base name to avoid overwriting when duplicates occur
@@ -545,12 +627,24 @@ def generate_for_row(prs_template: Presentation, row: pd.Series, out_dir: str, o
     mapping = {str(k).strip().lower(): v for k, v in row.items()}
     clean_event_id = str(event_id or '').strip()
     clean_event_title = str(event_title or '').strip()
+    clean_event_date = str(event_date or '').strip()
+    clean_date_given = str(date_given or '').strip() or date_now.strftime('%B %d, %Y')
+    clean_name_col = str(name_col or '').strip().lower()
+    clean_email_col = str(email_col or '').strip().lower()
+
     if clean_event_id:
         mapping.setdefault('event_id', clean_event_id)
         mapping.setdefault('eventid', clean_event_id)
     if clean_event_title:
         mapping.setdefault('event_title', clean_event_title)
         mapping.setdefault('eventtitle', clean_event_title)
+    if clean_event_date:
+        mapping.setdefault('event_date', clean_event_date)
+        mapping.setdefault('eventdate', clean_event_date)
+        mapping.setdefault('date', clean_event_date)
+    if clean_date_given:
+        mapping.setdefault('date_given', clean_date_given)
+        mapping.setdefault('dategiven', clean_date_given)
     if 'event' not in mapping or not str(mapping['event']).strip():
         mapping['event'] = (
             mapping.get('event_id')
@@ -559,6 +653,15 @@ def generate_for_row(prs_template: Presentation, row: pd.Series, out_dir: str, o
             or clean_event_title
             or ''
         )
+
+    if clean_name_col and clean_name_col in mapping:
+        name_val = mapping[clean_name_col]
+        mapping['name'] = name_val
+        mapping['fullname'] = name_val
+        mapping['full name'] = name_val
+    if clean_email_col and clean_email_col in mapping:
+        mapping['email'] = mapping[clean_email_col]
+
     replace_placeholders(prs, mapping)
 
     out_pptx = os.path.join(out_dir, unique_base + '.pptx')
@@ -658,6 +761,10 @@ def main(argv=None):
     parser.add_argument('--manifest', default='', help='Optional path to output JSON manifest for generated rows')
     parser.add_argument('--event-id', default='', help='Optional event ID to populate {event_id} and fallback for {event}')
     parser.add_argument('--event-title', default='', help='Optional event title to populate {event_title} and fallback for {event}')
+    parser.add_argument('--event-date', default='', help='Optional event date for <<EVENT_DATE>> and {event_date}')
+    parser.add_argument('--date-given', default='', help='Optional date given for <<DATE_GIVEN>> and {date_given}')
+    parser.add_argument('--name-column', default='', help='Optional column name for recipient name')
+    parser.add_argument('--email-column', default='', help='Optional column name for recipient email')
     parser.add_argument('--workers', '-w', type=int, default=0, help='Number of worker threads (default: auto)')
     args, _ = parser.parse_known_args(argv)
 
@@ -687,9 +794,16 @@ def main(argv=None):
     try:
         data_extension = os.path.splitext(args.data)[1].lower()
         if data_extension == '.csv':
-            sheets = {'Responses': pd.read_csv(args.data)}
+            try:
+                df = pd.read_csv(args.data, sep=None, engine='python', encoding_errors='replace')
+            except Exception:
+                df = pd.read_csv(args.data, encoding_errors='replace')
+            df.columns = [str(c).strip().strip('"\'').lstrip('\ufeff') for c in df.columns]
+            sheets = {'Responses': df}
         else:
             sheets = pd.read_excel(args.data, sheet_name=None)
+            for sname in sheets:
+                sheets[sname].columns = [str(c).strip().strip('"\'').lstrip('\ufeff') for c in sheets[sname].columns]
     except Exception as e:
         print('Failed to read data file:', e)
         sys.exit(3)
@@ -734,8 +848,8 @@ def main(argv=None):
 
         def _process_task(item):
             idx, row = item
-            rec_email = extract_recipient_email(row)
-            rec_name = extract_recipient_name(row)
+            rec_email = extract_recipient_email(row, email_col=getattr(args, 'email_column', ''))
+            rec_name = extract_recipient_name(row, name_col=getattr(args, 'name_column', ''))
             rec_resp_id = row.get('RECIPIENT_RESPONSE_ID', '')
             rec_resp_id_str = str(rec_resp_id).strip() if rec_resp_id is not None else ''
 
@@ -746,6 +860,10 @@ def main(argv=None):
                     poppler_path=args.poppler_path, dpi=args.dpi,
                     event_id=getattr(args, 'event_id', ''),
                     event_title=getattr(args, 'event_title', ''),
+                    event_date=getattr(args, 'event_date', ''),
+                    date_given=getattr(args, 'date_given', ''),
+                    name_col=getattr(args, 'name_column', ''),
+                    email_col=getattr(args, 'email_column', ''),
                     template_path=args.template
                 )
                 if success:

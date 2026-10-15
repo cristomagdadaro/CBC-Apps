@@ -2,6 +2,7 @@
 import ApiMixin from "@/Modules/mixins/ApiMixin";
 import { subscribeToRealtimeChannels } from "@/Modules/realtime/subscriptions";
 import DataTable from "@/Modules/DataTable/presentation/DataTable.vue";
+import * as XLSX from "xlsx";
 
 export default {
     name: "EventCertificates",
@@ -23,6 +24,10 @@ export default {
         return {
             templateFile: null,
             dataFile: null,
+            uploadedDataRows: [],
+            uploadedDataColumns: [],
+            detectedDataColumns: [],
+            parsingDataFile: false,
             useSavedTemplate: true,
             useEventData: true,
             responseColumns: [],
@@ -64,7 +69,7 @@ export default {
             if (this.useEventData) {
                 return this.selectedNameColumn && this.selectedEmailColumn && this.selectedRecipientIds.length > 0;
             }
-            return !!this.dataFile;
+            return !!this.dataFile && !this.parsingDataFile;
         },
         filteredRecipients() {
             if (!this.selectedSubformType) {
@@ -121,7 +126,9 @@ export default {
             if (value) this.templateFile = null;
         },
         useEventData(value) {
-            if (value) this.dataFile = null;
+            if (value) {
+                this.clearUploadedDataFile();
+            }
         },
         selectedSubformType() {
             if (this.useEventData) {
@@ -207,9 +214,100 @@ export default {
                 this.errorMessage = error;
                 return;
             }
-            if (type === "template") this.templateFile = file;
-            else this.dataFile = file;
+            if (type === "template") {
+                this.templateFile = file;
+            } else {
+                this.dataFile = file;
+                this.parseUploadedDataFile(file);
+            }
             this.errorMessage = "";
+        },
+        clearUploadedDataFile() {
+            this.dataFile = null;
+            this.uploadedDataRows = [];
+            this.uploadedDataColumns = [];
+            this.detectedDataColumns = [];
+            this.parsingDataFile = false;
+        },
+        async parseUploadedDataFile(file) {
+            if (!file) {
+                this.clearUploadedDataFile();
+                return;
+            }
+
+            this.parsingDataFile = true;
+            try {
+                const buffer = await file.arrayBuffer();
+                const workbook = XLSX.read(buffer, { type: "array", cellDates: true });
+                const firstSheetName = workbook.SheetNames[0];
+                if (!firstSheetName) {
+                    throw new Error("The file has no sheets or content.");
+                }
+
+                const worksheet = workbook.Sheets[firstSheetName];
+                const rawSheetData = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false, defval: "" });
+                if (!rawSheetData || rawSheetData.length === 0) {
+                    this.uploadedDataRows = [];
+                    this.uploadedDataColumns = [];
+                    this.detectedDataColumns = [];
+                    return;
+                }
+
+                const rawHeaderRow = rawSheetData[0] || [];
+                const detectedColumns = [];
+                const tableColumns = [];
+
+                rawHeaderRow.forEach((col, idx) => {
+                    const title = String(col || "").trim() || `Column ${idx + 1}`;
+                    detectedColumns.push(title);
+                    tableColumns.push({
+                        key: `col_${idx}`,
+                        title: title,
+                        label: title,
+                        sortable: true,
+                    });
+                });
+
+                const tableRows = [];
+                for (let r = 1; r < rawSheetData.length; r++) {
+                    const rowData = rawSheetData[r];
+                    if (!rowData || rowData.length === 0) continue;
+                    const hasContent = rowData.some((cell) => cell !== undefined && cell !== null && String(cell).trim() !== "");
+                    if (!hasContent) continue;
+
+                    const rowObj = { id: r };
+                    tableColumns.forEach((colDef, idx) => {
+                        const cellVal = rowData[idx];
+                        rowObj[colDef.key] = cellVal !== undefined && cellVal !== null ? String(cellVal) : "";
+                    });
+                    tableRows.push(rowObj);
+                }
+
+                this.detectedDataColumns = detectedColumns;
+                this.uploadedDataColumns = tableColumns;
+                this.uploadedDataRows = tableRows;
+
+                // Auto-detect Name Column
+                const nameColMatch = detectedColumns.find((col) => /full\s*name|fullname|name|participant/i.test(col));
+                if (nameColMatch) {
+                    this.selectedNameColumn = nameColMatch;
+                } else if (detectedColumns.length > 0 && !this.selectedNameColumn) {
+                    this.selectedNameColumn = detectedColumns[0];
+                }
+
+                // Auto-detect Email Column
+                const emailColMatch = detectedColumns.find((col) => /email|mail/i.test(col));
+                if (emailColMatch) {
+                    this.selectedEmailColumn = emailColMatch;
+                } else if (detectedColumns.length > 1 && !this.selectedEmailColumn) {
+                    this.selectedEmailColumn = detectedColumns[1];
+                }
+            } catch (err) {
+                console.error("Failed to parse data file:", err);
+                this.errorMessage = "Failed to parse data file: " + (err.message || "Invalid file format");
+            } finally {
+                this.parsingDataFile = false;
+            }
         },
         onFileInput(type, event) {
             this.resetMessages();
@@ -453,9 +551,9 @@ export default {
                     formData.append("format", this.outputFormat);
                     formData.append("use_saved_template", this.useSavedTemplate ? "1" : "0");
                     formData.append("use_event_data", this.useEventData ? "1" : "0");
+                    if (this.selectedNameColumn) formData.append("name_column", this.selectedNameColumn);
+                    if (this.selectedEmailColumn) formData.append("email_column", this.selectedEmailColumn);
                     if (this.useEventData) {
-                        formData.append("name_column", this.selectedNameColumn);
-                        formData.append("email_column", this.selectedEmailColumn);
                         if (this.selectedSubformType) formData.append("subform_type", this.selectedSubformType);
                         this.selectedRecipientIds.forEach((id) => formData.append("recipient_ids[]", id));
                     }
@@ -477,10 +575,10 @@ export default {
                         format: this.outputFormat,
                         use_saved_template: this.useSavedTemplate,
                         use_event_data: this.useEventData,
+                        ...(this.selectedNameColumn ? { name_column: this.selectedNameColumn } : {}),
+                        ...(this.selectedEmailColumn ? { email_column: this.selectedEmailColumn } : {}),
                         ...(this.useEventData
                             ? {
-                                  name_column: this.selectedNameColumn,
-                                  email_column: this.selectedEmailColumn,
                                   ...(this.selectedSubformType ? { subform_type: this.selectedSubformType } : {}),
                                   recipient_ids: this.selectedRecipientIds,
                               }
@@ -834,55 +932,175 @@ export default {
                         </div>
                     </div>
 
-                    <!-- Upload Data Dropzone -->
+                    <!-- Upload Data Section -->
                     <div
                         v-else
-                        class="relative rounded-xl border-2 border-dashed p-8 text-center transition-all duration-300"
-                        :class="dragOver.data ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-500/10' : 'border-slate-300 bg-slate-50/50 hover:border-indigo-400 dark:border-slate-700 dark:bg-slate-800/30 dark:hover:border-indigo-500/50'"
-                        @dragover.prevent="onDragOver('data', $event)"
-                        @dragleave.prevent="onDragLeave('data', $event)"
-                        @drop.prevent="onDrop('data', $event)">
-                        <input
-                            type="file"
-                            accept=".xlsx,.csv"
-                            class="absolute inset-0 h-full w-full cursor-pointer opacity-0"
-                            @change="onFileInput('data', $event)" />
-
+                        class="space-y-4">
+                        <!-- Upload Data Dropzone -->
                         <div
-                            v-if="!dataFile"
-                            class="pointer-events-none space-y-3">
+                            class="relative rounded-xl border-2 border-dashed p-6 text-center transition-all duration-300"
+                            :class="dragOver.data ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-500/10' : 'border-slate-300 bg-slate-50/50 hover:border-indigo-400 dark:border-slate-700 dark:bg-slate-800/30 dark:hover:border-indigo-500/50'"
+                            @dragover.prevent="onDragOver('data', $event)"
+                            @dragleave.prevent="onDragLeave('data', $event)"
+                            @drop.prevent="onDrop('data', $event)">
+                            <input
+                                type="file"
+                                accept=".xlsx,.csv"
+                                class="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                                @change="onFileInput('data', $event)" />
+
                             <div
-                                class="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-slate-200 bg-white shadow-sm transition-transform duration-300 dark:border-slate-700 dark:bg-slate-800"
-                                :class="{
-                                    'scale-110 border-indigo-300 dark:border-indigo-500': dragOver.data,
-                                }">
-                                <LuSheet
-                                    class="h-6 w-6 text-slate-400 dark:text-slate-500"
+                                v-if="!dataFile"
+                                class="pointer-events-none space-y-3">
+                                <div
+                                    class="mx-auto flex h-12 w-12 items-center justify-center rounded-full border border-slate-200 bg-white shadow-sm transition-transform duration-300 dark:border-slate-700 dark:bg-slate-800"
                                     :class="{
-                                        'text-indigo-500 dark:text-indigo-400': dragOver.data,
-                                    }" />
+                                        'scale-110 border-indigo-300 dark:border-indigo-500': dragOver.data,
+                                    }">
+                                    <LuSheet
+                                        class="h-6 w-6 text-slate-400 dark:text-slate-500"
+                                        :class="{
+                                            'text-indigo-500 dark:text-indigo-400': dragOver.data,
+                                        }" />
+                                </div>
+                                <div>
+                                    <p class="text-sm font-bold text-slate-700 dark:text-slate-300">Drop your Excel/CSV file here or click to browse</p>
+                                    <p class="mt-1 text-xs font-semibold text-slate-500 dark:text-slate-400">Supports .xlsx and .csv formats up to 10MB</p>
+                                </div>
                             </div>
-                            <div>
-                                <p class="text-sm font-bold text-slate-700 dark:text-slate-300">Drop your Excel/CSV file here or click to browse</p>
-                                <p class="mt-1 text-xs font-semibold text-slate-500 dark:text-slate-400">Supports .xlsx and .csv formats up to 10MB</p>
+
+                            <!-- Selected File -->
+                            <div
+                                v-else
+                                class="flex flex-col items-center justify-center gap-3 sm:flex-row">
+                                <div class="pointer-events-auto flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 p-2.5 shadow-sm dark:border-emerald-500/30 dark:bg-emerald-500/10">
+                                    <LuSheet class="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                                    <span class="text-sm font-bold text-emerald-800 dark:text-emerald-300">
+                                        {{ dataFile.name }}
+                                    </span>
+                                    <span
+                                        v-if="uploadedDataRows.length"
+                                        class="rounded-full bg-emerald-200/60 px-2 py-0.5 text-[0.65rem] font-bold text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300">
+                                        {{ uploadedDataRows.length }} rows
+                                    </span>
+                                    <div class="mx-1 h-4 w-px bg-emerald-200 dark:bg-emerald-500/30"></div>
+                                    <button
+                                        type="button"
+                                        @click.stop="clearUploadedDataFile"
+                                        title="Remove file"
+                                        class="rounded-md p-1 transition-colors hover:bg-emerald-200 dark:hover:bg-emerald-500/30">
+                                        <LuX class="h-4 w-4 text-emerald-700 dark:text-emerald-400" />
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
-                        <!-- Selected File -->
+                        <!-- Parsing Indicator -->
                         <div
-                            v-else
-                            class="flex flex-col items-center justify-center gap-3 sm:flex-row">
-                            <div class="pointer-events-auto flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 p-3 shadow-sm dark:border-emerald-500/30 dark:bg-emerald-500/10">
-                                <LuSheet class="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-                                <span class="text-sm font-bold text-emerald-800 dark:text-emerald-300">
-                                    {{ dataFile.name }}
-                                </span>
-                                <div class="mx-1 h-4 w-px bg-emerald-200 dark:bg-emerald-500/30"></div>
-                                <button
-                                    @click.stop="dataFile = null"
-                                    class="rounded-md p-1 transition-colors hover:bg-emerald-200 dark:hover:bg-emerald-500/30">
-                                    <LuX class="h-4 w-4 text-emerald-700 dark:text-emerald-400" />
-                                </button>
+                            v-if="parsingDataFile"
+                            class="flex items-center justify-center gap-3 rounded-xl border border-indigo-200 bg-indigo-50/50 p-6 text-sm font-semibold text-indigo-700 dark:border-indigo-500/30 dark:bg-indigo-500/10 dark:text-indigo-400">
+                            <LuLoader2 class="h-5 w-5 animate-spin" />
+                            Parsing spreadsheet data and detecting columns...
+                        </div>
+
+                        <!-- Column Mapping Dropdowns for Uploaded Data -->
+                        <div
+                            v-if="dataFile && uploadedDataColumns.length > 0 && !parsingDataFile"
+                            class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50 p-4 shadow-sm sm:p-5 md:grid-cols-2 dark:border-slate-700/60 dark:bg-slate-800/30">
+                            <div class="space-y-2">
+                                <div class="flex items-center justify-between">
+                                    <label class="block text-[0.65rem] font-bold uppercase text-slate-500 dark:text-slate-400">
+                                        Name Column <span class="text-indigo-500 font-bold">*</span>
+                                    </label>
+                                    <span
+                                        v-if="selectedNameColumn"
+                                        class="text-[0.65rem] font-semibold text-emerald-600 dark:text-emerald-400">
+                                        Mapped: {{ selectedNameColumn }}
+                                    </span>
+                                </div>
+                                <div class="relative">
+                                    <select
+                                        v-model="selectedNameColumn"
+                                        class="block w-full appearance-none rounded-lg border border-slate-300 bg-white py-2.5 pl-3 pr-10 text-sm font-semibold text-slate-800 shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200">
+                                        <option
+                                            value=""
+                                            disabled>
+                                            Select column for recipient name
+                                        </option>
+                                        <option
+                                            v-for="col in detectedDataColumns"
+                                            :key="`uploaded-name-${col}`"
+                                            :value="col">
+                                            {{ col }}
+                                        </option>
+                                    </select>
+                                    <LuChevronDown class="pointer-events-none absolute right-3 top-3 h-4 w-4 text-slate-400" />
+                                </div>
+                            </div>
+
+                            <div class="space-y-2">
+                                <div class="flex items-center justify-between">
+                                    <label class="block text-[0.65rem] font-bold uppercase text-slate-500 dark:text-slate-400">
+                                        Email Column <span class="text-indigo-500 font-bold">*</span>
+                                    </label>
+                                    <span
+                                        v-if="selectedEmailColumn"
+                                        class="text-[0.65rem] font-semibold text-emerald-600 dark:text-emerald-400">
+                                        Mapped: {{ selectedEmailColumn }}
+                                    </span>
+                                </div>
+                                <div class="relative">
+                                    <select
+                                        v-model="selectedEmailColumn"
+                                        class="block w-full appearance-none rounded-lg border border-slate-300 bg-white py-2.5 pl-3 pr-10 text-sm font-semibold text-slate-800 shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200">
+                                        <option
+                                            value=""
+                                            disabled>
+                                            Select column for recipient email
+                                        </option>
+                                        <option
+                                            v-for="col in detectedDataColumns"
+                                            :key="`uploaded-email-${col}`"
+                                            :value="col">
+                                            {{ col }}
+                                        </option>
+                                    </select>
+                                    <LuChevronDown class="pointer-events-none absolute right-3 top-3 h-4 w-4 text-slate-400" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Data Table (Uploaded Content Preview) -->
+                        <div
+                            v-if="dataFile && uploadedDataRows.length > 0 && !parsingDataFile"
+                            class="rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900">
+                            <div class="flex flex-col justify-between gap-3 border-b border-slate-200 bg-slate-50/80 px-5 py-4 sm:flex-row sm:items-center dark:border-slate-700 dark:bg-slate-800/50">
+                                <div class="flex items-center gap-2 text-sm font-bold text-slate-800 dark:text-slate-200">
+                                    <span class="inline-flex items-center justify-center rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-black text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400">
+                                        {{ uploadedDataRows.length }}
+                                    </span>
+                                    File Records Preview
+                                    <span class="text-xs font-normal text-slate-500 dark:text-slate-400">
+                                        ({{ uploadedDataColumns.length }} columns detected)
+                                    </span>
+                                </div>
+                                <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+                                    <LuSheet class="h-4 w-4 text-emerald-600" />
+                                    <span class="font-semibold text-slate-700 dark:text-slate-300">{{ dataFile.name }}</span>
+                                </div>
+                            </div>
+
+                            <div>
+                                <DataTable
+                                    :mode="'offline'"
+                                    :rows="uploadedDataRows"
+                                    :columns="uploadedDataColumns"
+                                    class="border-t-0"
+                                    :enablePagination="true"
+                                    :enableSearch="true"
+                                    :enableFilters="true"
+                                    :enableExport="true"
+                                    emptyMessage="No records found in this file." />
                             </div>
                         </div>
                     </div>

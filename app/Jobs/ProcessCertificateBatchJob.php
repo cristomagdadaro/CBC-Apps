@@ -33,7 +33,11 @@ class ProcessCertificateBatchJob implements ShouldQueue
         public string $templatePath,
         public string $dataPath,
         public string $format,
-        public ?string $nameTemplate = null
+        public ?string $nameTemplate = null,
+        public ?string $nameColumn = null,
+        public ?string $emailColumn = null,
+        public ?string $eventDate = null,
+        public ?string $dateGiven = null,
     ) {
     }
 
@@ -76,9 +80,11 @@ class ProcessCertificateBatchJob implements ShouldQueue
         $event = Form::query()
             ->where('event_id', $this->eventId)
             ->orWhere('id', $this->eventId)
-            ->first(['event_id', 'title']);
+            ->first(['event_id', 'title', 'date_from', 'date_to']);
         $eventTitle = trim((string) ($event?->title ?? ''));
         $resolvedEventId = trim((string) ($event?->event_id ?? $this->eventId));
+        $resolvedEventDate = trim((string) ($this->eventDate ?: $this->formatEventDate($event)));
+        $resolvedDateGiven = trim((string) ($this->dateGiven ?: now()->format('F j, Y')));
 
         $baseArgs = [
             $scriptPath,
@@ -94,6 +100,26 @@ class ProcessCertificateBatchJob implements ShouldQueue
         if ($eventTitle !== '') {
             $baseArgs[] = '--event-title';
             $baseArgs[] = $eventTitle;
+        }
+
+        if ($resolvedEventDate !== '') {
+            $baseArgs[] = '--event-date';
+            $baseArgs[] = $resolvedEventDate;
+        }
+
+        if ($resolvedDateGiven !== '') {
+            $baseArgs[] = '--date-given';
+            $baseArgs[] = $resolvedDateGiven;
+        }
+
+        if (!empty($this->nameColumn)) {
+            $baseArgs[] = '--name-column';
+            $baseArgs[] = $this->nameColumn;
+        }
+
+        if (!empty($this->emailColumn)) {
+            $baseArgs[] = '--email-column';
+            $baseArgs[] = $this->emailColumn;
         }
 
         if (!empty($this->nameTemplate)) {
@@ -359,5 +385,21 @@ class ProcessCertificateBatchJob implements ShouldQueue
         $env['PYTHONHASHSEED'] = $configuredHashSeed === '' ? '0' : $configuredHashSeed;
 
         return $env;
+    }
+
+    private function formatEventDate(?Form $event): string
+    {
+        if (!$event || !$event->date_from || !$event->date_to) {
+            return '';
+        }
+
+        $from = $event->date_from->copy();
+        $to = $event->date_to->copy();
+
+        if ($from->isSameDay($to)) {
+            return $from->format('F j, Y');
+        }
+
+        return $from->format('F j, Y') . ' - ' . $to->format('F j, Y');
     }
 }
