@@ -18,6 +18,17 @@
 
 **Tracker ID Convention:** `ID-YYYY-MM-DD-XXX` where `XXX` is a zero-padded daily incremental number.
 
+## Tracker Updates (2026-10-15)
+- [ID-2026-10-15-001] Resolved. Fixed 404 "No certificate records found for this batch" on `POST /api/forms/event/certificates/{event_id}/send-emails/{batch_id}`:
+  1) `manifest.json` is now kept permanently in `tmp/certificates/{event_id}/{batch_id}/manifest.json` instead of being deleted upon job completion.
+  2) In `certificate_generator.py`, recipient records are sanitized to prevent `float('nan')` or non-standard serialization from emitting invalid JSON that causes PHP `json_decode()` to fail.
+  3) `ProcessCertificateBatchJob::readManifest` now sanitizes raw content against `NaN`/`Infinity` before decoding.
+  4) `EventCertificateController::sendBatchEmails` implements a dual fallback: if `$payload['records']` in cache is empty, it recovers records from the preserved `manifest.json` on disk, or reconstructs records from the generated output files mapped to event participants, updating the cache seamlessly.
+- [ID-2026-10-15-002] Resolved. Dual-format certificate rendering implemented:
+  1) In `certificate_generator.py`, for every certificate generated in the user-selected format (`pdf`, `pptx`, `jpg`, `png`), a high-resolution duplicate `.png` preview is always generated in a dedicated `output/previews/` directory.
+  2) `previewBatch` and `previewSample` serve the duplicate PNG preview with `image/png` inline headers, enabling native, razor-sharp in-browser review for all formats (including PPTX and PDF) without prompting downloads.
+  3) `zipDirectory` filters entries to the chosen certificate format and excludes `previews/`, keeping the downloadable ZIP clean and single-format.
+
 ## Tracker Updates (2026-03-30)
 - [ID-2026-03-30-001] Resolved. Guest equipment mutation routes now require `auth:sanctum`, activity filters use the authenticated user's linked `employee_id`, and the log service no longer authorizes equipment actions with caller-supplied IDs.
 - [ID-2026-03-30-002] Resolved earlier and re-verified. `config/cors.php` now uses explicit origins instead of wildcard credentialed CORS.
