@@ -2,9 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\User;
-use Database\Seeders\ResearchMonitoringSeeder;
+use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -13,7 +12,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-         //\App\Models\User::factory(10)->create();
+        // \App\Models\User::factory(10)->create();
 
         $admin = User::query()->firstOrCreate(
             ['email' => 'dacropbiotechcenter@gmail.com'],

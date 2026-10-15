@@ -21,6 +21,11 @@ class RentalCalendarChanged implements ShouldBroadcast, ShouldDispatchAfterCommi
     {
     }
 
+    public function broadcastWhen(): bool
+    {
+        return (bool) config('realtime.enabled', false) && (bool) config('realtime.features.rentals', true);
+    }
+
     public function broadcastOn(): array
     {
         return [

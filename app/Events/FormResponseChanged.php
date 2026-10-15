@@ -24,6 +24,11 @@ class FormResponseChanged implements ShouldBroadcast, ShouldDispatchAfterCommit
     ) {
     }
 
+    public function broadcastWhen(): bool
+    {
+        return (bool) config('realtime.enabled', false) && (bool) config('realtime.features.forms', true);
+    }
+
     public function broadcastOn(): array
     {
         return [

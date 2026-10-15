@@ -20,6 +20,11 @@ class RentalCalendarSyncStatusChanged implements ShouldBroadcast, ShouldDispatch
     {
     }
 
+    public function broadcastWhen(): bool
+    {
+        return (bool) config('realtime.enabled', false) && (bool) config('realtime.features.calendar_sync', true);
+    }
+
     public function broadcastOn(): array
     {
         return [

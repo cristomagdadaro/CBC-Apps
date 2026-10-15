@@ -27,6 +27,11 @@ class EquipmentLogChanged implements ShouldBroadcast, ShouldDispatchAfterCommit
     ) {
     }
 
+    public function broadcastWhen(): bool
+    {
+        return (bool) config('realtime.enabled', false) && (bool) config('realtime.features.laboratory', true);
+    }
+
     public function broadcastOn(): array
     {
         $channels = [

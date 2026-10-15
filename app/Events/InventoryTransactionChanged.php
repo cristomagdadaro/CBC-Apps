@@ -44,6 +44,11 @@ class InventoryTransactionChanged implements ShouldBroadcast, ShouldDispatchAfte
 
     public array $transaction;
 
+    public function broadcastWhen(): bool
+    {
+        return (bool) config('realtime.enabled', false) && (bool) config('realtime.features.inventory', true);
+    }
+
     public function broadcastOn(): array
     {
         return [

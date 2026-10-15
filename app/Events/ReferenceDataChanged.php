@@ -23,6 +23,11 @@ class ReferenceDataChanged implements ShouldBroadcast, ShouldDispatchAfterCommit
     ) {
     }
 
+    public function broadcastWhen(): bool
+    {
+        return (bool) config('realtime.enabled', false) && (bool) config('realtime.features.inventory', true);
+    }
+
     public function broadcastOn(): array
     {
         $channel = match ($this->domain) {

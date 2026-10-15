@@ -21,8 +21,17 @@ class GetFormsRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            'event_id' => 'required|exists:forms,event_id',
-        ];
+        return array_merge([
+            'event_id' => 'sometimes|nullable|string|exists:forms,event_id',
+        ], config('searching', []));
+    }
+
+    protected function prepareForValidation(): void
+    {
+        if ($this->route('event_id')) {
+            $this->merge([
+                'event_id' => $this->route('event_id'),
+            ]);
+        }
     }
 }
