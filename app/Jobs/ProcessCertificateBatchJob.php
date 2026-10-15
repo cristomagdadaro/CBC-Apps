@@ -36,6 +36,7 @@ class ProcessCertificateBatchJob implements ShouldQueue
         public ?string $nameTemplate = null,
         public ?string $nameColumn = null,
         public ?string $emailColumn = null,
+        public ?string $eventTitle = null,
         public ?string $eventDate = null,
         public ?string $dateGiven = null,
     ) {
@@ -81,10 +82,10 @@ class ProcessCertificateBatchJob implements ShouldQueue
             ->where('event_id', $this->eventId)
             ->orWhere('id', $this->eventId)
             ->first(['event_id', 'title', 'date_from', 'date_to']);
-        $eventTitle = trim((string) ($event?->title ?? ''));
+        $eventTitle = trim((string) ($this->eventTitle ?: ($event?->title ?? '')));
         $resolvedEventId = trim((string) ($event?->event_id ?? $this->eventId));
-        $resolvedEventDate = trim((string) ($this->eventDate ?: $this->formatEventDate($event)));
         $resolvedDateGiven = trim((string) ($this->dateGiven ?: now()->format('F j, Y')));
+        $resolvedEventDate = trim((string) ($this->eventDate ?: ($this->formatEventDate($event) ?: $resolvedDateGiven)));
 
         $baseArgs = [
             $scriptPath,
@@ -95,22 +96,10 @@ class ProcessCertificateBatchJob implements ShouldQueue
             '--soffice-path', $libreOfficePath,
             '--manifest', $manifestAbsolutePath,
             '--event-id', $resolvedEventId,
+            '--event-title', $eventTitle !== '' ? $eventTitle : ($resolvedEventId !== '' ? "Event {$resolvedEventId}" : 'Certificate of Participation'),
+            '--event-date', $resolvedEventDate,
+            '--date-given', $resolvedDateGiven,
         ];
-
-        if ($eventTitle !== '') {
-            $baseArgs[] = '--event-title';
-            $baseArgs[] = $eventTitle;
-        }
-
-        if ($resolvedEventDate !== '') {
-            $baseArgs[] = '--event-date';
-            $baseArgs[] = $resolvedEventDate;
-        }
-
-        if ($resolvedDateGiven !== '') {
-            $baseArgs[] = '--date-given';
-            $baseArgs[] = $resolvedDateGiven;
-        }
 
         if (!empty($this->nameColumn)) {
             $baseArgs[] = '--name-column';
@@ -389,17 +378,25 @@ class ProcessCertificateBatchJob implements ShouldQueue
 
     private function formatEventDate(?Form $event): string
     {
-        if (!$event || !$event->date_from || !$event->date_to) {
+        if (!$event) {
             return '';
         }
 
-        $from = $event->date_from->copy();
-        $to = $event->date_to->copy();
+        if ($event->date_from && $event->date_to) {
+            $from = $event->date_from->copy();
+            $to = $event->date_to->copy();
 
-        if ($from->isSameDay($to)) {
-            return $from->format('F j, Y');
+            if ($from->isSameDay($to)) {
+                return $from->format('F j, Y');
+            }
+
+            return $from->format('F j, Y') . ' - ' . $to->format('F j, Y');
         }
 
-        return $from->format('F j, Y') . ' - ' . $to->format('F j, Y');
+        if ($event->date_from) {
+            return $event->date_from->copy()->format('F j, Y');
+        }
+
+        return '';
     }
 }

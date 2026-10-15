@@ -93,6 +93,9 @@ class EventCertificateController extends BaseController
                 nameTemplate: $validated['name_template'] ?? null,
                 nameColumn: $validated['name_column'] ?? null,
                 emailColumn: $validated['email_column'] ?? null,
+                eventTitle: $validated['event_title'] ?? null,
+                eventDate: $validated['event_date'] ?? null,
+                dateGiven: $validated['date_given'] ?? null,
             )->onQueue('default');
         } catch (\Throwable $e) {
             Storage::delete([$templatePath, $dataPath]);
@@ -156,9 +159,22 @@ class EventCertificateController extends BaseController
             }
         }
 
+        $event = Form::query()
+            ->where('event_id', $event_id)
+            ->orWhere('id', $event_id)
+            ->first(['id', 'event_id', 'title', 'date_from', 'date_to']);
+
         return response()->json([
             'status' => 'success',
             'data' => [
+                'event' => $event ? [
+                    'id' => $event->id,
+                    'event_id' => $event->event_id,
+                    'title' => $event->title,
+                    'date_from' => $event->date_from,
+                    'date_to' => $event->date_to,
+                    'formatted_date' => $this->formatEventDate($event),
+                ] : null,
                 'columns' => $columnSet,
                 'subform_types' => $responses->pluck('subform_type')->filter()->unique()->values(),
                 'recipients' => $responses->map(function (EventSubformResponse $response) use ($deliveryStatusByRecipient) {
@@ -561,5 +577,29 @@ class EventCertificateController extends BaseController
     private function defaultTemplateAbsolutePath(): string
     {
         return base_path(self::DEFAULT_TEMPLATE_RELATIVE_PATH);
+    }
+
+    private function formatEventDate(?Form $event): string
+    {
+        if (!$event) {
+            return '';
+        }
+
+        if ($event->date_from && $event->date_to) {
+            $from = $event->date_from->copy();
+            $to = $event->date_to->copy();
+
+            if ($from->isSameDay($to)) {
+                return $from->format('F j, Y');
+            }
+
+            return $from->format('F j, Y') . ' - ' . $to->format('F j, Y');
+        }
+
+        if ($event->date_from) {
+            return $event->date_from->copy()->format('F j, Y');
+        }
+
+        return '';
     }
 }

@@ -143,12 +143,16 @@ def resolve_placeholder_value(mapping: Dict[str, object], key: str) -> Tuple[boo
         'full_name': ['fullname', 'name', 'full name', 'recipient_name', 'participant_name', 'participant'],
         'email': ['email address', 'email_address', 'e-mail', 'mail'],
         'email_address': ['email', 'email address', 'e-mail'],
-        'event_date': ['eventdate', 'date', 'date_of_event'],
-        'eventdate': ['event_date', 'date'],
-        'date_given': ['dategiven', 'date', 'given_date'],
-        'dategiven': ['date_given', 'date'],
+        'event_date': ['eventdate', 'date', 'date_of_event', 'date_given', 'dategiven'],
+        'eventdate': ['event_date', 'date', 'date_of_event', 'date_given'],
+        'date_given': ['dategiven', 'date', 'given_date', 'event_date', 'eventdate'],
+        'dategiven': ['date_given', 'date', 'event_date'],
         'event_title': ['eventtitle', 'event', 'title', 'event_name'],
+        'eventtitle': ['event_title', 'event', 'title', 'event_name'],
+        'title': ['event_title', 'eventtitle', 'event', 'event_name'],
+        'event': ['event_title', 'eventtitle', 'title', 'event_id'],
         'event_id': ['eventid', 'event'],
+        'eventid': ['event_id', 'event'],
     }
 
     for alias in alias_map.get(normalized_key, []):
@@ -170,6 +174,27 @@ def resolve_placeholder_value(mapping: Dict[str, object], key: str) -> Tuple[boo
                         return True, v
                 except Exception:
                     continue
+
+    if normalized_key in ('event_title', 'eventtitle', 'title', 'event_name'):
+        for k in ('event_title', 'eventtitle', 'title', 'event_name', 'event'):
+            v = mapping.get(k)
+            if v is not None and not pd.isna(v) and str(v).strip():
+                return True, v
+        return True, 'Certificate of Participation'
+
+    if normalized_key in ('event_date', 'eventdate', 'date_of_event'):
+        for k in ('event_date', 'eventdate', 'date_given', 'dategiven', 'date'):
+            v = mapping.get(k)
+            if v is not None and not pd.isna(v) and str(v).strip():
+                return True, v
+        return True, datetime.now().strftime('%B %d, %Y')
+
+    if normalized_key in ('date_given', 'dategiven', 'given_date'):
+        for k in ('date_given', 'dategiven', 'event_date', 'eventdate', 'date'):
+            v = mapping.get(k)
+            if v is not None and not pd.isna(v) and str(v).strip():
+                return True, v
+        return True, datetime.now().strftime('%B %d, %Y')
 
     return False, ''
 
@@ -626,9 +651,11 @@ def generate_for_row(prs_template: Presentation, row: pd.Series, out_dir: str, o
     # mapping: case-insensitive column headers -> values
     mapping = {str(k).strip().lower(): v for k, v in row.items()}
     clean_event_id = str(event_id or '').strip()
-    clean_event_title = str(event_title or '').strip()
-    clean_event_date = str(event_date or '').strip()
     clean_date_given = str(date_given or '').strip() or date_now.strftime('%B %d, %Y')
+    clean_event_date = str(event_date or '').strip() or clean_date_given
+    clean_event_title = str(event_title or '').strip()
+    if not clean_event_title:
+        clean_event_title = f"Event {clean_event_id}" if clean_event_id else "Certificate of Participation"
     clean_name_col = str(name_col or '').strip().lower()
     clean_email_col = str(email_col or '').strip().lower()
 
@@ -638,6 +665,8 @@ def generate_for_row(prs_template: Presentation, row: pd.Series, out_dir: str, o
     if clean_event_title:
         mapping.setdefault('event_title', clean_event_title)
         mapping.setdefault('eventtitle', clean_event_title)
+        mapping.setdefault('title', clean_event_title)
+        mapping.setdefault('event_name', clean_event_title)
     if clean_event_date:
         mapping.setdefault('event_date', clean_event_date)
         mapping.setdefault('eventdate', clean_event_date)
