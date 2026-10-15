@@ -819,7 +819,8 @@ export default {
                     }
                 );
 
-                const contentType = response.headers?.["content-type"] || (this.outputFormat === "pdf" ? "application/pdf" : `image/${this.outputFormat}`);
+                const headerType = response.headers?.["content-type"] || response.headers?.["Content-Type"];
+                const contentType = headerType || (this.outputFormat === "pdf" ? "application/pdf" : "image/png");
                 const blob = new Blob([response.data], { type: contentType });
                 const objectUrl = window.URL.createObjectURL(blob);
                 window.open(objectUrl, "_blank");

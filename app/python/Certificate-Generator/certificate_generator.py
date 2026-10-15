@@ -14,6 +14,7 @@ Notes:
 import argparse
 import json
 import logging
+import math
 import os
 import pathlib
 import re
@@ -425,6 +426,10 @@ def extract_recipient_name(row: pd.Series, name_col: str = '') -> str:
 
 
 def pick_primary_output(out_paths: Dict, out_format: str) -> str:
+    if not isinstance(out_paths, dict):
+        return ''
+    if out_paths.get('primary'):
+        return str(out_paths['primary'])
     preferred = out_paths.get(out_format)
     if isinstance(preferred, list):
         return str(preferred[0]) if preferred else ''
@@ -435,7 +440,23 @@ def pick_primary_output(out_paths: Dict, out_format: str) -> str:
         return str(out_paths['pdf'])
     if out_paths.get('pptx'):
         return str(out_paths['pptx'])
+    if out_paths.get('png'):
+        return str(out_paths['png'])
+    if out_paths.get('jpg'):
+        return str(out_paths['jpg'])
     return ''
+
+
+def pick_preview_output(out_paths: Dict) -> Optional[str]:
+    if not isinstance(out_paths, dict):
+        return None
+    for k in ('preview', 'preview_png', 'png', 'jpg'):
+        val = out_paths.get(k)
+        if isinstance(val, list) and val:
+            return str(val[0])
+        if val:
+            return str(val)
+    return None
 
 
 def resolve_soffice_path(soffice_path: str) -> Optional[str]:
@@ -712,76 +733,103 @@ def generate_for_row(prs_template: Presentation, row: pd.Series, out_dir: str, o
     out_pptx = os.path.join(out_dir, unique_base + '.pptx')
     prs.save(out_pptx)
 
+    # Ensure dedicated previews directory exists for duplicate PNG previews
+    previews_dir = os.path.join(out_dir, 'previews')
+    os.makedirs(previews_dir, exist_ok=True)
+    target_preview = os.path.join(previews_dir, unique_base + '.png')
+
     out_paths = {}
     out_paths['pptx'] = out_pptx
 
-    if out_format == 'pptx':
-        return True, f"Generated: {out_paths}", out_paths
-
-    # convert to pdf
+    # Always generate high-resolution duplicate PNG for preview purpose
+    preview_generated = False
     try:
-        try:
+        generated_preview_pngs = pptx_to_images_with_soffice(soffice_path, out_pptx, previews_dir)
+        if generated_preview_pngs:
+            source_preview = generated_preview_pngs[0]
+            if os.path.abspath(source_preview) != os.path.abspath(target_preview):
+                shutil.move(source_preview, target_preview)
+            out_paths['preview'] = target_preview
+            out_paths['preview_png'] = target_preview
+            preview_generated = True
+    except Exception as prev_err:
+        logging.warning(f"Preview PNG generation warning for '{unique_base}': {prev_err}")
+
+    # Now generate the requested primary output format
+    if out_format == 'pptx':
+        out_paths['primary'] = out_pptx
+        return True, f"Generated: {out_pptx}", out_paths
+
+    try:
+        if out_format == 'pdf':
             out_pdf = os.path.join(out_dir, unique_base + '.pdf')
             pdf_path = pptx_to_pdf(soffice_path, out_pptx, out_dir)
             if os.path.abspath(pdf_path) != os.path.abspath(out_pdf):
                 shutil.move(pdf_path, out_pdf)
             out_paths['pdf'] = out_pdf
-        except FileNotFoundError as e:
-            # likely soffice not found; warn and skip conversion, keep PPTX only
-            msg = f"PPTX->PDF conversion skipped for '{unique_base}': {e}"
-            return False, msg, out_paths
-        except subprocess.CalledProcessError as e:
-            details = (e.stderr or e.output or '').strip()
-            msg = f"PPTX->PDF conversion failed for '{unique_base}': {details or str(e)}"
-            return False, msg, out_paths
-        except Exception as e:
-            msg = f"Unexpected error during PPTX->PDF conversion for '{unique_base}': {e}"
-            return False, msg, out_paths
+            out_paths['primary'] = out_pdf
+            if os.path.exists(out_pptx):
+                try:
+                    os.remove(out_pptx)
+                except Exception:
+                    pass
+            return True, f"Generated: {out_pdf}", out_paths
 
-        if out_format in ('png', 'jpg', 'jpeg'):
-            try:
+        elif out_format == 'png':
+            target_png = os.path.join(out_dir, unique_base + '.png')
+            if preview_generated and os.path.exists(target_preview):
+                shutil.copy2(target_preview, target_png)
+            else:
                 generated_png_paths = pptx_to_images_with_soffice(soffice_path, out_pptx, out_dir)
-
                 if not generated_png_paths:
                     raise FileNotFoundError('LibreOffice image conversion did not produce PNG output.')
+                source_path = generated_png_paths[0]
+                if os.path.abspath(source_path) != os.path.abspath(target_png):
+                    shutil.move(source_path, target_png)
+                if not preview_generated:
+                    shutil.copy2(target_png, target_preview)
+                    out_paths['preview'] = target_preview
+                    out_paths['preview_png'] = target_preview
+            out_paths['png'] = target_png
+            out_paths['primary'] = target_png
+            if os.path.exists(out_pptx):
+                try:
+                    os.remove(out_pptx)
+                except Exception:
+                    pass
+            return True, f"Generated: {target_png}", out_paths
 
-                if out_format == 'png':
-                    if len(generated_png_paths) == 1:
-                        source_path = generated_png_paths[0]
-                        target_path = os.path.join(out_dir, unique_base + '.png')
-                        if os.path.abspath(source_path) != os.path.abspath(target_path):
-                            shutil.move(source_path, target_path)
-                        out_paths['png'] = target_path
-                    else:
-                        saved = []
-                        for index, source_path in enumerate(generated_png_paths, start=1):
-                            target_path = os.path.join(out_dir, f"{unique_base}_page{index}.png")
-                            if os.path.abspath(source_path) != os.path.abspath(target_path):
-                                shutil.move(source_path, target_path)
-                            saved.append(target_path)
-                        out_paths['png'] = saved
-                else:
-                    saved = []
-                    for index, source_path in enumerate(generated_png_paths, start=1):
-                        img = Image.open(source_path)
-                        target_path = os.path.join(
-                            out_dir,
-                            unique_base + '.jpg' if len(generated_png_paths) == 1 else f"{unique_base}_page{index}.jpg"
-                        )
-                        img.convert('RGB').save(target_path, 'JPEG')
-                        saved.append(target_path)
-                        try:
-                            os.remove(source_path)
-                        except Exception:
-                            pass
-
-                    out_paths['jpg'] = saved[0] if len(saved) == 1 else saved
-            except Exception as image_error:
-                msg = (
-                    f"PPTX->image conversion failed for '{unique_base}': {image_error}. "
-                    "If using legacy PDF-to-image fallback, install Poppler and add it to PATH."
-                )
-                return False, msg, out_paths
+        elif out_format in ('jpg', 'jpeg'):
+            target_jpg = os.path.join(out_dir, unique_base + '.jpg')
+            if preview_generated and os.path.exists(target_preview):
+                img = Image.open(target_preview)
+                img.convert('RGB').save(target_jpg, 'JPEG')
+            else:
+                generated_png_paths = pptx_to_images_with_soffice(soffice_path, out_pptx, out_dir)
+                if not generated_png_paths:
+                    raise FileNotFoundError('LibreOffice image conversion did not produce image output.')
+                source_path = generated_png_paths[0]
+                img = Image.open(source_path)
+                img.convert('RGB').save(target_jpg, 'JPEG')
+                if not preview_generated:
+                    shutil.copy2(source_path, target_preview)
+                    out_paths['preview'] = target_preview
+                    out_paths['preview_png'] = target_preview
+                try:
+                    os.remove(source_path)
+                except Exception:
+                    pass
+            out_paths['jpg'] = target_jpg
+            out_paths['primary'] = target_jpg
+            if os.path.exists(out_pptx):
+                try:
+                    os.remove(out_pptx)
+                except Exception:
+                    pass
+            return True, f"Generated: {target_jpg}", out_paths
+    except Exception as conv_err:
+        msg = f"Conversion to {out_format} failed for '{unique_base}': {conv_err}"
+        return False, msg, out_paths
     finally:
         if tmp_pptx and os.path.exists(tmp_pptx):
             try:
@@ -902,7 +950,11 @@ def main(argv=None):
             rec_email = extract_recipient_email(row, email_col=getattr(args, 'email_column', ''))
             rec_name = extract_recipient_name(row, name_col=getattr(args, 'name_column', ''))
             rec_resp_id = row.get('RECIPIENT_RESPONSE_ID', '')
-            rec_resp_id_str = str(rec_resp_id).strip() if rec_resp_id is not None else ''
+            rec_resp_id_str = str(rec_resp_id).strip() if rec_resp_id is not None and not pd.isna(rec_resp_id) else ''
+
+            clean_rec_email = str(rec_email).strip() if rec_email and not pd.isna(rec_email) and str(rec_email).strip() else None
+            clean_rec_name = str(rec_name).strip() if rec_name and not pd.isna(rec_name) and str(rec_name).strip() else None
+            clean_idx = int(idx) if str(idx).isdigit() else str(idx)
 
             try:
                 success, message, res = generate_for_row(
@@ -919,41 +971,49 @@ def main(argv=None):
                 )
                 if success:
                     att_path = pick_primary_output(res or {}, args.format)
+                    prev_path = pick_preview_output(res or {})
                     return True, {
-                        'sheet_name': sheet_name,
-                        'row_index': int(idx),
-                        'recipient_email': rec_email,
-                        'recipient_name': rec_name,
+                        'sheet_name': str(sheet_name),
+                        'row_index': clean_idx,
+                        'recipient_email': clean_rec_email,
+                        'recipient_name': clean_rec_name,
                         'recipient_response_id': rec_resp_id_str,
                         'status': 'success',
                         'error_message': None,
                         'attachment_path': att_path,
+                        'preview_path': prev_path,
                         'filename': os.path.basename(att_path) if att_path else None,
+                        'preview_filename': os.path.basename(prev_path) if prev_path else None,
                     }, res
                 else:
                     fallback_att = pick_primary_output(res or {}, args.format)
+                    fallback_prev = pick_preview_output(res or {})
                     return False, {
-                        'sheet_name': sheet_name,
-                        'row_index': int(idx),
-                        'recipient_email': rec_email,
-                        'recipient_name': rec_name,
+                        'sheet_name': str(sheet_name),
+                        'row_index': clean_idx,
+                        'recipient_email': clean_rec_email,
+                        'recipient_name': clean_rec_name,
                         'recipient_response_id': rec_resp_id_str,
                         'status': 'fail',
                         'error_message': str(message),
                         'attachment_path': fallback_att,
+                        'preview_path': fallback_prev,
                         'filename': os.path.basename(fallback_att) if fallback_att else None,
+                        'preview_filename': os.path.basename(fallback_prev) if fallback_prev else None,
                     }, message
             except Exception as e:
                 return False, {
-                    'sheet_name': sheet_name,
-                    'row_index': int(idx),
-                    'recipient_email': rec_email,
-                    'recipient_name': rec_name,
+                    'sheet_name': str(sheet_name),
+                    'row_index': clean_idx,
+                    'recipient_email': clean_rec_email,
+                    'recipient_name': clean_rec_name,
                     'recipient_response_id': rec_resp_id_str,
                     'status': 'fail',
                     'error_message': str(e),
                     'attachment_path': None,
+                    'preview_path': None,
                     'filename': None,
+                    'preview_filename': None,
                 }, str(e)
 
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
@@ -969,7 +1029,16 @@ def main(argv=None):
                     print(f"Warning: {info}")
                     logging.error(f"Sheet: {record.get('sheet_name')}, Row: {record.get('row_index')}, Error: {info}")
 
-        manifest_records.sort(key=lambda r: (str(r.get('sheet_name', '')), int(r.get('row_index', 0))))
+        def _sort_key(r):
+            s = str(r.get('sheet_name', ''))
+            idx_val = r.get('row_index', 0)
+            try:
+                num = int(idx_val)
+            except Exception:
+                num = 0
+            return (s, num)
+
+        manifest_records.sort(key=_sort_key)
 
     summary = f'\nGeneration complete. Generated: {total_files} files, Failed: {failed_count} items.'
     print(summary)
@@ -982,11 +1051,27 @@ def main(argv=None):
             manifest_dir = os.path.dirname(args.manifest)
             if manifest_dir:
                 os.makedirs(manifest_dir, exist_ok=True)
+
+            def _clean_for_json(obj):
+                if isinstance(obj, float):
+                    if math.isnan(obj) or math.isinf(obj):
+                        return None
+                    return obj
+                if isinstance(obj, dict):
+                    return {str(k): _clean_for_json(v) for k, v in obj.items()}
+                if isinstance(obj, (list, tuple)):
+                    return [_clean_for_json(v) for v in obj]
+                return obj
+
+            cleaned_records = _clean_for_json(manifest_records)
+
             with open(args.manifest, 'w', encoding='utf-8') as manifest_file:
-                json.dump(manifest_records, manifest_file, indent=2)
+                json.dump(cleaned_records, manifest_file, indent=2, default=str)
             print(f'Manifest written: {args.manifest}')
         except Exception as e:
-            print(f'Warning: failed to write manifest: {e}')
+            print(f'Error writing manifest: {e}')
+            logging.error(f'Error writing manifest: {e}')
+            sys.exit(5)
 
 
 if __name__ == '__main__':

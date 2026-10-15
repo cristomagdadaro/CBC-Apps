@@ -157,9 +157,10 @@ class ProcessCertificateBatchJob implements ShouldQueue
 
         $zipRelativePath = "{$batchRelativeDir}/certificates-{$this->batchId}.zip";
         $zipAbsolutePath = Storage::path($zipRelativePath);
-        $this->zipDirectory($outputAbsoluteDir, $zipAbsolutePath);
+        $this->zipDirectory($outputAbsoluteDir, $zipAbsolutePath, $this->format);
 
-        Storage::delete([$this->templatePath, $this->dataPath, $manifestRelativePath]);
+        // Keep manifest.json permanently on disk for reliability and email resolution; delete only temp inputs
+        Storage::delete([$this->templatePath, $this->dataPath]);
 
         $message = $this->sendEmails
             ? 'Certificate generation and email delivery completed.'
@@ -303,21 +304,46 @@ class ProcessCertificateBatchJob implements ShouldQueue
             return [];
         }
 
-        $decoded = json_decode((string) File::get($manifestAbsolutePath), true);
+        $raw = (string) File::get($manifestAbsolutePath);
+        $sanitized = preg_replace('/:\s*(?:NaN|-?Infinity)\b/i', ': null', $raw);
+        $decoded = json_decode($sanitized, true);
 
         return is_array($decoded) ? $decoded : [];
     }
 
-    private function zipDirectory(string $sourceDir, string $zipPath): void
+    private function zipDirectory(string $sourceDir, string $zipPath, string $format = ''): void
     {
         File::ensureDirectoryExists(dirname($zipPath));
 
         $zip = new ZipArchive();
         $zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE);
 
+        $format = strtolower($format);
+        $allowedExtensions = match ($format) {
+            'pdf' => ['pdf'],
+            'pptx' => ['pptx'],
+            'png' => ['png'],
+            'jpg', 'jpeg' => ['jpg', 'jpeg'],
+            default => [],
+        };
+
         foreach (File::allFiles($sourceDir) as $file) {
             $relative = ltrim(str_replace($sourceDir, '', $file->getRealPath()), DIRECTORY_SEPARATOR);
-            $zip->addFile($file->getRealPath(), str_replace('\\', '/', $relative));
+            $normalizedRelative = str_replace('\\', '/', $relative);
+
+            // Do not pollute the user's primary ZIP archive with internal preview images
+            if (str_starts_with($normalizedRelative, 'previews/')) {
+                continue;
+            }
+
+            if (!empty($allowedExtensions)) {
+                $ext = strtolower($file->getExtension());
+                if (!in_array($ext, $allowedExtensions, true)) {
+                    continue;
+                }
+            }
+
+            $zip->addFile($file->getRealPath(), $normalizedRelative);
         }
 
         $zip->close();

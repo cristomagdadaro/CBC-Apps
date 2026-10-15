@@ -289,8 +289,9 @@ class EventCertificateController extends BaseController
 
         $batchDir = $payload['batch_dir'] ?? "tmp/certificates/{$event_id}/{$batch_id}";
         $outputDir = Storage::path("{$batchDir}/output");
+        $previewsDir = Storage::path("{$batchDir}/output/previews");
 
-        if (!File::isDirectory($outputDir)) {
+        if (!File::isDirectory($outputDir) && !File::isDirectory($previewsDir)) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Rendered files directory not found.',
@@ -301,24 +302,40 @@ class EventCertificateController extends BaseController
         $filePath = null;
 
         if ($requestedFile && is_string($requestedFile)) {
-            $candidate = $outputDir . DIRECTORY_SEPARATOR . basename($requestedFile);
-            if (File::exists($candidate)) {
-                $filePath = $candidate;
+            $baseName = basename($requestedFile);
+            $baseWithoutExt = pathinfo($baseName, PATHINFO_FILENAME);
+
+            // Check if duplicate PNG preview exists first
+            if (File::exists($previewsDir . DIRECTORY_SEPARATOR . $baseWithoutExt . '.png')) {
+                $filePath = $previewsDir . DIRECTORY_SEPARATOR . $baseWithoutExt . '.png';
+            } elseif (File::exists($outputDir . DIRECTORY_SEPARATOR . $baseName)) {
+                $filePath = $outputDir . DIRECTORY_SEPARATOR . $baseName;
             }
         }
 
         if (!$filePath) {
-            $files = File::allFiles($outputDir);
-            $priorityFiles = collect($files)->sortByDesc(function ($file) {
-                $ext = strtolower($file->getExtension());
-                if ($ext === 'pdf') return 3;
-                if (in_array($ext, ['png', 'jpg', 'jpeg'])) return 2;
-                return 1;
-            });
+            // First priority: check duplicate PNG preview directory (renders natively in browser for all formats including PPTX and PDF)
+            if (File::isDirectory($previewsDir)) {
+                $previewFiles = File::files($previewsDir);
+                if (!empty($previewFiles)) {
+                    $filePath = $previewFiles[0]->getRealPath();
+                }
+            }
 
-            $first = $priorityFiles->first();
-            if ($first) {
-                $filePath = $first->getRealPath();
+            // Second priority: check output directory with image priority over PDF/PPTX
+            if (!$filePath && File::isDirectory($outputDir)) {
+                $files = File::files($outputDir);
+                $priorityFiles = collect($files)->sortByDesc(function ($file) {
+                    $ext = strtolower($file->getExtension());
+                    if (in_array($ext, ['png', 'jpg', 'jpeg'])) return 3;
+                    if ($ext === 'pdf') return 2;
+                    return 1;
+                });
+
+                $first = $priorityFiles->first();
+                if ($first) {
+                    $filePath = $first->getRealPath();
+                }
             }
         }
 
@@ -356,6 +373,37 @@ class EventCertificateController extends BaseController
         }
 
         $records = $payload['records'] ?? [];
+
+        // Fallback 1: Read preserved manifest.json from disk if cache array was empty or pruned
+        if (empty($records)) {
+            $batchDir = $payload['batch_dir'] ?? "tmp/certificates/{$event_id}/{$batch_id}";
+            $manifestPath = Storage::path("{$batchDir}/manifest.json");
+            if (File::exists($manifestPath)) {
+                $raw = (string) File::get($manifestPath);
+                $sanitized = preg_replace('/:\s*(?:NaN|-?Infinity)\b/i', ': null', $raw);
+                $decoded = json_decode($sanitized, true);
+                if (is_array($decoded) && !empty($decoded)) {
+                    $records = $decoded;
+                    $payload['records'] = $records;
+                    Cache::put($this->cacheKey($batch_id), $payload, now()->addHours(6));
+                }
+            }
+        }
+
+        // Fallback 2: Reconstruct from output directory and database if manifest is unavailable
+        if (empty($records)) {
+            $batchDir = $payload['batch_dir'] ?? "tmp/certificates/{$event_id}/{$batch_id}";
+            $outputDir = Storage::path("{$batchDir}/output");
+            if (File::isDirectory($outputDir)) {
+                $reconstructed = $this->reconstructRecordsFromOutputDir($event_id, $outputDir);
+                if (!empty($reconstructed)) {
+                    $records = $reconstructed;
+                    $payload['records'] = $records;
+                    Cache::put($this->cacheKey($batch_id), $payload, now()->addHours(6));
+                }
+            }
+        }
+
         if (empty($records)) {
             return response()->json([
                 'status' => 'error',
@@ -562,8 +610,9 @@ class EventCertificateController extends BaseController
             $files = File::allFiles($outputAbsoluteDir);
             $priorityFiles = collect($files)->sortByDesc(function ($file) {
                 $ext = strtolower($file->getExtension());
-                if ($ext === 'pdf') return 3;
-                if (in_array($ext, ['png', 'jpg', 'jpeg'])) return 2;
+                if ($ext === 'png') return 4;
+                if (in_array($ext, ['jpg', 'jpeg'])) return 3;
+                if ($ext === 'pdf') return 2;
                 return 1;
             });
 
@@ -906,5 +955,81 @@ class EventCertificateController extends BaseController
     private function defaultTemplateAbsolutePath(): string
     {
         return base_path(self::DEFAULT_TEMPLATE_RELATIVE_PATH);
+    }
+
+    private function reconstructRecordsFromOutputDir(string $eventId, string $outputDir): array
+    {
+        if (!File::isDirectory($outputDir)) {
+            return [];
+        }
+
+        $files = collect(File::files($outputDir))
+            ->reject(fn ($file) => str_starts_with($file->getFilename(), '.'))
+            ->values();
+
+        if ($files->isEmpty()) {
+            return [];
+        }
+
+        $responses = EventSubformResponse::query()
+            ->whereHas('parentSubform', function ($query) use ($eventId) {
+                $query->where('event_id', $eventId);
+            })
+            ->with(['participantRegistration.participant'])
+            ->get();
+
+        $participantMap = [];
+        foreach ($responses as $response) {
+            $data = is_array($response->response_data) ? $response->response_data : (json_decode($response->response_data, true) ?: []);
+            $participant = $response->participantRegistration?->participant;
+            $name = trim((string) ($data['name'] ?? $data['fullname'] ?? $data['full_name'] ?? $participant?->name ?? ''));
+            $email = trim((string) ($data['email'] ?? $participant?->email ?? ''));
+
+            if ($name !== '' && $email !== '') {
+                $key = strtolower((string) preg_replace('/[^a-z0-9]/', '', $name));
+                $participantMap[$key] = [
+                    'name' => $name,
+                    'email' => $email,
+                    'response_id' => (string) $response->id,
+                ];
+            }
+        }
+
+        $previewsDir = $outputDir . DIRECTORY_SEPARATOR . 'previews';
+        $records = [];
+
+        foreach ($files as $file) {
+            $filename = $file->getFilename();
+            $baseName = pathinfo($filename, PATHINFO_FILENAME);
+            $normalizedBase = strtolower((string) preg_replace('/[^a-z0-9]/', '', $baseName));
+
+            $matched = null;
+            foreach ($participantMap as $key => $info) {
+                if ($key !== '' && (str_contains($normalizedBase, $key) || str_contains($key, $normalizedBase))) {
+                    $matched = $info;
+                    break;
+                }
+            }
+
+            $previewPath = null;
+            if (File::isDirectory($previewsDir)) {
+                $candidatePreview = $previewsDir . DIRECTORY_SEPARATOR . $baseName . '.png';
+                if (File::exists($candidatePreview)) {
+                    $previewPath = $candidatePreview;
+                }
+            }
+
+            $records[] = [
+                'status' => 'success',
+                'recipient_name' => $matched['name'] ?? $baseName,
+                'recipient_email' => $matched['email'] ?? null,
+                'recipient_response_id' => $matched['response_id'] ?? null,
+                'attachment_path' => $file->getRealPath(),
+                'preview_path' => $previewPath,
+                'filename' => $filename,
+            ];
+        }
+
+        return $records;
     }
 }

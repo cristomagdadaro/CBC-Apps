@@ -584,6 +584,90 @@ class GenerationTest extends TestCase
             return $job->sendEmails === true;
         });
     }
+
+    public function test_send_batch_emails_falls_back_to_manifest_file_when_cache_records_empty(): void
+    {
+        $batchId = (string) \Illuminate\Support\Str::uuid();
+        $batchDir = "tmp/certificates/{$this->eventId}/{$batchId}";
+        $outputDir = Storage::path("{$batchDir}/output");
+        \Illuminate\Support\Facades\File::ensureDirectoryExists($outputDir);
+
+        $certPath = $outputDir . DIRECTORY_SEPARATOR . 'Alice_Smith.pdf';
+        file_put_contents($certPath, '%PDF-1.4 test certificate for alice');
+
+        $manifestPath = Storage::path("{$batchDir}/manifest.json");
+        file_put_contents($manifestPath, json_encode([
+            [
+                'status' => 'success',
+                'recipient_name' => 'Alice Smith',
+                'recipient_email' => 'alice@example.com',
+                'recipient_response_id' => '999',
+                'attachment_path' => $certPath,
+                'filename' => 'Alice_Smith.pdf',
+            ],
+        ]));
+
+        // Cache has EMPTY records array (simulating cache loss or payload issue)
+        \Illuminate\Support\Facades\Cache::put("certificate_batch:{$batchId}", [
+            'status' => 'completed',
+            'event_id' => $this->eventId,
+            'batch_dir' => $batchDir,
+            'event_title' => 'National Rice Congress',
+            'event_date' => 'October 15, 2026',
+            'records' => [],
+            'emails_sent' => false,
+            'pending_emails' => 1,
+        ], now()->addHour());
+
+        $response = $this->postJson(
+            route('api.event.certificates.send_emails', ['event_id' => $this->eventId, 'batch_id' => $batchId])
+        );
+
+        $response->assertStatus(200);
+        $this->assertSame('success', $response->json('status'));
+        $this->assertSame(1, $response->json('data.queued_count'));
+
+        $cached = \Illuminate\Support\Facades\Cache::get("certificate_batch:{$batchId}");
+        $this->assertTrue($cached['emails_sent']);
+        $this->assertCount(1, $cached['records']);
+        $this->assertSame('alice@example.com', $cached['records'][0]['recipient_email']);
+
+        \Illuminate\Support\Facades\File::deleteDirectory(Storage::path("tmp/certificates/{$this->eventId}"));
+    }
+
+    public function test_preview_batch_prefers_duplicate_png_preview(): void
+    {
+        $batchId = (string) \Illuminate\Support\Str::uuid();
+        $batchDir = "tmp/certificates/{$this->eventId}/{$batchId}";
+        $outputDir = Storage::path("{$batchDir}/output");
+        $previewsDir = Storage::path("{$batchDir}/output/previews");
+        \Illuminate\Support\Facades\File::ensureDirectoryExists($outputDir);
+        \Illuminate\Support\Facades\File::ensureDirectoryExists($previewsDir);
+
+        $primaryPdf = $outputDir . DIRECTORY_SEPARATOR . 'participant_cert.pdf';
+        file_put_contents($primaryPdf, '%PDF-1.4 test certificate');
+
+        $previewPng = $previewsDir . DIRECTORY_SEPARATOR . 'participant_cert.png';
+        // 1x1 transparent PNG binary
+        file_put_contents($previewPng, base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='));
+
+        \Illuminate\Support\Facades\Cache::put("certificate_batch:{$batchId}", [
+            'status' => 'completed',
+            'event_id' => $this->eventId,
+            'batch_dir' => $batchDir,
+            'records' => [],
+        ], now()->addHour());
+
+        $response = $this->get(
+            route('api.event.certificates.preview', ['event_id' => $this->eventId, 'batch_id' => $batchId])
+        );
+
+        $response->assertStatus(200);
+        $this->assertSame('image/png', $response->headers->get('Content-Type'));
+        $this->assertStringContainsString('participant_cert.png', (string) $response->headers->get('Content-Disposition'));
+
+        \Illuminate\Support\Facades\File::deleteDirectory(Storage::path("tmp/certificates/{$this->eventId}"));
+    }
 }
 
 
