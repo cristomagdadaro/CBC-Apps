@@ -582,6 +582,9 @@ export default {
                         this.selectedRecipientIds.forEach((id) => formData.append("recipient_ids[]", id));
                     }
                     if (this.namingTemplate?.trim()) formData.append("name_template", this.namingTemplate.trim());
+                    if (this.eventTitle?.trim()) formData.append("event_title", this.eventTitle.trim());
+                    if (this.eventDate?.trim()) formData.append("event_date", this.eventDate.trim());
+                    if (this.dateGiven?.trim()) formData.append("date_given", this.dateGiven.trim());
 
                     payload = formData;
                     requestConfig = {
@@ -608,6 +611,9 @@ export default {
                               }
                             : {}),
                         ...(this.namingTemplate?.trim() ? { name_template: this.namingTemplate.trim() } : {}),
+                        ...(this.eventTitle?.trim() ? { event_title: this.eventTitle.trim() } : {}),
+                        ...(this.eventDate?.trim() ? { event_date: this.eventDate.trim() } : {}),
+                        ...(this.dateGiven?.trim() ? { date_given: this.dateGiven.trim() } : {}),
                     };
                     requestConfig = { routeParams: this.eventId };
                 }
@@ -1130,7 +1136,68 @@ export default {
                     </div>
                 </div>
 
-                <!-- Section 3: Output Settings -->
+                <!-- Section 3: Certificate Details -->
+                <div class="space-y-4">
+                    <div class="flex items-center gap-2 border-b border-slate-100 pb-3 text-sm font-bold uppercase text-slate-800 dark:border-slate-800/50 dark:text-slate-200">
+                        <LuAward class="h-4 w-4 text-indigo-500 dark:text-indigo-400" />
+                        Certificate Details (Event Title & Dates)
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50 p-4 shadow-sm sm:p-5 md:grid-cols-3 dark:border-slate-700/60 dark:bg-slate-800/30">
+                        <div class="space-y-2">
+                            <div class="flex items-center justify-between">
+                                <label class="block text-[0.65rem] font-bold uppercase text-slate-500 dark:text-slate-400">
+                                    Event Title
+                                </label>
+                                <span class="rounded bg-indigo-50 px-1.5 py-0.5 font-mono text-[0.65rem] font-semibold text-indigo-600 dark:bg-indigo-950/40 dark:text-indigo-400">
+                                    &lt;&lt;EVENT_TITLE&gt;&gt;
+                                </span>
+                            </div>
+                            <input
+                                v-model="eventTitle"
+                                type="text"
+                                class="block w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm font-semibold text-slate-800 shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
+                                placeholder="e.g. Innovate for Impact..." />
+                            <p class="text-[0.65rem] text-slate-500 dark:text-slate-400">Populates &lt;&lt;EVENT_TITLE&gt;&gt; and {event_title}</p>
+                        </div>
+
+                        <div class="space-y-2">
+                            <div class="flex items-center justify-between">
+                                <label class="block text-[0.65rem] font-bold uppercase text-slate-500 dark:text-slate-400">
+                                    Event Date
+                                </label>
+                                <span class="rounded bg-indigo-50 px-1.5 py-0.5 font-mono text-[0.65rem] font-semibold text-indigo-600 dark:bg-indigo-950/40 dark:text-indigo-400">
+                                    &lt;&lt;EVENT_DATE&gt;&gt;
+                                </span>
+                            </div>
+                            <input
+                                v-model="eventDate"
+                                type="text"
+                                class="block w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm font-semibold text-slate-800 shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
+                                placeholder="e.g. October 15, 2026" />
+                            <p class="text-[0.65rem] text-slate-500 dark:text-slate-400">Populates &lt;&lt;EVENT_DATE&gt;&gt; and {event_date}</p>
+                        </div>
+
+                        <div class="space-y-2">
+                            <div class="flex items-center justify-between">
+                                <label class="block text-[0.65rem] font-bold uppercase text-slate-500 dark:text-slate-400">
+                                    Date Given / Issued
+                                </label>
+                                <span class="rounded bg-indigo-50 px-1.5 py-0.5 font-mono text-[0.65rem] font-semibold text-indigo-600 dark:bg-indigo-950/40 dark:text-indigo-400">
+                                    &lt;&lt;DATE_GIVEN&gt;&gt;
+                                </span>
+                            </div>
+                            <input
+                                v-model="dateGiven"
+                                type="text"
+                                class="block w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm font-semibold text-slate-800 shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
+                                placeholder="e.g. October 15, 2026" />
+                            <p class="text-[0.65rem] text-slate-500 dark:text-slate-400">Populates &lt;&lt;DATE_GIVEN&gt;&gt; and {date_given}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 4: Output Settings -->
                 <div class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50 p-5 shadow-sm md:grid-cols-2 dark:border-slate-700/60 dark:bg-slate-800/30">
                     <div class="space-y-2">
                         <label class="block text-[0.65rem] font-bold uppercase text-slate-500 dark:text-slate-400">Output Format</label>

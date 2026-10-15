@@ -267,4 +267,43 @@ class GenerationTest extends TestCase
         $this->assertSame('sent', $recipient['certificate_delivery_status']);
         $this->assertNotEmpty($recipient['certificate_delivery_sent_at']);
     }
+
+    public function test_certificate_generation_with_external_csv_and_custom_event_details(): void
+    {
+        $templateFile = UploadedFile::fake()->create('template.pptx', 100, 'application/vnd.openxmlformats-officedocument.presentationml.presentation');
+        $csvFile = UploadedFile::fake()->create('sample.csv', 10, 'application/vnd.ms-excel');
+
+        $response = $this->postJson(
+            route('api.event.certificates.generate', ['event_id' => $this->eventId]),
+            [
+                'template' => $templateFile,
+                'data' => $csvFile,
+                'format' => 'pdf',
+                'use_saved_template' => false,
+                'use_event_data' => false,
+                'name_column' => 'name',
+                'email_column' => 'email',
+                'event_title' => 'Innovate for Impact',
+                'event_date' => 'October 15, 2026',
+                'date_given' => 'October 15, 2026',
+                'name_template' => '{event}_{Fullname}_{date}',
+            ]
+        );
+
+        $response->assertStatus(202);
+        $this->assertSame('queued', $response->json('status'));
+        $this->assertNotNull($response->json('data.batch_id'));
+    }
+
+    public function test_certificate_columns_endpoint_returns_event_metadata(): void
+    {
+        $response = $this->getJson(
+            route('api.event.certificates.columns', ['event_id' => $this->eventId])
+        );
+
+        $response->assertStatus(200);
+        $this->assertArrayHasKey('event', $response->json('data'));
+        $this->assertSame($this->form->title, $response->json('data.event.title'));
+        $this->assertNotNull($response->json('data.event.formatted_date'));
+    }
 }
