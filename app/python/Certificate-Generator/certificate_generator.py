@@ -139,17 +139,27 @@ def resolve_placeholder_value(mapping: Dict[str, object], key: str) -> Tuple[boo
     alias_map = {
         'name': ['fullname', 'full name', 'full_name', 'recipient_name', 'participant_name', 'participant', 'name of participant'],
         'fullname': ['name', 'full name', 'full_name', 'recipient_name', 'participant_name', 'participant', 'name of participant'],
-        'full name': ['fullname', 'name', 'full_name', 'recipient_name', 'participant_name', 'participant'],
-        'full_name': ['fullname', 'name', 'full name', 'recipient_name', 'participant_name', 'participant'],
+        'full name': ['fullname', 'name', 'full_name', 'recipient_name', 'participant_name', 'participant', 'name of participant'],
+        'full_name': ['fullname', 'name', 'full name', 'recipient_name', 'participant_name', 'participant', 'name of participant'],
+        'participant': ['name', 'fullname', 'full name', 'full_name', 'recipient_name', 'participant_name'],
+        'participant_name': ['name', 'fullname', 'full name', 'full_name', 'recipient_name', 'participant'],
+        'recipient_name': ['name', 'fullname', 'full name', 'full_name', 'participant_name', 'participant'],
+        'recipient': ['name', 'fullname', 'full name', 'full_name', 'recipient_name', 'participant'],
         'email': ['email address', 'email_address', 'e-mail', 'mail'],
         'email_address': ['email', 'email address', 'e-mail'],
         'event_date': ['eventdate', 'date', 'date_of_event', 'date_given', 'dategiven'],
         'eventdate': ['event_date', 'date', 'date_of_event', 'date_given'],
-        'date_given': ['dategiven', 'date', 'given_date', 'event_date', 'eventdate'],
-        'dategiven': ['date_given', 'date', 'event_date'],
-        'event_title': ['eventtitle', 'event', 'title', 'event_name'],
-        'eventtitle': ['event_title', 'event', 'title', 'event_name'],
-        'title': ['event_title', 'eventtitle', 'event', 'event_name'],
+        'date_of_event': ['event_date', 'eventdate', 'date', 'date_given'],
+        'date': ['event_date', 'eventdate', 'date_given', 'dategiven'],
+        'date_given': ['dategiven', 'date', 'given_date', 'date_issued', 'event_date', 'eventdate'],
+        'dategiven': ['date_given', 'date', 'given_date', 'date_issued', 'event_date'],
+        'date_issued': ['date_given', 'dategiven', 'date', 'given_date', 'event_date'],
+        'event_title': ['eventtitle', 'event', 'title', 'event_name', 'activity', 'training_title'],
+        'eventtitle': ['event_title', 'event', 'title', 'event_name', 'activity'],
+        'title': ['event_title', 'eventtitle', 'event', 'event_name', 'activity'],
+        'event_name': ['event_title', 'eventtitle', 'event', 'title', 'activity'],
+        'activity': ['event_title', 'eventtitle', 'title', 'event_name', 'event'],
+        'training_title': ['event_title', 'eventtitle', 'title', 'event_name', 'event'],
         'event': ['event_title', 'eventtitle', 'title', 'event_id'],
         'event_id': ['eventid', 'event'],
         'eventid': ['event_id', 'event'],
@@ -165,7 +175,7 @@ def resolve_placeholder_value(mapping: Dict[str, object], key: str) -> Tuple[boo
                 return True, val
 
     # Fuzzy match for participant name
-    if normalized_key in ('name', 'fullname', 'full name', 'full_name'):
+    if normalized_key in ('name', 'fullname', 'full name', 'full_name', 'participant', 'participant_name', 'recipient', 'recipient_name'):
         for k, v in mapping.items():
             k_lower = str(k).lower()
             if 'name' in k_lower and not any(term in k_lower for term in ('file', 'event', 'sheet', 'user', 'path')):
@@ -175,22 +185,22 @@ def resolve_placeholder_value(mapping: Dict[str, object], key: str) -> Tuple[boo
                 except Exception:
                     continue
 
-    if normalized_key in ('event_title', 'eventtitle', 'title', 'event_name'):
-        for k in ('event_title', 'eventtitle', 'title', 'event_name', 'event'):
+    if normalized_key in ('event_title', 'eventtitle', 'title', 'event_name', 'activity', 'training_title'):
+        for k in ('event_title', 'eventtitle', 'title', 'event_name', 'activity', 'training_title', 'event'):
             v = mapping.get(k)
             if v is not None and not pd.isna(v) and str(v).strip():
                 return True, v
         return True, 'Certificate of Participation'
 
-    if normalized_key in ('event_date', 'eventdate', 'date_of_event'):
-        for k in ('event_date', 'eventdate', 'date_given', 'dategiven', 'date'):
+    if normalized_key in ('event_date', 'eventdate', 'date_of_event', 'date'):
+        for k in ('event_date', 'eventdate', 'date_of_event', 'date_given', 'dategiven', 'date'):
             v = mapping.get(k)
             if v is not None and not pd.isna(v) and str(v).strip():
                 return True, v
         return True, datetime.now().strftime('%B %d, %Y')
 
-    if normalized_key in ('date_given', 'dategiven', 'given_date'):
-        for k in ('date_given', 'dategiven', 'event_date', 'eventdate', 'date'):
+    if normalized_key in ('date_given', 'dategiven', 'given_date', 'date_issued'):
+        for k in ('date_given', 'dategiven', 'date_issued', 'event_date', 'eventdate', 'date'):
             v = mapping.get(k)
             if v is not None and not pd.isna(v) and str(v).strip():
                 return True, v
@@ -213,6 +223,12 @@ def replace_placeholders_in_text(text: str, mapping: Dict[str, object]) -> str:
                 value = ''
         except Exception:
             pass
+        if isinstance(value, (datetime, pd.Timestamp)):
+            if value.hour == 0 and value.minute == 0 and value.second == 0:
+                return value.strftime('%B %d, %Y')
+            return value.strftime('%B %d, %Y %I:%M %p')
+        if isinstance(value, float) and value.is_integer():
+            return str(int(value))
         return str(value)
 
     return PLACEHOLDER_RE.sub(_replacement, text)
@@ -854,6 +870,10 @@ def main(argv=None):
 
     for sheet_idx, sheet_name in enumerate(sheet_names):
         df = sheets[sheet_name]
+        if df.empty or len(df.dropna(how='all')) == 0:
+            print(f'Skipping empty sheet "{sheet_name}"')
+            continue
+
         # determine slide indices for this sheet
         slide_indices: List[int] = []
         if sheet_name in explicit_map:
@@ -861,12 +881,14 @@ def main(argv=None):
         else:
             slide_indices = find_slide_indices_by_sheetname(prs_template, sheet_name)
             if not slide_indices:
-                # fallback: if counts match, map by order
-                if len(sheet_names) == len(prs_template.slides):
+                if len(prs_template.slides) == 1:
+                    slide_indices = [0]
+                elif len(sheet_names) == len(prs_template.slides):
+                    slide_indices = [sheet_idx]
+                elif sheet_idx < len(prs_template.slides):
                     slide_indices = [sheet_idx]
                 else:
-                    print(f'Warning: could not find slide for sheet "{sheet_name}" and no explicit map provided; skipping this sheet')
-                    continue
+                    slide_indices = [0]
 
         max_workers = args.workers if args.workers and args.workers > 0 else max(2, min(os.cpu_count() or 4, 8))
         print(f'Processing sheet "{sheet_name}" with {len(df)} rows across {max_workers} worker threads...')

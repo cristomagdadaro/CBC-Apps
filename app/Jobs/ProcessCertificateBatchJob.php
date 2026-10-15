@@ -147,7 +147,12 @@ class ProcessCertificateBatchJob implements ShouldQueue
         }
 
         $records = $this->readManifest($manifestAbsolutePath);
-        $stats = $this->persistLogsAndQueueEmails($records, app(NotificationDispatchService::class));
+        $stats = $this->persistLogsAndQueueEmails(
+            records: $records,
+            notifications: app(NotificationDispatchService::class),
+            eventTitle: $eventTitle !== '' ? $eventTitle : ($resolvedEventId !== '' ? "Event {$resolvedEventId}" : 'Certificate of Participation'),
+            eventDate: $resolvedEventDate
+        );
 
         $zipRelativePath = "{$batchRelativeDir}/certificates-{$this->batchId}.zip";
         $zipAbsolutePath = Storage::path($zipRelativePath);
@@ -207,7 +212,12 @@ class ProcessCertificateBatchJob implements ShouldQueue
         ]));
     }
 
-    private function persistLogsAndQueueEmails(array $records, NotificationDispatchService $notifications): array
+    private function persistLogsAndQueueEmails(
+        array $records,
+        NotificationDispatchService $notifications,
+        string $eventTitle = '',
+        string $eventDate = ''
+    ): array
     {
         $success = 0;
         $fail = 0;
@@ -245,6 +255,8 @@ class ProcessCertificateBatchJob implements ShouldQueue
                         $filename ?? basename($attachmentPath),
                         $this->eventId,
                         $recipientName,
+                        $eventTitle,
+                        $eventDate,
                     ],
                     meta: [
                         'event_id' => $this->eventId,

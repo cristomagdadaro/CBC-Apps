@@ -306,4 +306,53 @@ class GenerationTest extends TestCase
         $this->assertSame($this->form->title, $response->json('data.event.title'));
         $this->assertNotNull($response->json('data.event.formatted_date'));
     }
+
+    public function test_certificate_generation_with_external_excel_file(): void
+    {
+        $templateFile = UploadedFile::fake()->create('template.pptx', 100, 'application/vnd.openxmlformats-officedocument.presentationml.presentation');
+        $xlsxFile = UploadedFile::fake()->create('participants.xlsx', 50, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+
+        $response = $this->postJson(
+            route('api.event.certificates.generate', ['event_id' => $this->eventId]),
+            [
+                'template' => $templateFile,
+                'data' => $xlsxFile,
+                'format' => 'pdf',
+                'use_saved_template' => false,
+                'use_event_data' => false,
+                'name_column' => 'Full Name',
+                'email_column' => 'Email',
+                'event_title' => 'Biotech Symposium 2026',
+                'event_date' => 'October 15, 2026',
+                'date_given' => 'October 15, 2026',
+            ]
+        );
+
+        $response->assertStatus(202);
+        $this->assertSame('queued', $response->json('status'));
+        $this->assertNotNull($response->json('data.batch_id'));
+    }
+
+    public function test_generated_certificate_mail_renders_custom_event_title_and_date(): void
+    {
+        $attachmentPath = tempnam(sys_get_temp_dir(), 'cert_') . '.pdf';
+        file_put_contents($attachmentPath, '%PDF-fake');
+
+        $mail = new \App\Mail\GeneratedCertificateMail(
+            attachmentPath: $attachmentPath,
+            displayName: 'cert.pdf',
+            eventId: 'CUSTOM_EVT_999',
+            recipientName: 'Maria Santos',
+            eventTitle: 'National Biotech Workshop',
+            eventDate: 'October 15, 2026'
+        );
+
+        $rendered = $mail->render();
+        $this->assertStringContainsString('Maria Santos', $rendered);
+        $this->assertStringContainsString('National Biotech Workshop', $rendered);
+        $this->assertStringContainsString('October 15, 2026', $rendered);
+
+        @unlink($attachmentPath);
+    }
 }
+

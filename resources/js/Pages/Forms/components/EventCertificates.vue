@@ -70,9 +70,9 @@ export default {
         },
         isReadyToProcess() {
             if (this.useEventData) {
-                return this.selectedNameColumn && this.selectedEmailColumn && this.selectedRecipientIds.length > 0;
+                return !!(this.selectedNameColumn && this.selectedEmailColumn && this.selectedRecipientIds.length > 0);
             }
-            return !!this.dataFile && !this.parsingDataFile;
+            return !!(this.dataFile && !this.parsingDataFile && this.selectedNameColumn);
         },
         filteredRecipients() {
             if (!this.selectedSubformType) {
@@ -131,6 +131,10 @@ export default {
         useEventData(value) {
             if (value) {
                 this.clearUploadedDataFile();
+                this.syncColumnsFromEventData();
+            } else {
+                this.selectedNameColumn = "";
+                this.selectedEmailColumn = "";
             }
         },
         selectedSubformType() {
@@ -370,15 +374,8 @@ export default {
                 }
 
                 this.syncRecipientSelection();
+                this.syncColumnsFromEventData();
 
-                if (!this.selectedEmailColumn) {
-                    const emailMatch = this.responseColumns.find((col) => /email/i.test(String(col)));
-                    this.selectedEmailColumn = emailMatch || "";
-                }
-                if (!this.selectedNameColumn) {
-                    const nameMatch = this.responseColumns.find((col) => /full\s*name|fullname|name/i.test(String(col)));
-                    this.selectedNameColumn = nameMatch || "";
-                }
                 const eventInfo = payload?.event || null;
                 if (eventInfo?.title && !this.eventTitle) {
                     this.eventTitle = eventInfo.title;
@@ -391,6 +388,17 @@ export default {
                 this.errorMessage = await this.resolveErrorMessage(error, "Failed to fetch response columns.");
             } finally {
                 this.loadingColumns = false;
+            }
+        },
+        syncColumnsFromEventData() {
+            if (!this.responseColumns.length) return;
+            if (!this.selectedEmailColumn || !this.responseColumns.includes(this.selectedEmailColumn)) {
+                const emailMatch = this.responseColumns.find((col) => /email/i.test(String(col)));
+                this.selectedEmailColumn = emailMatch || this.responseColumns[0] || "";
+            }
+            if (!this.selectedNameColumn || !this.responseColumns.includes(this.selectedNameColumn)) {
+                const nameMatch = this.responseColumns.find((col) => /full\s*name|fullname|name/i.test(String(col)));
+                this.selectedNameColumn = nameMatch || this.responseColumns[0] || "";
             }
         },
         onDrop(type, event) {
@@ -547,6 +555,10 @@ export default {
             }
             if (this.useEventData && (!this.selectedEmailColumn || !this.selectedNameColumn)) {
                 this.errorMessage = "Select both name and email columns.";
+                return;
+            }
+            if (!this.useEventData && !this.selectedNameColumn) {
+                this.errorMessage = "Select a name column from your spreadsheet.";
                 return;
             }
             if (this.useEventData && this.selectedRecipientIds.length === 0) {

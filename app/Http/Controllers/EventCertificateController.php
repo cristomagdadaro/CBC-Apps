@@ -339,6 +339,9 @@ class EventCertificateController extends BaseController
             }
 
             $event = Form::query()->where('event_id', $eventId)->first();
+            $customTitle = trim((string) ($validated['event_title'] ?? ''));
+            $customDate = trim((string) ($validated['event_date'] ?? ''));
+            $customDateGiven = trim((string) ($validated['date_given'] ?? ''));
 
             return $this->buildCsvDataFile(
                 rows: $rows,
@@ -346,9 +349,9 @@ class EventCertificateController extends BaseController
                 emailColumn: (string) ($validated['email_column'] ?? ''),
                 nameColumn: (string) ($validated['name_column'] ?? ''),
                 eventId: $eventId,
-                eventTitle: (string) ($event?->title ?? ''),
-                eventDate: $this->formatEventDate($event),
-                dateGiven: now()->format('F j, Y'),
+                eventTitle: $customTitle !== '' ? $customTitle : (string) ($event?->title ?? ''),
+                eventDate: $customDate !== '' ? $customDate : $this->formatEventDate($event),
+                dateGiven: $customDateGiven !== '' ? $customDateGiven : now()->format('F j, Y'),
             );
         }
 

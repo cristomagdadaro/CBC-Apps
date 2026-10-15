@@ -20,6 +20,8 @@ class GeneratedCertificateMail extends Mailable implements ShouldQueue
         public string $displayName,
         public string $eventId,
         ?string $recipientName = null,
+        public ?string $eventTitle = null,
+        public ?string $eventDate = null,
     ) {
         $this->recipientName = $recipientName;
     }
@@ -38,26 +40,30 @@ class GeneratedCertificateMail extends Mailable implements ShouldQueue
             ->where('event_id', $this->eventId)
             ->first(['title', 'date_from', 'date_to']);
 
-        $eventDate = null;
-        if ($event?->date_from && $event?->date_to) {
-            $from = $event->date_from->copy();
-            $to = $event->date_to->copy();
+        $resolvedEventTitle = $this->eventTitle ?: $event?->title;
 
-            $eventDate = $from->isSameDay($to)
-                ? $from->format('M d, Y')
-                : $from->format('M d, Y') . ' to ' . $to->format('M d, Y');
-        } elseif ($event?->date_from) {
-            $eventDate = $event->date_from->format('M d, Y');
-        } elseif ($event?->date_to) {
-            $eventDate = $event->date_to->format('M d, Y');
+        $resolvedEventDate = $this->eventDate;
+        if (!$resolvedEventDate) {
+            if ($event?->date_from && $event?->date_to) {
+                $from = $event->date_from->copy();
+                $to = $event->date_to->copy();
+
+                $resolvedEventDate = $from->isSameDay($to)
+                    ? $from->format('M d, Y')
+                    : $from->format('M d, Y') . ' to ' . $to->format('M d, Y');
+            } elseif ($event?->date_from) {
+                $resolvedEventDate = $event->date_from->format('M d, Y');
+            } elseif ($event?->date_to) {
+                $resolvedEventDate = $event->date_to->format('M d, Y');
+            }
         }
 
         return $this->subject('Your Certificate is Ready')
             ->markdown('emails.generated-certificate', [
                 'eventId' => $this->eventId,
                 'recipientName' => $this->recipientName,
-                'eventTitle' => $event?->title,
-                'eventDate' => $eventDate,
+                'eventTitle' => $resolvedEventTitle,
+                'eventDate' => $resolvedEventDate,
             ])
             ->attach($this->attachmentPath, [
                 'as' => $this->displayName,
