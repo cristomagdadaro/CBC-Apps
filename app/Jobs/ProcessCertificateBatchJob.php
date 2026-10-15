@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Events\CertificateBatchStatusUpdated;
 use App\Mail\GeneratedCertificateMail;
 use App\Models\CertificateLog;
+use App\Models\Form;
 use App\Services\Notifications\NotificationDispatchService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -71,6 +72,9 @@ class ProcessCertificateBatchJob implements ShouldQueue
         $libreOfficePath = config('services.certificate_generator.libreoffice_path', 'soffice');
         $scriptPath = base_path('app/python/Certificate-Generator/certificate_generator.py');
 
+        $event = Form::query()->where('event_id', $this->eventId)->first(['title']);
+        $eventTitle = trim((string) ($event?->title ?? ''));
+
         $baseArgs = [
             $scriptPath,
             '--template', Storage::path($this->templatePath),
@@ -79,7 +83,13 @@ class ProcessCertificateBatchJob implements ShouldQueue
             '--format', $this->format,
             '--soffice-path', $libreOfficePath,
             '--manifest', $manifestAbsolutePath,
+            '--event-id', $this->eventId,
         ];
+
+        if ($eventTitle !== '') {
+            $baseArgs[] = '--event-title';
+            $baseArgs[] = $eventTitle;
+        }
 
         if (!empty($this->nameTemplate)) {
             $baseArgs[] = '--name-template';

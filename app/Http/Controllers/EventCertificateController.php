@@ -327,6 +327,7 @@ class EventCertificateController extends BaseController
                 batchDir: $batchDir,
                 emailColumn: (string) ($validated['email_column'] ?? ''),
                 nameColumn: (string) ($validated['name_column'] ?? ''),
+                eventId: $eventId,
                 eventTitle: (string) ($event?->title ?? ''),
                 eventDate: $this->formatEventDate($event),
                 dateGiven: now()->format('F j, Y'),
@@ -377,6 +378,7 @@ class EventCertificateController extends BaseController
         string $batchDir,
         string $emailColumn,
         string $nameColumn,
+        string $eventId = '',
         string $eventTitle = '',
         string $eventDate = '',
         string $dateGiven = ''
@@ -384,6 +386,7 @@ class EventCertificateController extends BaseController
     {
         $emailColumn = trim($emailColumn);
         $nameColumn = trim($nameColumn);
+        $eventId = trim($eventId);
         $eventTitle = trim($eventTitle);
         $eventDate = trim($eventDate);
         $dateGiven = trim($dateGiven);
@@ -412,6 +415,14 @@ class EventCertificateController extends BaseController
 
         if (!in_array('Fullname', $columns, true)) {
             $columns[] = 'Fullname';
+        }
+
+        if (!in_array('EVENT_ID', $columns, true)) {
+            $columns[] = 'EVENT_ID';
+        }
+
+        if (!in_array('EVENT', $columns, true)) {
+            $columns[] = 'EVENT';
         }
 
         if (!in_array('EVENT_TITLE', $columns, true)) {
@@ -445,6 +456,10 @@ class EventCertificateController extends BaseController
                     $value = $row[$emailColumn] ?? '';
                 } elseif ($column === 'Fullname') {
                     $value = $row[$nameColumn] ?? '';
+                } elseif ($column === 'EVENT_ID') {
+                    $value = $eventId;
+                } elseif ($column === 'EVENT') {
+                    $value = $eventId ?: $eventTitle;
                 } elseif ($column === 'EVENT_TITLE') {
                     $value = $eventTitle;
                 } elseif ($column === 'EVENT_DATE') {
