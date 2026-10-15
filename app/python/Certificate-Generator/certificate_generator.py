@@ -199,22 +199,53 @@ def replace_placeholders(prs: Presentation, mapping: dict):
                             replace_placeholders_in_paragraph(p, mapping)
 
 
-def format_filename(template: str, row: pd.Series, date_now: datetime):
-    # allow placeholders like {FirstName}, {Fullname}, {date}, {timestamp}
+def format_filename(template: str, row: pd.Series, date_now: datetime, event_id: str = '', event_title: str = ''):
+    # allow placeholders like {FirstName}, {Fullname}, {event}, {event_id}, {event_title}, {date}, {timestamp}
     # create a case-insensitive mapping of column headers
     mapping_ci = {str(k).strip().lower(): ('' if pd.isna(v) else v) for k, v in row.items()}
     mapping_ci['date'] = date_now.strftime('%m-%d-%Y')
     # timestamp: time component only to pair with {date}
     mapping_ci['timestamp'] = date_now.strftime('%H-%M-%S-%f')
 
+    clean_event_id = str(event_id or '').strip()
+    clean_event_title = str(event_title or '').strip()
+
+    if clean_event_id:
+        mapping_ci.setdefault('event_id', clean_event_id)
+        mapping_ci.setdefault('eventid', clean_event_id)
+    if clean_event_title:
+        mapping_ci.setdefault('event_title', clean_event_title)
+        mapping_ci.setdefault('eventtitle', clean_event_title)
+
+    # Alias full name variations
+    name_val = (
+        mapping_ci.get('fullname')
+        or mapping_ci.get('full name')
+        or mapping_ci.get('full_name')
+        or mapping_ci.get('name')
+        or mapping_ci.get('recipient_name')
+        or ''
+    )
+    if name_val:
+        mapping_ci.setdefault('fullname', name_val)
+        mapping_ci.setdefault('full name', name_val)
+        mapping_ci.setdefault('full_name', name_val)
+        mapping_ci.setdefault('name', name_val)
+
+    # Event aliases: resolve {event} from row, event_id, or event_title
+    current_event = str(mapping_ci.get('event', '')).strip()
+    if not current_event:
+        fallback_event = (
+            str(mapping_ci.get('event_id', '')).strip()
+            or clean_event_id
+            or str(mapping_ci.get('event_title', '')).strip()
+            or clean_event_title
+            or ''
+        )
+        mapping_ci['event'] = fallback_event
+
     # default naming when no explicit template is provided
     if not template:
-        # Prefer common fullname columns; fallback to first column value
-        name_val = (
-            mapping_ci.get('fullname')
-            or mapping_ci.get('full name')
-            or mapping_ci.get('name')
-        )
         if not name_val:
             try:
                 name_val = row.iloc[0]
@@ -229,6 +260,11 @@ def format_filename(template: str, row: pd.Series, date_now: datetime):
         for token in re.findall(r"\{([^{}]+)\}", filename):
             val = mapping_ci.get(token.strip().lower(), '')
             filename = filename.replace(f"{{{token}}}", str(val))
+
+    # Clean multiple or dangling underscores from empty tokens (e.g. avoid leading "_")
+    filename = re.sub(r'^_+', '', filename)
+    filename = re.sub(r'_+$', '', filename)
+    filename = re.sub(r'_+', '_', filename)
 
     filename = sanitize_filename(str(filename))
     return filename
@@ -455,10 +491,10 @@ def pdf_to_images(pdf_path: str, dpi: int = 200, poppler_path: str = None):
 def generate_for_row(prs_template: Presentation, row: pd.Series, out_dir: str, out_format: str,
                      filename_template: str, slide_indices: Optional[List[int]] = None,
                      soffice_path: str = 'soffice', poppler_path: str = None,
-                     dpi: int = 200) -> Tuple[bool, str, Optional[Dict]]:
+                     dpi: int = 200, event_id: str = '', event_title: str = '') -> Tuple[bool, str, Optional[Dict]]:
     """Generate certificate for a row. Returns (success, message, output_paths dict)."""
     date_now = datetime.now()
-    filename_base = format_filename(filename_template, row, date_now)
+    filename_base = format_filename(filename_template, row, date_now, event_id=event_id, event_title=event_title)
     os.makedirs(out_dir, exist_ok=True)
 
     # choose a unique base name to avoid overwriting when duplicates occur
@@ -492,6 +528,22 @@ def generate_for_row(prs_template: Presentation, row: pd.Series, out_dir: str, o
 
     # mapping: case-insensitive column headers -> values
     mapping = {str(k).strip().lower(): v for k, v in row.items()}
+    clean_event_id = str(event_id or '').strip()
+    clean_event_title = str(event_title or '').strip()
+    if clean_event_id:
+        mapping.setdefault('event_id', clean_event_id)
+        mapping.setdefault('eventid', clean_event_id)
+    if clean_event_title:
+        mapping.setdefault('event_title', clean_event_title)
+        mapping.setdefault('eventtitle', clean_event_title)
+    if 'event' not in mapping or not str(mapping['event']).strip():
+        mapping['event'] = (
+            mapping.get('event_id')
+            or clean_event_id
+            or mapping.get('event_title')
+            or clean_event_title
+            or ''
+        )
     replace_placeholders(prs, mapping)
 
     out_pptx = os.path.join(out_dir, unique_base + '.pptx')
@@ -588,7 +640,9 @@ def main(argv=None):
     parser.add_argument('--poppler-path', default=None, help='Optional path to poppler bin folder for pdf2image on Windows')
     parser.add_argument('--dpi', type=int, default=200, help='DPI for image rendering from PDF')
     parser.add_argument('--manifest', default='', help='Optional path to output JSON manifest for generated rows')
-    args = parser.parse_args(argv)
+    parser.add_argument('--event-id', default='', help='Optional event ID to populate {event_id} and fallback for {event}')
+    parser.add_argument('--event-title', default='', help='Optional event title to populate {event_title} and fallback for {event}')
+    args, _ = parser.parse_known_args(argv)
 
     if not os.path.exists(args.template):
         print('Template file not found:', args.template)
@@ -661,7 +715,9 @@ def main(argv=None):
             try:
                 success, message, res = generate_for_row(prs_template, row, args.outdir, args.format, args.name_template,
                                        slide_indices=slide_indices, soffice_path=args.soffice_path,
-                                       poppler_path=args.poppler_path, dpi=args.dpi)
+                                       poppler_path=args.poppler_path, dpi=args.dpi,
+                                       event_id=getattr(args, 'event_id', ''),
+                                       event_title=getattr(args, 'event_title', ''))
                 if success:
                     print('Generated:', res)
                     total_files += 1

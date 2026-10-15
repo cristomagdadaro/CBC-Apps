@@ -72,8 +72,12 @@ class ProcessCertificateBatchJob implements ShouldQueue
         $libreOfficePath = config('services.certificate_generator.libreoffice_path', 'soffice');
         $scriptPath = base_path('app/python/Certificate-Generator/certificate_generator.py');
 
-        $event = Form::query()->where('event_id', $this->eventId)->first(['title']);
+        $event = Form::query()
+            ->where('event_id', $this->eventId)
+            ->orWhere('id', $this->eventId)
+            ->first(['event_id', 'title']);
         $eventTitle = trim((string) ($event?->title ?? ''));
+        $resolvedEventId = trim((string) ($event?->event_id ?? $this->eventId));
 
         $baseArgs = [
             $scriptPath,
@@ -83,7 +87,7 @@ class ProcessCertificateBatchJob implements ShouldQueue
             '--format', $this->format,
             '--soffice-path', $libreOfficePath,
             '--manifest', $manifestAbsolutePath,
-            '--event-id', $this->eventId,
+            '--event-id', $resolvedEventId,
         ];
 
         if ($eventTitle !== '') {
