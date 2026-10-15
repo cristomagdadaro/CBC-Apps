@@ -45,6 +45,7 @@ export default {
             poller: null,
             realtimeCleanup: null,
             serverStatus: "idle",
+            statusDismissed: false,
             maxFileSizeBytes: 10 * 1024 * 1024,
             dragOver: { template: false, data: false },
         };
@@ -185,6 +186,7 @@ export default {
         resetMessages() {
             this.message = "";
             this.errorMessage = "";
+            this.statusDismissed = false;
         },
         validateFile(file, expectedType) {
             if (!file) return "File is required.";
@@ -934,7 +936,7 @@ export default {
 
                 <!-- Server Status Panel -->
                 <div
-                    v-if="processingOnServer || serverStatus !== 'idle'"
+                    v-if="(processingOnServer || serverStatus !== 'idle') && !statusDismissed"
                     class="flex items-center gap-4 rounded-xl border p-5 shadow-sm transition-all"
                     :class="{
                         'border-blue-200 bg-blue-50 dark:border-blue-500/30 dark:bg-blue-500/10': statusConfig.color === 'blue',
@@ -964,6 +966,13 @@ export default {
                             {{ message }}
                         </p>
                     </div>
+                    <button
+                        v-if="!processingOnServer && ['completed', 'failed'].includes(serverStatus)"
+                        @click="statusDismissed = true"
+                        class="rounded-md p-1 transition-colors"
+                        :class="`text-${statusConfig.color}-500 hover:bg-${statusConfig.color}-100 dark:hover:bg-${statusConfig.color}-500/20`">
+                        <LuX class="h-4 w-4" />
+                    </button>
                 </div>
 
                 <!-- Alerts -->
@@ -985,24 +994,6 @@ export default {
                         <button
                             @click="errorMessage = ''"
                             class="rounded-md p-1 text-red-500 transition-colors hover:bg-red-100 dark:hover:bg-red-500/20">
-                            <LuX class="h-4 w-4" />
-                        </button>
-                    </div>
-
-                    <div
-                        v-if="message && !processingOnServer && serverStatus === 'completed'"
-                        key="success"
-                        class="flex items-start gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-4 shadow-sm dark:border-emerald-500/30 dark:bg-emerald-500/10">
-                        <LuCheckCircle2 class="mt-0.5 h-5 w-5 shrink-0 text-emerald-600 dark:text-emerald-400" />
-                        <div class="flex-1">
-                            <p class="text-sm font-bold text-emerald-900 dark:text-emerald-200">Success</p>
-                            <p class="mt-0.5 text-sm font-medium leading-relaxed text-emerald-700 dark:text-emerald-300">
-                                {{ message }}
-                            </p>
-                        </div>
-                        <button
-                            @click="message = ''"
-                            class="rounded-md p-1 text-emerald-500 transition-colors hover:bg-emerald-100 dark:hover:bg-emerald-500/20">
                             <LuX class="h-4 w-4" />
                         </button>
                     </div>

@@ -25,6 +25,9 @@ from tempfile import mkstemp, mkdtemp
 from typing import List, Dict, Optional, Tuple
 from copy import deepcopy
 
+import threading
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
 import pandas as pd
 from pptx import Presentation
 from PIL import Image
@@ -102,20 +105,25 @@ def sanitize_filename(name: str) -> str:
     return name
 
 
-# NEW: ensure we don't overwrite when multiple rows resolve to the same base name
+# Ensure we don't overwrite when multiple rows resolve to the same base name (thread-safe)
+_basename_lock = threading.Lock()
+_reserved_basenames = set()
+
+
 def ensure_unique_basename(out_dir: str, base: str, ext: str) -> str:
     """Return a basename that is unique within out_dir for the given ext, appending (2), (3), ... if needed."""
     candidate = sanitize_filename(str(base))
-    path = os.path.join(out_dir, f"{candidate}.{ext}")
-    if not os.path.exists(path):
-        return candidate
-    i = 2
-    while True:
-        alt = f"{candidate} ({i})"
-        path = os.path.join(out_dir, f"{alt}.{ext}")
-        if not os.path.exists(path):
-            return alt
-        i += 1
+    with _basename_lock:
+        target = candidate
+        i = 2
+        while True:
+            path = os.path.join(out_dir, f"{target}.{ext}")
+            key = (os.path.normpath(out_dir), f"{target}.{ext}".lower())
+            if not os.path.exists(path) and key not in _reserved_basenames:
+                _reserved_basenames.add(key)
+                return target
+            target = f"{candidate} ({i})"
+            i += 1
 
 
 def resolve_placeholder_value(mapping: Dict[str, object], key: str) -> Tuple[bool, object]:
@@ -491,7 +499,8 @@ def pdf_to_images(pdf_path: str, dpi: int = 200, poppler_path: str = None):
 def generate_for_row(prs_template: Presentation, row: pd.Series, out_dir: str, out_format: str,
                      filename_template: str, slide_indices: Optional[List[int]] = None,
                      soffice_path: str = 'soffice', poppler_path: str = None,
-                     dpi: int = 200, event_id: str = '', event_title: str = '') -> Tuple[bool, str, Optional[Dict]]:
+                     dpi: int = 200, event_id: str = '', event_title: str = '',
+                     template_path: Optional[str] = None) -> Tuple[bool, str, Optional[Dict]]:
     """Generate certificate for a row. Returns (success, message, output_paths dict)."""
     date_now = datetime.now()
     filename_base = format_filename(filename_template, row, date_now, event_id=event_id, event_title=event_title)
@@ -501,16 +510,22 @@ def generate_for_row(prs_template: Presentation, row: pd.Series, out_dir: str, o
     unique_base = ensure_unique_basename(out_dir, filename_base, 'pptx')
 
     # copy presentation
-    prs = Presentation()
-    # load from template path by serializing: easier to use deep copy via save/load
-    # Instead, save prs_template to a temp file and reopen
-    fd, tmp_pptx = mkstemp(suffix='.pptx')
-    os.close(fd)
-    try:
-        prs_template.save(tmp_pptx)
-        prs = Presentation(tmp_pptx)
-    except Exception:
-        prs = prs_template
+    prs = None
+    tmp_pptx = None
+    if template_path and os.path.isfile(template_path):
+        try:
+            prs = Presentation(template_path)
+        except Exception:
+            prs = None
+
+    if prs is None:
+        fd, tmp_pptx = mkstemp(suffix='.pptx')
+        os.close(fd)
+        try:
+            prs_template.save(tmp_pptx)
+            prs = Presentation(tmp_pptx)
+        except Exception:
+            prs = prs_template
 
     # If slide_indices provided, remove all other slides so output contains only relevant slide(s)
     if slide_indices is not None:
@@ -620,10 +635,11 @@ def generate_for_row(prs_template: Presentation, row: pd.Series, out_dir: str, o
                 )
                 return False, msg, out_paths
     finally:
-        try:
-            os.remove(tmp_pptx)
-        except Exception:
-            pass
+        if tmp_pptx and os.path.exists(tmp_pptx):
+            try:
+                os.remove(tmp_pptx)
+            except Exception:
+                pass
 
     return True, f"Generated: {out_paths}", out_paths
 
@@ -642,6 +658,7 @@ def main(argv=None):
     parser.add_argument('--manifest', default='', help='Optional path to output JSON manifest for generated rows')
     parser.add_argument('--event-id', default='', help='Optional event ID to populate {event_id} and fallback for {event}')
     parser.add_argument('--event-title', default='', help='Optional event title to populate {event_title} and fallback for {event}')
+    parser.add_argument('--workers', '-w', type=int, default=0, help='Number of worker threads (default: auto)')
     args, _ = parser.parse_known_args(argv)
 
     if not os.path.exists(args.template):
@@ -708,66 +725,82 @@ def main(argv=None):
                     print(f'Warning: could not find slide for sheet "{sheet_name}" and no explicit map provided; skipping this sheet')
                     continue
 
-        print(f'Processing sheet "{sheet_name}" with {len(df)} rows using slide indices {slide_indices}')
+        max_workers = args.workers if args.workers and args.workers > 0 else max(2, min(os.cpu_count() or 4, 8))
+        print(f'Processing sheet "{sheet_name}" with {len(df)} rows across {max_workers} worker threads...')
+
+        row_tasks = []
         for idx, row in df.iterrows():
-            recipient_email = extract_recipient_email(row)
-            recipient_name = extract_recipient_name(row)
+            row_tasks.append((idx, row))
+
+        def _process_task(item):
+            idx, row = item
+            rec_email = extract_recipient_email(row)
+            rec_name = extract_recipient_name(row)
+            rec_resp_id = row.get('RECIPIENT_RESPONSE_ID', '')
+            rec_resp_id_str = str(rec_resp_id).strip() if rec_resp_id is not None else ''
+
             try:
-                success, message, res = generate_for_row(prs_template, row, args.outdir, args.format, args.name_template,
-                                       slide_indices=slide_indices, soffice_path=args.soffice_path,
-                                       poppler_path=args.poppler_path, dpi=args.dpi,
-                                       event_id=getattr(args, 'event_id', ''),
-                                       event_title=getattr(args, 'event_title', ''))
+                success, message, res = generate_for_row(
+                    prs_template, row, args.outdir, args.format, args.name_template,
+                    slide_indices=slide_indices, soffice_path=args.soffice_path,
+                    poppler_path=args.poppler_path, dpi=args.dpi,
+                    event_id=getattr(args, 'event_id', ''),
+                    event_title=getattr(args, 'event_title', ''),
+                    template_path=args.template
+                )
                 if success:
-                    print('Generated:', res)
-                    total_files += 1
-                    attachment_path = pick_primary_output(res or {}, args.format)
-                    recipient_response_id = row.get('RECIPIENT_RESPONSE_ID', '')
-                    manifest_records.append({
+                    att_path = pick_primary_output(res or {}, args.format)
+                    return True, {
                         'sheet_name': sheet_name,
                         'row_index': int(idx),
-                        'recipient_email': recipient_email,
-                        'recipient_name': recipient_name,
-                        'recipient_response_id': str(recipient_response_id).strip() if recipient_response_id is not None else '',
+                        'recipient_email': rec_email,
+                        'recipient_name': rec_name,
+                        'recipient_response_id': rec_resp_id_str,
                         'status': 'success',
                         'error_message': None,
-                        'attachment_path': attachment_path,
-                        'filename': os.path.basename(attachment_path) if attachment_path else None,
-                    })
+                        'attachment_path': att_path,
+                        'filename': os.path.basename(att_path) if att_path else None,
+                    }, res
                 else:
-                    print(f'Warning: {message}')
-                    logging.error(f"Sheet: {sheet_name}, Row: {idx}, Error: {message}")
-                    failed_count += 1
-                    fallback_attachment = pick_primary_output(res or {}, args.format)
-                    recipient_response_id = row.get('RECIPIENT_RESPONSE_ID', '')
-                    manifest_records.append({
+                    fallback_att = pick_primary_output(res or {}, args.format)
+                    return False, {
                         'sheet_name': sheet_name,
                         'row_index': int(idx),
-                        'recipient_email': recipient_email,
-                        'recipient_name': recipient_name,
-                        'recipient_response_id': str(recipient_response_id).strip() if recipient_response_id is not None else '',
+                        'recipient_email': rec_email,
+                        'recipient_name': rec_name,
+                        'recipient_response_id': rec_resp_id_str,
                         'status': 'fail',
                         'error_message': str(message),
-                        'attachment_path': fallback_attachment,
-                        'filename': os.path.basename(fallback_attachment) if fallback_attachment else None,
-                    })
+                        'attachment_path': fallback_att,
+                        'filename': os.path.basename(fallback_att) if fallback_att else None,
+                    }, message
             except Exception as e:
-                error_msg = f'Failed for sheet {sheet_name} row {idx}: {e}'
-                print(error_msg)
-                logging.error(error_msg)
-                failed_count += 1
-                recipient_response_id = row.get('RECIPIENT_RESPONSE_ID', '')
-                manifest_records.append({
+                return False, {
                     'sheet_name': sheet_name,
                     'row_index': int(idx),
-                    'recipient_email': recipient_email,
-                    'recipient_name': recipient_name,
-                    'recipient_response_id': str(recipient_response_id).strip() if recipient_response_id is not None else '',
+                    'recipient_email': rec_email,
+                    'recipient_name': rec_name,
+                    'recipient_response_id': rec_resp_id_str,
                     'status': 'fail',
                     'error_message': str(e),
                     'attachment_path': None,
                     'filename': None,
-                })
+                }, str(e)
+
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            futures = [executor.submit(_process_task, item) for item in row_tasks]
+            for future in as_completed(futures):
+                is_success, record, info = future.result()
+                manifest_records.append(record)
+                if is_success:
+                    total_files += 1
+                    print(f"[{total_files}/{len(row_tasks)}] Generated: {record.get('filename')}")
+                else:
+                    failed_count += 1
+                    print(f"Warning: {info}")
+                    logging.error(f"Sheet: {record.get('sheet_name')}, Row: {record.get('row_index')}, Error: {info}")
+
+        manifest_records.sort(key=lambda r: (str(r.get('sheet_name', '')), int(r.get('row_index', 0))))
 
     summary = f'\nGeneration complete. Generated: {total_files} files, Failed: {failed_count} items.'
     print(summary)
