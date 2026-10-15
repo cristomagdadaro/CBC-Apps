@@ -188,6 +188,8 @@ export default {
             }
             if (typeof data?.pending_emails !== "undefined") {
                 this.pendingEmailCount = Number(data.pending_emails || 0);
+            } else if (data?.summary?.eligible_emails !== undefined && !data?.emails_sent) {
+                this.pendingEmailCount = Number(data.summary.eligible_emails || 0);
             }
 
             if (status === "failed") {
@@ -204,7 +206,7 @@ export default {
                 const summary = data?.summary || {};
                 const successCount = summary.success ?? 0;
                 const failCount = summary.fail ?? 0;
-                if (!this.batchEmailsSent && this.pendingEmailCount > 0) {
+                if (!this.batchEmailsSent && (this.pendingEmailCount > 0 || !this.sendEmails)) {
                     this.message = `Generated ${successCount} certificate(s). Review rendered files before sending via email.`;
                 } else {
                     this.message = `Completed! Success: ${successCount}, Failed: ${failCount}` + (this.batchEmailsSent ? " (Emails sent)" : "");
@@ -586,6 +588,8 @@ export default {
 
             this.resetMessages();
             this.uploadProgress = 0;
+            this.batchEmailsSent = false;
+            this.pendingEmailCount = 0;
             const shouldUploadTemplate = !this.useSavedTemplate && !!this.templateFile;
             const shouldUploadData = !this.useEventData && !!this.dataFile;
             const hasFileUpload = shouldUploadTemplate || shouldUploadData;
@@ -619,7 +623,6 @@ export default {
 
                     payload = formData;
                     requestConfig = {
-                        headers: { "Content-Type": "multipart/form-data" },
                         routeParams: this.eventId,
                         onUploadProgress: (progressEvent) => {
                             const total = progressEvent.total || 0;
@@ -631,7 +634,7 @@ export default {
                 } else {
                     payload = {
                         format: this.outputFormat,
-                        send_emails: this.sendEmails,
+                        send_emails: Boolean(this.sendEmails),
                         use_saved_template: this.useSavedTemplate,
                         use_event_data: this.useEventData,
                         ...(this.selectedNameColumn ? { name_column: this.selectedNameColumn } : {}),
@@ -1557,7 +1560,7 @@ export default {
                     </button>
 
                     <button
-                        v-if="serverStatus === 'completed' && !batchEmailsSent && pendingEmailCount > 0"
+                        v-if="serverStatus === 'completed' && !batchEmailsSent && (pendingEmailCount > 0 || !sendEmails)"
                         type="button"
                         class="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3.5 text-sm font-black text-white shadow-md shadow-emerald-600/20 transition-all duration-200 hover:bg-emerald-700 hover:shadow-lg active:scale-95 disabled:pointer-events-none disabled:opacity-50"
                         :disabled="sendingEmails"
@@ -1568,7 +1571,7 @@ export default {
                         <LuSend
                             v-else
                             class="h-5 w-5" />
-                        {{ sendingEmails ? "Sending Emails..." : `Send via Email (${pendingEmailCount})` }}
+                        {{ sendingEmails ? "Sending Emails..." : pendingEmailCount > 0 ? `Send via Email (${pendingEmailCount})` : "Send via Email" }}
                     </button>
                 </div>
             </div>

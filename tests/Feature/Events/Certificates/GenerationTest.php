@@ -11,8 +11,10 @@ use App\Models\NotificationLog;
 use App\Models\Participant;
 use App\Models\Registration;
 use App\Models\User;
+use App\Jobs\ProcessCertificateBatchJob;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
@@ -430,6 +432,8 @@ class GenerationTest extends TestCase
 
     public function test_certificate_generation_with_send_emails_flag_false(): void
     {
+        Queue::fake();
+
         Storage::disk('local')->put('certificates/templates/'.$this->eventId.'/template.pptx', 'fake pptx content');
 
         EventCertificateTemplate::create([
@@ -474,6 +478,111 @@ class GenerationTest extends TestCase
         $response->assertStatus(202);
         $this->assertSame('queued', $response->json('status'));
         $this->assertNotNull($response->json('data.batch_id'));
+
+        Queue::assertPushed(ProcessCertificateBatchJob::class, function (ProcessCertificateBatchJob $job) {
+            return $job->sendEmails === false;
+        });
+    }
+
+    public function test_certificate_generation_defaults_send_emails_to_false_when_omitted(): void
+    {
+        Queue::fake();
+
+        Storage::disk('local')->put('certificates/templates/'.$this->eventId.'/template.pptx', 'fake pptx content');
+
+        EventCertificateTemplate::create([
+            'event_id' => $this->eventId,
+            'template_path' => 'certificates/templates/'.$this->eventId.'/template.pptx',
+            'template_name' => 'template.pptx',
+            'template_mime' => 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        ]);
+
+        $subform = EventSubform::factory()->create([
+            'event_id' => $this->eventId,
+        ]);
+
+        $participant = Participant::factory()->create();
+        $registration = Registration::factory()->create([
+            'event_subform_id' => $subform->id,
+            'participant_id' => $participant->id,
+        ]);
+
+        EventSubformResponse::create([
+            'form_parent_id' => $subform->id,
+            'participant_id' => $registration->id,
+            'subform_type' => Subform::PREREGISTRATION->value,
+            'response_data' => [
+                'name' => 'Jane Smith',
+                'email' => 'jane@example.com',
+            ],
+        ]);
+
+        $response = $this->postJson(
+            route('api.event.certificates.generate', ['event_id' => $this->eventId]),
+            [
+                'format' => 'pdf',
+                'use_saved_template' => true,
+                'use_event_data' => true,
+                'name_column' => 'name',
+                'email_column' => 'email',
+            ]
+        );
+
+        $response->assertStatus(202);
+        Queue::assertPushed(ProcessCertificateBatchJob::class, function (ProcessCertificateBatchJob $job) {
+            return $job->sendEmails === false;
+        });
+    }
+
+    public function test_certificate_generation_with_send_emails_flag_true(): void
+    {
+        Queue::fake();
+
+        Storage::disk('local')->put('certificates/templates/'.$this->eventId.'/template.pptx', 'fake pptx content');
+
+        EventCertificateTemplate::create([
+            'event_id' => $this->eventId,
+            'template_path' => 'certificates/templates/'.$this->eventId.'/template.pptx',
+            'template_name' => 'template.pptx',
+            'template_mime' => 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        ]);
+
+        $subform = EventSubform::factory()->create([
+            'event_id' => $this->eventId,
+        ]);
+
+        $participant = Participant::factory()->create();
+        $registration = Registration::factory()->create([
+            'event_subform_id' => $subform->id,
+            'participant_id' => $participant->id,
+        ]);
+
+        EventSubformResponse::create([
+            'form_parent_id' => $subform->id,
+            'participant_id' => $registration->id,
+            'subform_type' => Subform::PREREGISTRATION->value,
+            'response_data' => [
+                'name' => 'Jane Smith',
+                'email' => 'jane@example.com',
+            ],
+        ]);
+
+        $response = $this->postJson(
+            route('api.event.certificates.generate', ['event_id' => $this->eventId]),
+            [
+                'format' => 'pdf',
+                'use_saved_template' => true,
+                'use_event_data' => true,
+                'name_column' => 'name',
+                'email_column' => 'email',
+                'send_emails' => true,
+            ]
+        );
+
+        $response->assertStatus(202);
+        Queue::assertPushed(ProcessCertificateBatchJob::class, function (ProcessCertificateBatchJob $job) {
+            return $job->sendEmails === true;
+        });
     }
 }
 

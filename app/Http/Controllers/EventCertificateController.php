@@ -100,7 +100,7 @@ class EventCertificateController extends BaseController
                 eventTitle: $validated['event_title'] ?? null,
                 eventDate: $validated['event_date'] ?? null,
                 dateGiven: $validated['date_given'] ?? null,
-                sendEmails: $request->has('send_emails') ? $request->boolean('send_emails') : true,
+                sendEmails: $request->boolean('send_emails', false),
             )->onQueue('default');
         } catch (\Throwable $e) {
             Storage::delete([$templatePath, $dataPath]);

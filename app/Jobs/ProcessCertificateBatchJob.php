@@ -39,7 +39,7 @@ class ProcessCertificateBatchJob implements ShouldQueue
         public ?string $eventTitle = null,
         public ?string $eventDate = null,
         public ?string $dateGiven = null,
-        public bool $sendEmails = true,
+        public bool $sendEmails = false,
     ) {
     }
 
