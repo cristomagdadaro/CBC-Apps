@@ -49,6 +49,11 @@ export default {
             eventTitle: "",
             eventDate: "",
             dateGiven: new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }),
+            sendEmails: false,
+            sendingEmails: false,
+            batchEmailsSent: false,
+            pendingEmailCount: 0,
+            generatingPreview: false,
             batchId: null,
             poller: null,
             realtimeCleanup: null,
@@ -178,6 +183,13 @@ export default {
                 this.message = data.message;
             }
 
+            if (typeof data?.emails_sent !== "undefined") {
+                this.batchEmailsSent = !!data.emails_sent;
+            }
+            if (typeof data?.pending_emails !== "undefined") {
+                this.pendingEmailCount = Number(data.pending_emails || 0);
+            }
+
             if (status === "failed") {
                 this.processingOnServer = false;
                 this.stopPolling();
@@ -190,7 +202,13 @@ export default {
                 this.processingOnServer = false;
                 this.stopPolling();
                 const summary = data?.summary || {};
-                this.message = `Completed! Success: ${summary.success ?? 0}, Failed: ${summary.fail ?? 0}`;
+                const successCount = summary.success ?? 0;
+                const failCount = summary.fail ?? 0;
+                if (!this.batchEmailsSent && this.pendingEmailCount > 0) {
+                    this.message = `Generated ${successCount} certificate(s). Review rendered files before sending via email.`;
+                } else {
+                    this.message = `Completed! Success: ${successCount}, Failed: ${failCount}` + (this.batchEmailsSent ? " (Emails sent)" : "");
+                }
                 this.fetchResponseColumns();
                 return;
             }
@@ -585,6 +603,7 @@ export default {
                     if (shouldUploadTemplate) formData.append("template", this.templateFile);
                     if (shouldUploadData) formData.append("data", this.dataFile);
                     formData.append("format", this.outputFormat);
+                    formData.append("send_emails", this.sendEmails ? "1" : "0");
                     formData.append("use_saved_template", this.useSavedTemplate ? "1" : "0");
                     formData.append("use_event_data", this.useEventData ? "1" : "0");
                     if (this.selectedNameColumn) formData.append("name_column", this.selectedNameColumn);
@@ -612,6 +631,7 @@ export default {
                 } else {
                     payload = {
                         format: this.outputFormat,
+                        send_emails: this.sendEmails,
                         use_saved_template: this.useSavedTemplate,
                         use_event_data: this.useEventData,
                         ...(this.selectedNameColumn ? { name_column: this.selectedNameColumn } : {}),
@@ -674,6 +694,148 @@ export default {
         downloadZip() {
             if (!this.eventId || !this.batchId || this.serverStatus !== "completed") return;
             window.location.href = route("api.event.certificates.download", [this.eventId, this.batchId]);
+        },
+        viewSavedTemplate() {
+            if (!this.eventId) return;
+            window.open(route("api.event.certificates.template.view", this.eventId), "_blank");
+        },
+        viewRenderedCertificate() {
+            if (!this.eventId || !this.batchId || this.serverStatus !== "completed") return;
+            window.open(route("api.event.certificates.preview", [this.eventId, this.batchId]), "_blank");
+        },
+        async sendBatchEmails() {
+            if (!this.eventId || !this.batchId || this.sendingEmails) return;
+            const count = this.pendingEmailCount;
+            const confirmed = window.confirm(
+                count > 0
+                    ? `Are you ready to send generated certificates via email to ${count} recipient(s)?`
+                    : "Are you ready to dispatch certificate emails to all eligible recipients?"
+            );
+            if (!confirmed) return;
+
+            this.sendingEmails = true;
+            this.resetMessages();
+            try {
+                const response = await this.fetchPostApi(
+                    "api.event.certificates.send_emails",
+                    {},
+                    { routeParams: [this.eventId, this.batchId] }
+                );
+                this.batchEmailsSent = true;
+                this.pendingEmailCount = 0;
+                this.message = response?.data?.message || "Certificates are now being delivered to recipient inboxes.";
+            } catch (error) {
+                this.errorMessage = await this.resolveErrorMessage(error, "Failed to dispatch certificate emails.");
+            } finally {
+                this.sendingEmails = false;
+            }
+        },
+        async previewSample() {
+            if (this.generatingPreview || this.processingOnServer || !this.isReadyToProcess) return;
+
+            const templateError = this.validateFile(this.templateFile, "template");
+            if (!this.useSavedTemplate && templateError) {
+                this.errorMessage = templateError;
+                return;
+            }
+            if (!this.useEventData) {
+                const dataError = this.validateFile(this.dataFile, "data");
+                if (dataError) {
+                    this.errorMessage = dataError;
+                    return;
+                }
+            }
+            if (this.useEventData && (!this.selectedEmailColumn || !this.selectedNameColumn)) {
+                this.errorMessage = "Select both name and email columns.";
+                return;
+            }
+            if (!this.useEventData && !this.selectedNameColumn) {
+                this.errorMessage = "Select a name column from your spreadsheet.";
+                return;
+            }
+
+            this.resetMessages();
+            this.generatingPreview = true;
+            this.message = "Rendering sample certificate for preview...";
+
+            try {
+                const shouldUploadTemplate = !this.useSavedTemplate && !!this.templateFile;
+                const shouldUploadData = !this.useEventData && !!this.dataFile;
+                const hasFileUpload = shouldUploadTemplate || shouldUploadData;
+
+                let payload;
+                let headers = {};
+
+                if (hasFileUpload) {
+                    const formData = new FormData();
+                    if (shouldUploadTemplate) formData.append("template", this.templateFile);
+                    if (shouldUploadData) formData.append("data", this.dataFile);
+                    formData.append("format", this.outputFormat);
+                    formData.append("use_saved_template", this.useSavedTemplate ? "1" : "0");
+                    formData.append("use_event_data", this.useEventData ? "1" : "0");
+                    if (this.selectedNameColumn) formData.append("name_column", this.selectedNameColumn);
+                    if (this.selectedEmailColumn) formData.append("email_column", this.selectedEmailColumn);
+                    if (this.useEventData) {
+                        if (this.selectedSubformType) formData.append("subform_type", this.selectedSubformType);
+                        this.selectedRecipientIds.forEach((id) => formData.append("recipient_ids[]", id));
+                    }
+                    if (this.namingTemplate?.trim()) formData.append("name_template", this.namingTemplate.trim());
+                    if (this.eventTitle?.trim()) formData.append("event_title", this.eventTitle.trim());
+                    if (this.eventDate?.trim()) formData.append("event_date", this.eventDate.trim());
+                    if (this.dateGiven?.trim()) formData.append("date_given", this.dateGiven.trim());
+
+                    payload = formData;
+                    headers["Content-Type"] = "multipart/form-data";
+                } else {
+                    payload = {
+                        format: this.outputFormat,
+                        use_saved_template: this.useSavedTemplate,
+                        use_event_data: this.useEventData,
+                        ...(this.selectedNameColumn ? { name_column: this.selectedNameColumn } : {}),
+                        ...(this.selectedEmailColumn ? { email_column: this.selectedEmailColumn } : {}),
+                        ...(this.useEventData
+                            ? {
+                                  ...(this.selectedSubformType ? { subform_type: this.selectedSubformType } : {}),
+                                  recipient_ids: this.selectedRecipientIds,
+                              }
+                            : {}),
+                        ...(this.namingTemplate?.trim() ? { name_template: this.namingTemplate.trim() } : {}),
+                        ...(this.eventTitle?.trim() ? { event_title: this.eventTitle.trim() } : {}),
+                        ...(this.eventDate?.trim() ? { event_date: this.eventDate.trim() } : {}),
+                        ...(this.dateGiven?.trim() ? { date_given: this.dateGiven.trim() } : {}),
+                    };
+                }
+
+                const response = await this.fetchPostApi(
+                    "api.event.certificates.preview_sample",
+                    payload,
+                    {
+                        routeParams: this.eventId,
+                        headers,
+                        responseType: "blob",
+                    }
+                );
+
+                const contentType = response.headers?.["content-type"] || (this.outputFormat === "pdf" ? "application/pdf" : `image/${this.outputFormat}`);
+                const blob = new Blob([response.data], { type: contentType });
+                const objectUrl = window.URL.createObjectURL(blob);
+                window.open(objectUrl, "_blank");
+                this.message = "Sample preview opened in a new tab.";
+            } catch (error) {
+                let errMsg = "Failed to render sample preview.";
+                if (error?.response?.data instanceof Blob) {
+                    try {
+                        const text = await error.response.data.text();
+                        const json = JSON.parse(text);
+                        errMsg = json.message || errMsg;
+                    } catch (_) {}
+                } else {
+                    errMsg = await this.resolveErrorMessage(error, errMsg);
+                }
+                this.errorMessage = errMsg;
+            } finally {
+                this.generatingPreview = false;
+            }
         },
     },
 };
@@ -1209,31 +1371,55 @@ export default {
                     </div>
                 </div>
 
-                <!-- Section 4: Output Settings -->
-                <div class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50 p-5 shadow-sm md:grid-cols-2 dark:border-slate-700/60 dark:bg-slate-800/30">
-                    <div class="space-y-2">
-                        <label class="block text-[0.65rem] font-bold uppercase text-slate-500 dark:text-slate-400">Output Format</label>
-                        <div class="relative">
-                            <select
-                                v-model="outputFormat"
-                                class="block w-full appearance-none rounded-lg border border-slate-300 bg-white py-2.5 pl-3 pr-10 text-sm font-semibold text-slate-800 shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200">
-                                <option value="pdf">PDF Document (.pdf)</option>
-                                <option value="png">PNG Image (.png)</option>
-                                <option value="jpg">JPG Image (.jpg)</option>
-                                <option value="pptx">PowerPoint (.pptx)</option>
-                            </select>
-                            <LuChevronDown class="pointer-events-none absolute right-3 top-3 h-4 w-4 text-slate-400" />
+                <!-- Section 4: Output Settings & Delivery Mode -->
+                <div class="space-y-4">
+                    <div class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-slate-50 p-5 shadow-sm md:grid-cols-2 dark:border-slate-700/60 dark:bg-slate-800/30">
+                        <div class="space-y-2">
+                            <label class="block text-[0.65rem] font-bold uppercase text-slate-500 dark:text-slate-400">Output Format</label>
+                            <div class="relative">
+                                <select
+                                    v-model="outputFormat"
+                                    class="block w-full appearance-none rounded-lg border border-slate-300 bg-white py-2.5 pl-3 pr-10 text-sm font-semibold text-slate-800 shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200">
+                                    <option value="pdf">PDF Document (.pdf)</option>
+                                    <option value="png">PNG Image (.png)</option>
+                                    <option value="jpg">JPG Image (.jpg)</option>
+                                    <option value="pptx">PowerPoint (.pptx)</option>
+                                </select>
+                                <LuChevronDown class="pointer-events-none absolute right-3 top-3 h-4 w-4 text-slate-400" />
+                            </div>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="block text-[0.65rem] font-bold uppercase text-slate-500 dark:text-slate-400">File Naming Pattern</label>
+                            <input
+                                v-model="namingTemplate"
+                                type="text"
+                                class="block w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 font-mono text-sm font-medium text-slate-800 shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
+                                placeholder="{event}_{Fullname}_{date}" />
+                            <p class="mt-1 text-[0.65rem] font-semibold text-slate-500 dark:text-slate-400">Placeholders: {FirstName}, {Fullname}, {event}, {event_id}, {event_title}, {date}, {timestamp}</p>
                         </div>
                     </div>
 
-                    <div class="space-y-2">
-                        <label class="block text-[0.65rem] font-bold uppercase text-slate-500 dark:text-slate-400">File Naming Pattern</label>
-                        <input
-                            v-model="namingTemplate"
-                            type="text"
-                            class="block w-full rounded-lg border border-slate-300 bg-white px-4 py-2.5 font-mono text-sm font-medium text-slate-800 shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
-                            placeholder="{event}_{Fullname}_{date}" />
-                        <p class="mt-1 text-[0.65rem] font-semibold text-slate-500 dark:text-slate-400">Placeholders: {FirstName}, {Fullname}, {event}, {event_id}, {event_title}, {date}, {timestamp}</p>
+                    <!-- Email Delivery Mode Toggle -->
+                    <div class="flex flex-col items-start justify-between gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 shadow-sm sm:flex-row sm:items-center dark:border-slate-700/60 dark:bg-slate-800/30">
+                        <div class="flex items-start gap-3">
+                            <div class="rounded-lg bg-indigo-50 p-2 text-indigo-600 dark:bg-indigo-950/40 dark:text-indigo-400">
+                                <LuMail class="h-5 w-5" />
+                            </div>
+                            <div>
+                                <p class="text-sm font-bold text-slate-800 dark:text-slate-200">Email Certificates Automatically</p>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">
+                                    {{ sendEmails ? 'Certificates will be automatically emailed to recipients upon generation.' : 'Review mode: Generate and review certificates first before dispatching emails.' }}
+                                </p>
+                            </div>
+                        </div>
+                        <label class="relative inline-flex cursor-pointer items-center">
+                            <input
+                                v-model="sendEmails"
+                                type="checkbox"
+                                class="peer sr-only" />
+                            <div class="peer h-6 w-11 rounded-full bg-slate-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-slate-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-indigo-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-indigo-500 dark:bg-slate-700 dark:after:border-slate-600 dark:after:bg-slate-200 dark:peer-checked:bg-indigo-500"></div>
+                        </label>
                     </div>
                 </div>
 
@@ -1321,10 +1507,26 @@ export default {
                 </TransitionGroup>
 
                 <!-- Action Buttons -->
-                <div class="flex flex-col gap-4 border-t border-slate-100 pt-4 sm:flex-row dark:border-slate-800">
+                <div class="flex flex-col flex-wrap gap-3 border-t border-slate-100 pt-5 sm:flex-row sm:items-center dark:border-slate-800">
                     <button
+                        type="button"
+                        class="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-slate-200 bg-white px-5 py-3.5 text-sm font-bold text-slate-700 shadow-sm transition-all duration-200 hover:border-indigo-300 hover:bg-slate-50 active:scale-95 disabled:pointer-events-none disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:border-indigo-500/50 dark:hover:bg-slate-700/80"
+                        :disabled="uploading || processingOnServer || generatingPreview || !isReadyToProcess"
+                        @click="previewSample"
+                        title="Render a sample certificate for the first recipient in a new tab">
+                        <LuLoader2
+                            v-if="generatingPreview"
+                            class="h-5 w-5 animate-spin text-indigo-600 dark:text-indigo-400" />
+                        <LuEye
+                            v-else
+                            class="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                        {{ generatingPreview ? "Rendering Preview..." : "Preview Sample" }}
+                    </button>
+
+                    <button
+                        type="button"
                         class="inline-flex flex-1 items-center justify-center gap-2.5 rounded-xl bg-indigo-600 px-6 py-3.5 text-sm font-black text-white shadow-md shadow-indigo-600/20 transition-all duration-200 hover:bg-indigo-700 hover:shadow-lg hover:shadow-indigo-600/30 active:scale-95 disabled:pointer-events-none disabled:opacity-50 disabled:shadow-none"
-                        :disabled="uploading || processingOnServer || !isReadyToProcess"
+                        :disabled="uploading || processingOnServer || generatingPreview || !isReadyToProcess"
                         @click="submitForProcessing">
                         <LuLoader2
                             v-if="uploading || processingOnServer"
@@ -1332,15 +1534,41 @@ export default {
                         <LuPlay
                             v-else
                             class="h-5 w-5" />
-                        {{ uploading ? "Uploading..." : processingOnServer ? "Processing..." : "Generate Certificates" }}
+                        {{ uploading ? "Uploading..." : processingOnServer ? "Processing..." : (sendEmails ? "Generate & Email Certificates" : "Generate Certificates for Review") }}
                     </button>
 
                     <button
-                        class="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-slate-200 bg-white px-6 py-3.5 text-sm font-black text-slate-700 transition-all duration-200 hover:border-slate-300 hover:bg-slate-50 active:scale-95 disabled:pointer-events-none disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:border-slate-600 dark:hover:bg-slate-700/80"
+                        v-if="serverStatus === 'completed'"
+                        type="button"
+                        class="inline-flex items-center justify-center gap-2 rounded-xl border border-indigo-200 bg-indigo-50/80 px-5 py-3.5 text-sm font-bold text-indigo-700 shadow-sm transition-all duration-200 hover:bg-indigo-100 active:scale-95 dark:border-indigo-500/30 dark:bg-indigo-500/10 dark:text-indigo-300 dark:hover:bg-indigo-500/20"
+                        @click="viewRenderedCertificate"
+                        title="View rendered certificate file in a new browser tab">
+                        <LuEye class="h-5 w-5" />
+                        Review File
+                    </button>
+
+                    <button
+                        type="button"
+                        class="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-slate-200 bg-white px-5 py-3.5 text-sm font-black text-slate-700 transition-all duration-200 hover:border-slate-300 hover:bg-slate-50 active:scale-95 disabled:pointer-events-none disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:border-slate-600 dark:hover:bg-slate-700/80"
                         :disabled="serverStatus !== 'completed'"
                         @click="downloadZip">
                         <LuDownload class="h-5 w-5" />
                         Download ZIP
+                    </button>
+
+                    <button
+                        v-if="serverStatus === 'completed' && !batchEmailsSent && pendingEmailCount > 0"
+                        type="button"
+                        class="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3.5 text-sm font-black text-white shadow-md shadow-emerald-600/20 transition-all duration-200 hover:bg-emerald-700 hover:shadow-lg active:scale-95 disabled:pointer-events-none disabled:opacity-50"
+                        :disabled="sendingEmails"
+                        @click="sendBatchEmails">
+                        <LuLoader2
+                            v-if="sendingEmails"
+                            class="h-5 w-5 animate-spin" />
+                        <LuSend
+                            v-else
+                            class="h-5 w-5" />
+                        {{ sendingEmails ? "Sending Emails..." : `Send via Email (${pendingEmailCount})` }}
                     </button>
                 </div>
             </div>

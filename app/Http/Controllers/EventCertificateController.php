@@ -2,13 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\QueueCertificateGenerationRequest;
 use App\Events\CertificateBatchStatusUpdated;
+use App\Http\Requests\QueueCertificateGenerationRequest;
 use App\Jobs\ProcessCertificateBatchJob;
+use App\Mail\GeneratedCertificateMail;
+use App\Models\CertificateLog;
 use App\Models\EventCertificateTemplate;
-use App\Models\NotificationLog;
-use App\Models\Form;
 use App\Models\EventSubformResponse;
+use App\Models\Form;
+use App\Models\NotificationLog;
+use App\Services\Notifications\NotificationDispatchService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -16,6 +19,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Symfony\Component\Process\Process;
 
 class EventCertificateController extends BaseController
 {
@@ -96,6 +100,7 @@ class EventCertificateController extends BaseController
                 eventTitle: $validated['event_title'] ?? null,
                 eventDate: $validated['event_date'] ?? null,
                 dateGiven: $validated['date_given'] ?? null,
+                sendEmails: $request->has('send_emails') ? $request->boolean('send_emails') : true,
             )->onQueue('default');
         } catch (\Throwable $e) {
             Storage::delete([$templatePath, $dataPath]);
@@ -269,6 +274,319 @@ class EventCertificateController extends BaseController
         }
 
         return response()->download($zipPath, "certificates-{$event_id}.zip")->deleteFileAfterSend(false);
+    }
+
+    public function previewBatch(string $event_id, string $batch_id, Request $request)
+    {
+        $payload = Cache::get($this->cacheKey($batch_id));
+
+        if (!$payload || ($payload['event_id'] ?? null) !== $event_id) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Certificate batch not found.',
+            ], 404);
+        }
+
+        $batchDir = $payload['batch_dir'] ?? "tmp/certificates/{$event_id}/{$batch_id}";
+        $outputDir = Storage::path("{$batchDir}/output");
+
+        if (!File::isDirectory($outputDir)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Rendered files directory not found.',
+            ], 404);
+        }
+
+        $requestedFile = $request->query('file');
+        $filePath = null;
+
+        if ($requestedFile && is_string($requestedFile)) {
+            $candidate = $outputDir . DIRECTORY_SEPARATOR . basename($requestedFile);
+            if (File::exists($candidate)) {
+                $filePath = $candidate;
+            }
+        }
+
+        if (!$filePath) {
+            $files = File::allFiles($outputDir);
+            $priorityFiles = collect($files)->sortByDesc(function ($file) {
+                $ext = strtolower($file->getExtension());
+                if ($ext === 'pdf') return 3;
+                if (in_array($ext, ['png', 'jpg', 'jpeg'])) return 2;
+                return 1;
+            });
+
+            $first = $priorityFiles->first();
+            if ($first) {
+                $filePath = $first->getRealPath();
+            }
+        }
+
+        if (!$filePath || !File::exists($filePath)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'No rendered certificate file available for preview.',
+            ], 404);
+        }
+
+        $mimeType = File::mimeType($filePath) ?: 'application/octet-stream';
+
+        return response()->file($filePath, [
+            'Content-Type' => $mimeType,
+            'Content-Disposition' => 'inline; filename="' . basename($filePath) . '"',
+        ]);
+    }
+
+    public function sendBatchEmails(string $event_id, string $batch_id): JsonResponse
+    {
+        $payload = Cache::get($this->cacheKey($batch_id));
+
+        if (!$payload || ($payload['event_id'] ?? null) !== $event_id) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Certificate batch not found.',
+            ], 404);
+        }
+
+        if (($payload['status'] ?? null) !== 'completed') {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Cannot send emails for a batch that has not finished processing.',
+            ], 422);
+        }
+
+        $records = $payload['records'] ?? [];
+        if (empty($records)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'No certificate records found for this batch.',
+            ], 404);
+        }
+
+        $eventTitle = $payload['event_title'] ?? '';
+        $eventDate = $payload['event_date'] ?? '';
+        $notifications = app(NotificationDispatchService::class);
+        $queuedCount = 0;
+
+        foreach ($records as $record) {
+            $status = strtolower((string) ($record['status'] ?? 'fail')) === 'success';
+            $recipientEmail = $record['recipient_email'] ?? null;
+            $recipientName = $record['recipient_name'] ?? null;
+            $recipientResponseId = trim((string) ($record['recipient_response_id'] ?? ''));
+            $attachmentPath = $record['attachment_path'] ?? null;
+            $filename = $record['filename'] ?? ($attachmentPath ? basename((string) $attachmentPath) : null);
+
+            if ($status && $recipientEmail && $attachmentPath && File::exists($attachmentPath)) {
+                $notifications->dispatchMailable(
+                    domain: 'certificates.delivery',
+                    eventKey: 'certificates.recipient.delivered',
+                    mailableClass: GeneratedCertificateMail::class,
+                    constructorArguments: [
+                        $attachmentPath,
+                        $filename ?? basename($attachmentPath),
+                        $event_id,
+                        $recipientName,
+                        $eventTitle,
+                        $eventDate,
+                    ],
+                    meta: [
+                        'event_id' => $event_id,
+                        'batch_id' => $batch_id,
+                        'recipient_name' => $recipientName,
+                        'recipient_response_id' => $recipientResponseId !== '' ? $recipientResponseId : null,
+                    ],
+                    notifiableType: CertificateLog::class,
+                    notifiableId: null,
+                    recipients: [$recipientEmail],
+                );
+                $queuedCount++;
+            }
+        }
+
+        $payload['emails_sent'] = true;
+        $payload['emails_sent_at'] = now()->toIso8601String();
+        $payload['emails_sent_count'] = $queuedCount;
+        $payload['pending_emails'] = 0;
+        $payload['message'] = "Sent certificates to {$queuedCount} recipient(s).";
+        Cache::put($this->cacheKey($batch_id), $payload, now()->addHours(6));
+
+        event(new CertificateBatchStatusUpdated([
+            'event_id' => $event_id,
+            'batch_id' => $batch_id,
+            'status' => 'completed',
+            'message' => $payload['message'],
+            'zip_path' => $payload['zip_path'] ?? null,
+            'summary' => $payload['summary'] ?? null,
+            'error' => null,
+            'emails_sent' => true,
+            'pending_emails' => 0,
+        ]));
+
+        return response()->json([
+            'status' => 'success',
+            'message' => "Successfully queued certificates for {$queuedCount} recipient(s).",
+            'data' => [
+                'queued_count' => $queuedCount,
+            ],
+        ]);
+    }
+
+    public function previewSample(QueueCertificateGenerationRequest $request, string $event_id)
+    {
+        $validated = $request->validated();
+        $sampleId = (string) Str::uuid();
+        $sampleDir = "tmp/certificates/{$event_id}/sample_{$sampleId}";
+        $outputRelativeDir = "{$sampleDir}/output";
+        $outputAbsoluteDir = Storage::path($outputRelativeDir);
+        $manifestAbsolutePath = Storage::path("{$sampleDir}/manifest.json");
+
+        File::ensureDirectoryExists($outputAbsoluteDir);
+
+        try {
+            $templatePath = $this->resolveTemplatePath($request, $event_id, $sampleDir);
+
+            if ($request->boolean('use_event_data')) {
+                $recipientIds = collect($validated['recipient_ids'] ?? [])
+                    ->filter(fn ($value) => is_string($value) && trim($value) !== '')
+                    ->map(fn ($value) => trim($value))
+                    ->unique()
+                    ->values()
+                    ->all();
+
+                $rows = $this->collectResponseRows(
+                    eventId: $event_id,
+                    subformType: $validated['subform_type'] ?? null,
+                    recipientIds: !empty($recipientIds) ? [reset($recipientIds)] : [],
+                );
+
+                if (count($rows) === 0) {
+                    $rows = $this->collectResponseRows(
+                        eventId: $event_id,
+                        subformType: $validated['subform_type'] ?? null,
+                    );
+                }
+
+                if (count($rows) === 0) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'No response rows available for sample preview.',
+                    ], 422);
+                }
+
+                $sampleRows = array_slice($rows, 0, 1);
+                $event = Form::query()->where('event_id', $event_id)->first();
+                $customTitle = trim((string) ($validated['event_title'] ?? ''));
+                $customDate = trim((string) ($validated['event_date'] ?? ''));
+                $customDateGiven = trim((string) ($validated['date_given'] ?? ''));
+
+                $dataPath = $this->buildCsvDataFile(
+                    rows: $sampleRows,
+                    batchDir: $sampleDir,
+                    emailColumn: (string) ($validated['email_column'] ?? ''),
+                    nameColumn: (string) ($validated['name_column'] ?? ''),
+                    eventId: $event_id,
+                    eventTitle: $customTitle !== '' ? $customTitle : (string) ($event?->title ?? ''),
+                    eventDate: $customDate !== '' ? $customDate : $this->formatEventDate($event),
+                    dateGiven: $customDateGiven !== '' ? $customDateGiven : now()->format('F j, Y'),
+                );
+            } else {
+                if (!$request->hasFile('data')) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Data file is required for sample preview.',
+                    ], 422);
+                }
+                $extension = strtolower((string) $request->file('data')->getClientOriginalExtension());
+                $filename = $extension === 'csv' ? 'data.csv' : 'data.xlsx';
+                $dataPath = $request->file('data')->storeAs($sampleDir, $filename);
+            }
+
+            $scriptPath = base_path('app/python/Certificate-Generator/certificate_generator.py');
+            $libreOfficePath = config('services.certificate_generator.libreoffice_path', 'soffice');
+
+            $event = Form::query()
+                ->where('event_id', $event_id)
+                ->orWhere('id', $event_id)
+                ->first(['event_id', 'title', 'date_from', 'date_to']);
+            $eventTitle = trim((string) (($validated['event_title'] ?? '') ?: ($event?->title ?? '')));
+            $resolvedEventId = trim((string) ($event?->event_id ?? $event_id));
+            $resolvedDateGiven = trim((string) (($validated['date_given'] ?? '') ?: now()->format('F j, Y')));
+            $resolvedEventDate = trim((string) (($validated['event_date'] ?? '') ?: ($this->formatEventDate($event) ?: $resolvedDateGiven)));
+
+            $baseArgs = [
+                $scriptPath,
+                '--template', Storage::path($templatePath),
+                '--data', Storage::path($dataPath),
+                '--outdir', $outputAbsoluteDir,
+                '--format', $validated['format'],
+                '--soffice-path', $libreOfficePath,
+                '--manifest', $manifestAbsolutePath,
+                '--event-id', $resolvedEventId,
+                '--event-title', $eventTitle !== '' ? $eventTitle : ($resolvedEventId !== '' ? "Event {$resolvedEventId}" : 'Certificate of Participation'),
+                '--event-date', $resolvedEventDate,
+                '--date-given', $resolvedDateGiven,
+            ];
+
+            if (!empty($validated['name_column'])) {
+                $baseArgs[] = '--name-column';
+                $baseArgs[] = $validated['name_column'];
+            }
+            if (!empty($validated['email_column'])) {
+                $baseArgs[] = '--email-column';
+                $baseArgs[] = $validated['email_column'];
+            }
+            if (!empty($validated['name_template'])) {
+                $baseArgs[] = '--name-template';
+                $baseArgs[] = $validated['name_template'];
+            }
+
+            $pythonPath = config('services.certificate_generator.python_path');
+            if (empty($pythonPath)) {
+                $pythonPath = PHP_OS_FAMILY === 'Windows'
+                    ? (File::exists(base_path('.venv/Scripts/python.exe')) ? base_path('.venv/Scripts/python.exe') : 'python')
+                    : (File::exists(base_path('.venv/bin/python')) ? base_path('.venv/bin/python') : 'python3');
+            }
+
+            $process = new Process(array_merge([$pythonPath], $baseArgs));
+            $process->setTimeout(60);
+            $process->run();
+
+            if (!$process->isSuccessful()) {
+                $err = trim($process->getErrorOutput() ?: $process->getOutput());
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Sample preview generation failed: ' . ($err ?: 'Process error'),
+                ], 500);
+            }
+
+            $files = File::allFiles($outputAbsoluteDir);
+            $priorityFiles = collect($files)->sortByDesc(function ($file) {
+                $ext = strtolower($file->getExtension());
+                if ($ext === 'pdf') return 3;
+                if (in_array($ext, ['png', 'jpg', 'jpeg'])) return 2;
+                return 1;
+            });
+
+            $firstFile = $priorityFiles->first();
+            if (!$firstFile || !File::exists($firstFile->getRealPath())) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Sample preview file was not generated.',
+                ], 500);
+            }
+
+            $mimeType = File::mimeType($firstFile->getRealPath()) ?: 'application/octet-stream';
+
+            return response()->file($firstFile->getRealPath(), [
+                'Content-Type' => $mimeType,
+                'Content-Disposition' => 'inline; filename="' . basename($firstFile->getRealPath()) . '"',
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Unable to generate sample preview: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 
     private function resolveTemplatePath(Request $request, string $eventId, string $batchDir): string

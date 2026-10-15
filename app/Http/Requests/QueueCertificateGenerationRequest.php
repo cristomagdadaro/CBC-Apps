@@ -49,6 +49,7 @@ class QueueCertificateGenerationRequest extends FormRequest
             'event_title' => ['nullable', 'string', 'max:255'],
             'event_date' => ['nullable', 'string', 'max:150'],
             'date_given' => ['nullable', 'string', 'max:150'],
+            'send_emails' => ['nullable', 'boolean'],
         ];
     }
 }

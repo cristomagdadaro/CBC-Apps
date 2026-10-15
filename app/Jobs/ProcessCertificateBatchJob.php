@@ -39,6 +39,7 @@ class ProcessCertificateBatchJob implements ShouldQueue
         public ?string $eventTitle = null,
         public ?string $eventDate = null,
         public ?string $dateGiven = null,
+        public bool $sendEmails = true,
     ) {
     }
 
@@ -160,14 +161,26 @@ class ProcessCertificateBatchJob implements ShouldQueue
 
         Storage::delete([$this->templatePath, $this->dataPath, $manifestRelativePath]);
 
+        $message = $this->sendEmails
+            ? 'Certificate generation and email delivery completed.'
+            : 'Certificate generation completed. Ready for review.';
+
+        $resolvedTitle = $eventTitle !== '' ? $eventTitle : ($resolvedEventId !== '' ? "Event {$resolvedEventId}" : 'Certificate of Participation');
+
         Cache::put($cacheKey, [
             'event_id' => $this->eventId,
             'batch_id' => $this->batchId,
             'status' => 'completed',
-            'message' => 'Certificate generation completed.',
+            'message' => $message,
             'zip_path' => $zipRelativePath,
             'batch_dir' => $batchRelativeDir,
             'summary' => $stats,
+            'send_emails' => $this->sendEmails,
+            'emails_sent' => $this->sendEmails,
+            'pending_emails' => !$this->sendEmails ? ($stats['eligible_emails'] ?? 0) : 0,
+            'records' => $records,
+            'event_title' => $resolvedTitle,
+            'event_date' => $resolvedEventDate,
             'updated_at' => now()->toIso8601String(),
         ], now()->addHours(6));
 
@@ -175,10 +188,12 @@ class ProcessCertificateBatchJob implements ShouldQueue
             'event_id' => $this->eventId,
             'batch_id' => $this->batchId,
             'status' => 'completed',
-            'message' => 'Certificate generation completed.',
+            'message' => $message,
             'zip_path' => $zipRelativePath,
             'summary' => $stats,
             'error' => null,
+            'emails_sent' => $this->sendEmails,
+            'pending_emails' => !$this->sendEmails ? ($stats['eligible_emails'] ?? 0) : 0,
         ]));
     }
 
@@ -241,11 +256,14 @@ class ProcessCertificateBatchJob implements ShouldQueue
 
             if ($status === 'success') {
                 $success++;
+                if ($recipientEmail && $attachmentPath && File::exists($attachmentPath)) {
+                    $eligibleEmails = ($eligibleEmails ?? 0) + 1;
+                }
             } else {
                 $fail++;
             }
 
-            if ($status === 'success' && $recipientEmail && $attachmentPath && File::exists($attachmentPath)) {
+            if ($this->sendEmails && $status === 'success' && $recipientEmail && $attachmentPath && File::exists($attachmentPath)) {
                 $notifications->dispatchMailable(
                     domain: 'certificates.delivery',
                     eventKey: 'certificates.recipient.delivered',
@@ -275,6 +293,7 @@ class ProcessCertificateBatchJob implements ShouldQueue
             'total' => count($records),
             'success' => $success,
             'fail' => $fail,
+            'eligible_emails' => $eligibleEmails ?? 0,
         ];
     }
 

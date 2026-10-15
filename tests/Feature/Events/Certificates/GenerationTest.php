@@ -354,5 +354,127 @@ class GenerationTest extends TestCase
 
         @unlink($attachmentPath);
     }
+
+    public function test_certificate_preview_batch_streams_inline_rendered_file(): void
+    {
+        $batchId = (string) \Illuminate\Support\Str::uuid();
+        $batchDir = "tmp/certificates/{$this->eventId}/{$batchId}";
+        $outputDir = Storage::path("{$batchDir}/output");
+        \Illuminate\Support\Facades\File::ensureDirectoryExists($outputDir);
+
+        $dummyPdfPath = $outputDir . DIRECTORY_SEPARATOR . 'sample_cert.pdf';
+        file_put_contents($dummyPdfPath, '%PDF-1.4 test certificate preview content');
+
+        \Illuminate\Support\Facades\Cache::put("certificate_batch:{$batchId}", [
+            'status' => 'completed',
+            'event_id' => $this->eventId,
+            'batch_dir' => $batchDir,
+            'records' => [],
+        ], now()->addHour());
+
+        $response = $this->get(
+            route('api.event.certificates.preview', ['event_id' => $this->eventId, 'batch_id' => $batchId])
+        );
+
+        $response->assertStatus(200);
+        $this->assertStringContainsString('inline', (string) $response->headers->get('Content-Disposition'));
+        $this->assertStringContainsString('sample_cert.pdf', (string) $response->headers->get('Content-Disposition'));
+
+        \Illuminate\Support\Facades\File::deleteDirectory(Storage::path("tmp/certificates/{$this->eventId}"));
+    }
+
+    public function test_send_batch_emails_dispatches_emails_on_demand_after_review(): void
+    {
+        $batchId = (string) \Illuminate\Support\Str::uuid();
+        $batchDir = "tmp/certificates/{$this->eventId}/{$batchId}";
+        $outputDir = Storage::path("{$batchDir}/output");
+        \Illuminate\Support\Facades\File::ensureDirectoryExists($outputDir);
+
+        $certPath = $outputDir . DIRECTORY_SEPARATOR . 'John_Doe.pdf';
+        file_put_contents($certPath, '%PDF-1.4 test certificate');
+
+        \Illuminate\Support\Facades\Cache::put("certificate_batch:{$batchId}", [
+            'status' => 'completed',
+            'event_id' => $this->eventId,
+            'batch_dir' => $batchDir,
+            'event_title' => 'Rice Research Conference',
+            'event_date' => 'October 15, 2026',
+            'records' => [
+                [
+                    'status' => 'success',
+                    'recipient_name' => 'John Doe',
+                    'recipient_email' => 'john.doe@example.com',
+                    'recipient_response_id' => '123',
+                    'attachment_path' => $certPath,
+                    'filename' => 'John_Doe.pdf',
+                ],
+            ],
+            'emails_sent' => false,
+            'pending_emails' => 1,
+        ], now()->addHour());
+
+        $response = $this->postJson(
+            route('api.event.certificates.send_emails', ['event_id' => $this->eventId, 'batch_id' => $batchId])
+        );
+
+        $response->assertStatus(200);
+        $this->assertSame('success', $response->json('status'));
+        $this->assertSame(1, $response->json('data.queued_count'));
+
+        $cached = \Illuminate\Support\Facades\Cache::get("certificate_batch:{$batchId}");
+        $this->assertTrue($cached['emails_sent']);
+        $this->assertSame(0, $cached['pending_emails']);
+
+        \Illuminate\Support\Facades\File::deleteDirectory(Storage::path("tmp/certificates/{$this->eventId}"));
+    }
+
+    public function test_certificate_generation_with_send_emails_flag_false(): void
+    {
+        Storage::disk('local')->put('certificates/templates/'.$this->eventId.'/template.pptx', 'fake pptx content');
+
+        EventCertificateTemplate::create([
+            'event_id' => $this->eventId,
+            'template_path' => 'certificates/templates/'.$this->eventId.'/template.pptx',
+            'template_name' => 'template.pptx',
+            'template_mime' => 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        ]);
+
+        $subform = EventSubform::factory()->create([
+            'event_id' => $this->eventId,
+        ]);
+
+        $participant = Participant::factory()->create();
+        $registration = Registration::factory()->create([
+            'event_subform_id' => $subform->id,
+            'participant_id' => $participant->id,
+        ]);
+
+        EventSubformResponse::create([
+            'form_parent_id' => $subform->id,
+            'participant_id' => $registration->id,
+            'subform_type' => Subform::PREREGISTRATION->value,
+            'response_data' => [
+                'name' => 'Jane Smith',
+                'email' => 'jane@example.com',
+            ],
+        ]);
+
+        $response = $this->postJson(
+            route('api.event.certificates.generate', ['event_id' => $this->eventId]),
+            [
+                'format' => 'pdf',
+                'use_saved_template' => true,
+                'use_event_data' => true,
+                'name_column' => 'name',
+                'email_column' => 'email',
+                'send_emails' => false,
+            ]
+        );
+
+        $response->assertStatus(202);
+        $this->assertSame('queued', $response->json('status'));
+        $this->assertNotNull($response->json('data.batch_id'));
+    }
 }
+
 

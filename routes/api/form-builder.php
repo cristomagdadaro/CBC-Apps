@@ -137,6 +137,15 @@ Route::middleware(['api', 'auth:sanctum'])->group(function () {
 
                 Route::get('/certificates/{event_id}/download/{batch_id}', [EventCertificateController::class, 'download'])
                     ->name('api.event.certificates.download');
+
+                Route::get('/certificates/{event_id}/preview/{batch_id}', [EventCertificateController::class, 'previewBatch'])
+                    ->name('api.event.certificates.preview');
+
+                Route::post('/certificates/{event_id}/send-emails/{batch_id}', [EventCertificateController::class, 'sendBatchEmails'])
+                    ->name('api.event.certificates.send_emails');
+
+                Route::post('/certificates/{event_id}/preview-sample', [EventCertificateController::class, 'previewSample'])
+                    ->name('api.event.certificates.preview_sample');
             });
         });
     });
