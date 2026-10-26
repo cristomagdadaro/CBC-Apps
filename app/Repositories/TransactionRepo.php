@@ -42,6 +42,13 @@ class TransactionRepo extends AbstractRepoService
             $builder->where('transactions.transac_type', $transacType);
         }
 
+        if ($barcode = $parameters->get('barcode')) {
+            $builder->where(function (Builder $query) use ($barcode) {
+                $query->where('transactions.barcode', $barcode)
+                    ->orWhere('transactions.barcode_prri', $barcode);
+            });
+        }
+
         if ($withPagination) {
             return $this->applyPagination($builder, $parameters);
         }

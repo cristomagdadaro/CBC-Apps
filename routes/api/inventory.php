@@ -96,6 +96,7 @@ Route::prefix('guest')->group(function () {
 
         Route::middleware(['deployment.access:' . DeploymentAccessService::MODULE_SUPPLIES_CHECKOUT])->group(function () {
             Route::get('/transactions-public', [TransactionController::class, 'index'])->name('api.inventory.transactions.index.public');
+            Route::get('/search', [TransactionController::class, 'index'])->name('api.inventory.transactions.search.public');
             Route::post('/outgoing', [TransactionController::class, 'outgoingStockStore'])->name('api.inventory.transactions.store.public');
             Route::get('/remaining-stocks', [TransactionController::class, 'remainingStocks'])->name('api.inventory.transactions.remaining-stocks');
             Route::get('/project-codes', [TransactionController::class, 'projectCodes'])->name('api.inventory.transactions.project-codes');

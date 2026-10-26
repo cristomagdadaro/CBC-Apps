@@ -24,6 +24,7 @@ class GetTransactionRequest extends FormRequest
     {
         return array_merge([
             'transac_type' => 'sometimes|string|in:incoming,outgoing',
+            'barcode' => 'sometimes|string',
         ],config('searching'));
     }
 }
